@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: code-runner-deployment
+    namespace: gaslight-production
+spec:
+    replicas: 2
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxUnavailable: 0
+            maxSurge: 1
+    selector:
+        matchLabels:
+            app: code-runner
+    template:
+        metadata:
+            labels:
+                app: code-runner
+        spec:
+            automountServiceAccountToken: false
+            containers:
+                -   name: code-runner
+                    resources:
+                        limits:
+                            cpu: "400m"
+                            memory: "300M"
+                        requests:
+                            cpu: "250m"
+                            memory: "200M"
+                    image: "rhaversen/gaslight-code-runner:${GITHUB_SHA}"
+                    imagePullPolicy: Always
+                    livenessProbe:
+                        httpGet:
+                            path: api/service/livez
+                            port: 5000
+                        periodSeconds: 10
+                        initialDelaySeconds: 15
+                        failureThreshold: 5
+                    readinessProbe:
+                        httpGet:
+                            path: api/service/readyz
+                            port: 5000
+                        periodSeconds: 10
+                        initialDelaySeconds: 15
+                        failureThreshold: 5
+                    ports:
+                        -   containerPort: 5000
+                    envFrom:
+                        -   secretRef:
+                                name: code-runner-secrets
