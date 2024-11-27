@@ -1,0 +1,12 @@
+{
+	"expressPort": 5000,
+	"cors": {
+		"origin": "https://gaslight.fun",
+		"credentials": true
+	},
+	"microservices": {
+		"mainService": {
+			"host": "backend-service"
+		}
+	}
+}

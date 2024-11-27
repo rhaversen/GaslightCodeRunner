@@ -1,0 +1,12 @@
+{
+	"expressPort": 5000,
+	"cors": {
+		"origin": "http://localhost:5000",
+		"credentials": true
+	},
+	"microservices": {
+		"mainService": {
+			"host": "http://localhost:5000"
+		}
+	}
+}
