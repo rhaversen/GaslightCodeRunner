@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 
 # Create a user within the container
-RUN useradd -m gaslight_code_user
+RUN useradd -m gaslight_code_runner_user
 
 # Copy the app directory, package.json, package-lock.json and Config directory
 COPY dist/app/ ./
