@@ -17,6 +17,7 @@ import helmet from 'helmet'
 import globalErrorHandler from './middleware/globalErrorHandler.js'
 import logger from './utils/logger.js'
 import config from './utils/setupConfig.js'
+import submissionRoutes from './routes/submissions.js'
 
 // Environment variables
 const { NODE_ENV } = process.env as Record<string, string>
@@ -42,6 +43,7 @@ app.use(express.json()) // for parsing application/json
 app.use(cors(corsConfig))
 
 // Use all routes
+app.use('/api/v1', submissionRoutes)
 
 // Sentry error handler
 Sentry.setupExpressErrorHandler(app)
