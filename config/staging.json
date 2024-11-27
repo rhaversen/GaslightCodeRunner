@@ -1,7 +1,7 @@
 {
 	"expressPort": 5000,
 	"cors": {
-		"origin": "https://staging.gaslight.fun",
+		"origin": "backend-service",
 		"credentials": true
 	},
 	"microservices": {
