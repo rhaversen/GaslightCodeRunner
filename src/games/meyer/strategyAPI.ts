@@ -1,9 +1,8 @@
 /* eslint-disable local/enforce-comment-order */
 
-import gameState from './gameState.js'
 import { DiePair, StrategyAPI } from './types.js'
+import gameState from './gameState.js'
 import { rollDice , calculateScore } from './utils.js'
-
 
 export function createStrategyAPI(playerIndex: number): StrategyAPI {
 	function ensureTurnActive() {
