@@ -2,16 +2,13 @@
 
 import { Game, GameCallbacks, GameResult, Player, PlayerError } from './types'
 
-export default async function main(game: Game, players: Player[], callbacks: GameCallbacks): Promise<GameResult> {
+export default function main(game: Game, players: Player[], callbacks: GameCallbacks): GameResult {
 	try {
 		game.init(players)
 
 		for (let i = 0; i < players.length; i++) {
 			try {
-				await Promise.race([
-					game.executePlayerTurn(),
-					new Promise((_resolve, reject) => setTimeout(() => reject(new PlayerError('Player timed out')), 1000))
-				])
+				game.executePlayerTurn()
 			} catch (error) {
 				if (error instanceof PlayerError) {
 					callbacks.disqualifyPlayer(i)
