@@ -1,67 +1,111 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { Action, StrategyFunction } from './types.js'
+import { GameResult, Statistic } from '../index.js'
+import { Action } from './types.js'
+import { Scoring } from './utils.js'
 
-const gameState = (() => {
-	let previousActions: Action[] = []
-	let firstInRound: boolean = false
-	let currentPlayerIndex: number = 0
-	let players: StrategyFunction[] = []
-	let playerLives: number[] = []
-	let isTurnOver: boolean = false
-	let hasRolled: boolean = false
-	// Additional game state variables as needed
+class GameState {
+	private static instance: GameState
+	private previousActions: Action[] = []
+	private firstInRound = true
+	private currentPlayerIndex = 0
+	private amountOfPlayers = 0
+	private hasRolled = false
+	private scoring?: Scoring
+	private submissionIds: string[] = []
+	private statistics: Map<string, Statistic> = new Map()
 
-	return {
-		getPreviousActions: () => [...previousActions],
-		removePreviousAction: () => {
-			previousActions.shift()
-		},
-		isFirstInRound: () => firstInRound,
-		getCurrentPlayerIndex: () => currentPlayerIndex,
-		setCurrentPlayerIndex: (index: number) => {
-			currentPlayerIndex = index
-		},
-		getPlayers: () => players,
-		setPlayers: (newPlayers: StrategyFunction[]) => {
-			players = newPlayers
-			playerLives = newPlayers.map(() => 6)
-		},
-		getPlayerLives: () => [...playerLives],
-		modifyPlayerLife: (playerIndex: number, delta: number) => {
-			playerLives[playerIndex] += delta
-		},
-		addAction: (action: Action) => {
-			previousActions.unshift(action)
-		},
-		setFirstInRound: (value: boolean) => {
-			firstInRound = value
-		},
-		getIsTurnOver: () => isTurnOver,
-		setIsTurnOver: (value: boolean) => {
-			isTurnOver = value
-		},
-		setHasRolled: (value: boolean) => {
-			hasRolled = value
-		},
-		getHasRolled: () => hasRolled,
-		setNextPlayerIndex: (value: number) => {
-			currentPlayerIndex = value
-		},
-		getNextPlayerIndex: () => {
-			return (currentPlayerIndex + 1) % players.length
-		},
-		endTurn: () => { // End of player turn
-			isTurnOver = true
-			currentPlayerIndex = (currentPlayerIndex + 1) % players.length
-		},
-		endRound: () => { // End of round
-			firstInRound = true
-			previousActions = []
-			// Implement end of round logic
+	static getInstance(): GameState {
+		if (!GameState.instance) {
+			GameState.instance = new GameState()
 		}
-		// Additional getters and setters as needed
+		return GameState.instance
 	}
-})()
 
-export default gameState
+	init(ids: string[]) {
+		this.amountOfPlayers = ids.length
+		this.submissionIds = ids
+		this.scoring = new Scoring(ids)
+		ids.forEach(id => this.statistics.set(id, {
+			submissionId: id,
+			turns: 0,
+			timeouts: 0,
+			correct: 0,
+			incorrect: 0
+		}))
+	}
+
+	addAction(action: Action): void {
+		this.previousActions.unshift(action)
+	}
+
+	endTurn(): void {
+		// Update statistics
+		const stats = this.statistics.get(this.submissionIds[this.currentPlayerIndex])
+		if (stats) stats.turns++
+		// Move to next player
+		this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.amountOfPlayers
+	}
+
+	penalizePlayer(playerIndex: number): void {
+		this.scoring?.penalize(playerIndex)
+		const stats = this.statistics.get(this.submissionIds[playerIndex])
+		if (stats) stats.incorrect++
+	}
+
+	// Getters and setters
+	getPreviousActions(): Action[] {
+		return [...this.previousActions]
+	}
+
+	removePreviousAction(): void {
+		this.previousActions.shift()
+	}
+
+	isFirstInRound(): boolean {
+		return this.firstInRound
+	}
+
+	getCurrentPlayerIndex(): number {
+		return this.currentPlayerIndex
+	}
+
+	getPrevPlayerIndex(): number {
+		return (this.currentPlayerIndex - 1 + this.amountOfPlayers) % this.amountOfPlayers
+	}
+
+	hasPlayerRolled(): boolean {
+		return this.hasRolled
+	}
+
+	setHasRolled(value: boolean): void {
+		this.hasRolled = value
+	}
+
+	setCurrentPlayerIndex(index: number): void {
+		this.currentPlayerIndex = index
+	}
+
+	endRound(): void {
+		this.firstInRound = true
+		this.previousActions = []
+		this.hasRolled = false
+	}
+
+	getResults(): GameResult {
+		const scores = this.scoring?.getScores()
+		if (!scores) {
+			throw new Error('Scores are not available')
+		}
+		const results: Record<string, { score: number; statistic?: Statistic }> = {}
+		for (let i = 0; i < this.amountOfPlayers; i++) {
+			results[this.submissionIds[i]] = {
+				score: scores[i],
+				statistic: this.statistics.get(this.submissionIds[i])
+			}
+		}
+		return { results }
+	}
+}
+
+export const gameState = GameState.getInstance()

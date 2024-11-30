@@ -1,20 +1,20 @@
 /* eslint-disable local/enforce-comment-order */
-
-import { DiePair, StrategyAPI } from './types.js'
-import gameState from './gameState.js'
-import { rollDice , calculateScore } from './utils.js'
+import { gameState } from './gameState'
+import { StrategyAPI, DiePair, PlayerError } from './types'
+import { calculateScore, rollDice } from './utils'
 
 export function createStrategyAPI(playerIndex: number): StrategyAPI {
-	function ensureTurnActive() {
+	const ensureTurnActive = () => {
 		if (gameState.getCurrentPlayerIndex() !== playerIndex) {
-			throw new Error('Turn has ended, no further API calls are allowed.')
+			throw new PlayerError('It is not your turn.')
 		}
 	}
 
 	return {
+		calculateDieScore: (dice: DiePair) => calculateScore(dice),
 		getPreviousActions: () => {
 			ensureTurnActive()
-			return gameState.getPreviousActions()
+			return gameState.getPreviousActions().map(action => action.announcedValue)
 		},
 		isFirstInRound: () => {
 			ensureTurnActive()
@@ -22,67 +22,89 @@ export function createStrategyAPI(playerIndex: number): StrategyAPI {
 		},
 		detEllerDerover: () => {
 			ensureTurnActive()
-			if(gameState.getHasRolled()){
-				//remove previous action and roll again
-				gameState.removePreviousAction()	
+			if (!gameState.hasPlayerRolled()) {
+				throw new PlayerError('Cannot do "det eller derover" before rolling the dice.')
 			}
+
+			if (gameState.isFirstInRound()) {
+				throw new PlayerError('Cannot do "det eller derover" as the first action in a round.')
+			}
+
+			gameState.removePreviousAction()
+
 			const dice = rollDice()
 			const score = calculateScore(dice)
-			const previousAnnouncedValue = gameState.getPreviousActions()[0].announcedValue
-			gameState.addAction({ type: 'detEllerDerover', value: score, playerIndex, announcedValue: previousAnnouncedValue })
-			gameState.endTurn()
+			const previousAnnouncedValue = gameState.getPreviousActions()[0]?.announcedValue || 0
 
+			gameState.addAction({
+				type: 'detEllerDerover',
+				value: score,
+				playerIndex,
+				announcedValue: previousAnnouncedValue
+			})
+			gameState.endTurn()
 		},
 		reveal: () => {
 			ensureTurnActive()
-			if (gameState.getHasRolled()) {
-				throw new Error('Cannot reveal the previous player\'s action after rolling the dice.')
+			if (gameState.hasPlayerRolled()) {
+				throw new PlayerError('Cannot reveal after rolling the dice.')
 			}
 
-			const previousPlayerIndex = (playerIndex + gameState.getPlayers().length - 1) % gameState.getPlayers().length
+			const prevPlayerIndex = gameState.getPrevPlayerIndex()
+			const prevAction = gameState.getPreviousActions()[0]
 
-			const previousPlayerValue = gameState.getPreviousActions()[0].value
-			const previousPlayerAnnouncedValue = gameState.getPreviousActions()[0].announcedValue
-
-			const previousActionType = gameState.getPreviousActions()[0].type
-			let previousPlayerLied = false
-			if (previousActionType === 'roll') {
-				previousPlayerLied = previousPlayerValue !== previousPlayerAnnouncedValue
-			} else if (previousActionType === 'detEllerDerover') {
-				previousPlayerLied = previousPlayerValue < previousPlayerAnnouncedValue
+			if (!prevAction) {
+				throw new PlayerError('No previous action to reveal.')
 			}
 
-			if (previousPlayerLied) {
-				gameState.modifyPlayerLife(previousPlayerIndex, -1)
-				gameState.setCurrentPlayerIndex(previousPlayerIndex)
-				gameState.endRound()
-				
+			const prevPlayerLied = prevAction.value !== prevAction.announcedValue
+
+			if (prevPlayerLied) {
+				gameState.penalizePlayer(prevPlayerIndex)
+				gameState.setCurrentPlayerIndex(prevPlayerIndex)
 			} else {
-				gameState.modifyPlayerLife(playerIndex, -1)
-				gameState.setCurrentPlayerIndex(playerIndex)
-				gameState.endRound()
-
+				gameState.penalizePlayer(playerIndex)
 			}
+			gameState.endRound()
 		},
 		roll: () => {
 			ensureTurnActive()
+			if (gameState.hasPlayerRolled()) {
+				throw new PlayerError('You have already rolled the dice this turn.')
+			}
 			const dice = rollDice()
 			const score = calculateScore(dice)
-			gameState.addAction({ type: 'roll', value: score, playerIndex, announcedValue: score })
+			gameState.addAction({
+				type: 'roll',
+				value: score,
+				playerIndex,
+				announcedValue: score
+			})
 			gameState.setHasRolled(true)
 			return score
 		},
-		lie: (diePair: DiePair) => {
+		lie: (score: number) => {
 			ensureTurnActive()
-			if (!gameState.getHasRolled()) {
-				throw new Error('Cannot lie before rolling the dice.')
+			if (!gameState.hasPlayerRolled()) {
+				throw new PlayerError('You must roll before you can lie.')
 			}
 			const realValue = gameState.getPreviousActions()[0].value
-			const lieValue = calculateScore(diePair)
+			const lieValue = score
 
-			gameState.removePreviousAction()
-			gameState.addAction({ type: 'roll', value: realValue, playerIndex, announcedValue: lieValue })
+			gameState.addAction({
+				type: 'lie',
+				value: realValue,
+				playerIndex,
+				announcedValue: lieValue
+			})
 			gameState.endTurn()
 		},
+		endTurn: () => {
+			ensureTurnActive()
+			if (!gameState.hasPlayerRolled()) {
+				throw new PlayerError('You must roll before you can end your turn.')
+			}
+			gameState.endTurn()
+		}
 	}
 }
