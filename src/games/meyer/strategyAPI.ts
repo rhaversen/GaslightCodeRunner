@@ -1,9 +1,10 @@
 /* eslint-disable local/enforce-comment-order */
 import { gameState } from './gameState'
-import { StrategyAPI, DiePair, PlayerError } from './types'
-import { calculateScore, rollDice } from './utils'
+import { MeyerStrategyAPI, DiePair } from './types'
+import { calculateScore, isValidScore, rollDice, roundUpToValidScore } from './utils'
+import { PlayerError } from '../types'
 
-export function createStrategyAPI(playerIndex: number): StrategyAPI {
+export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 	const ensureTurnActive = () => {
 		if (gameState.getCurrentPlayerIndex() !== playerIndex) {
 			throw new PlayerError('It is not your turn.')
@@ -16,6 +17,11 @@ export function createStrategyAPI(playerIndex: number): StrategyAPI {
 			ensureTurnActive()
 			return gameState.getPreviousActions().map(action => action.announcedValue)
 		},
+		getPreviousAction: () => {
+			ensureTurnActive()
+			return gameState.getPreviousActions()[0]?.announcedValue
+		},
+		roundUpToValidScore: (score: number) => roundUpToValidScore(score),
 		isFirstInRound: () => {
 			ensureTurnActive()
 			return gameState.isFirstInRound()
@@ -85,11 +91,22 @@ export function createStrategyAPI(playerIndex: number): StrategyAPI {
 		},
 		lie: (score: number) => {
 			ensureTurnActive()
+
 			if (!gameState.hasPlayerRolled()) {
 				throw new PlayerError('You must roll before you can lie.')
 			}
-			const realValue = gameState.getPreviousActions()[0].value
+
 			const lieValue = score
+			const prevValue = gameState.getPreviousActions()[1]?.announcedValue || 0
+			const realValue = gameState.getPreviousActions()[0].value
+
+			if (!isValidScore(lieValue)) {
+				throw new PlayerError('Invalid lie value.')
+			}
+
+			if (lieValue <= prevValue) {
+				throw new PlayerError('You must announce a higher value than the previous player.')
+			}
 
 			gameState.addAction({
 				type: 'lie',
@@ -103,6 +120,11 @@ export function createStrategyAPI(playerIndex: number): StrategyAPI {
 			ensureTurnActive()
 			if (!gameState.hasPlayerRolled()) {
 				throw new PlayerError('You must roll before you can end your turn.')
+			}
+			const value = gameState.getPreviousActions()[0].value
+			const prevValue = gameState.getPreviousActions()[1]?.value || 0
+			if (value <= prevValue) {
+				throw new PlayerError('You must announce a higher value than the previous player.')
 			}
 			gameState.endTurn()
 		}

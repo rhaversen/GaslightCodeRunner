@@ -1,6 +1,6 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { GameResult, Statistic } from '../index.js'
+import { GameResult, Statistic } from '../types.js'
 import { Action } from './types.js'
 import { Scoring } from './utils.js'
 

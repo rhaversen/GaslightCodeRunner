@@ -13,6 +13,29 @@ export function calculateScore(dice: [number, number]): number {
 	return die1 * 10 + die2                     // Regular scores
 }
 
+const validScores = new Set<number>([
+	// Special scores
+	1000, 999,
+	// Pairs
+	600, 500, 400, 300, 200, 100,
+	// Regular scores
+	65, 64, 63, 62, 61,
+	54, 53, 52, 51,
+	43, 42, 41,
+	32,
+])
+
+export function isValidScore(score: number): boolean {
+	return validScores.has(score)
+}
+
+export function roundUpToValidScore(score: number): number {
+	for (const validScore of validScores) {
+		if (score >= validScore) return validScore
+	}
+	return 0
+}
+
 export class Scoring {
 	private scores: Map<string, number>
 	private submissionIds: string[]
