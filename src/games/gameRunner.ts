@@ -1,8 +1,9 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { Game, GameCallbacks, GameResult, Player, PlayerError } from './types'
+import { CodeRunnerCallbacks, GameRunnerResult } from '../services/gamerunner/types'
+import { Game, Player, PlayerError } from './types'
 
-export default function main(game: Game, players: Player[], callbacks: GameCallbacks): GameResult {
+export default function main(game: Game, players: Player[], callbacks: CodeRunnerCallbacks): GameRunnerResult {
 	try {
 		game.init(players)
 
@@ -11,14 +12,14 @@ export default function main(game: Game, players: Player[], callbacks: GameCallb
 				game.executePlayerTurn()
 			} catch (error) {
 				if (error instanceof PlayerError) {
-					callbacks.disqualifyPlayer(i)
-				} else {
-					throw error
+					callbacks.disqualifySubmission(players[i].submissionId, error.message)
 				}
 			}
 		}
 
-		return game.getResults()
+		return {
+			results: game.getResults()
+		}
 	} catch (error) {
 		return {
 			error: error instanceof Error ? error.message : 'Game execution failed'

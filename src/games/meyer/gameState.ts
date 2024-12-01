@@ -14,8 +14,6 @@ class GameState {
 	private scoring?: Scoring
 	private turnActive = true
 	private roundActive = true
-	private submissionIds: string[] = []
-	private statistics: Map<string, Statistic> = new Map()
 
 	static getInstance(): GameState {
 		if (!GameState.instance) {
@@ -26,15 +24,7 @@ class GameState {
 
 	init(ids: string[]) {
 		this.amountOfPlayers = ids.length
-		this.submissionIds = ids
 		this.scoring = new Scoring(ids)
-		ids.forEach(id => this.statistics.set(id, {
-			submissionId: id,
-			turns: 0,
-			timeouts: 0,
-			correct: 0,
-			incorrect: 0
-		}))
 	}
 
 	addAction(action: Action): void {
@@ -43,8 +33,6 @@ class GameState {
 
 	penalizePlayer(playerIndex: number): void {
 		this.scoring?.penalize(playerIndex)
-		const stats = this.statistics.get(this.submissionIds[playerIndex])
-		if (stats) stats.incorrect++
 	}
 
 	doublePenalizePlayer(playerIndex: number): void {
@@ -112,18 +100,7 @@ class GameState {
 	}
 
 	getResults(): GameResult {
-		const scores = this.scoring?.getScores()
-		if (!scores) {
-			throw new Error('Scores are not available')
-		}
-		const results: Record<string, { score: number; statistic?: Statistic }> = {}
-		for (let i = 0; i < this.amountOfPlayers; i++) {
-			results[this.submissionIds[i]] = {
-				score: scores[i],
-				statistic: this.statistics.get(this.submissionIds[i])
-			}
-		}
-		return { results }
+		return this.scoring?.getScores() || new Map<string, number>()
 	}
 }
 

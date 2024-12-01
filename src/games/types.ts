@@ -6,25 +6,9 @@ export interface Game {
 	getResults(): GameResult;
 }
 
-export type Statistic = {
-	submissionId: string;
-	turns: number;
-	timeouts: number;
-	correct: number;
-	incorrect: number;
-}
-
 export type Strategy<T = any> = (api: T) => void
 
-export interface GameResult {
-	results?: Record<string, { score: number; statistic?: Statistic }>;
-	history?: unknown[]
-	error?: string;
-}
-
-export interface GameCallbacks {
-	disqualifyPlayer(playerIndex: number): void;
-}
+export type GameResult = Map<string, number>;
 
 export interface Player {
 	strategy: Strategy
