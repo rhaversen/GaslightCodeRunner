@@ -63,14 +63,24 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				throw new PlayerError('No previous action to reveal.')
 			}
 
-			const prevPlayerLied = prevAction.value !== prevAction.announcedValue
+			const prevPlayerLied = prevAction.value !== prevAction.announcedValue // Doing 'det eller derover' while not scoring that or higher is considered lying
+			const prevAnnouncedValueIsMeyer = prevAction.announcedValue === 1000
+			const prevValueIsMeyer = prevAction.value === 1000
 
 			if (prevPlayerLied) {
+				if (prevAnnouncedValueIsMeyer) {
+					gameState.doublePenalizePlayer(prevPlayerIndex)
+				} else {
 				gameState.penalizePlayer(prevPlayerIndex)
-				gameState.setCurrentPlayerIndex(prevPlayerIndex)
+				}
+			} else {
+				if (prevValueIsMeyer) {
+					gameState.doublePenalizePlayer(playerIndex)
 			} else {
 				gameState.penalizePlayer(playerIndex)
+				}
 			}
+
 			gameState.endRound()
 		},
 		roll: () => {

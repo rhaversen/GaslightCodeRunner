@@ -47,6 +47,11 @@ class GameState {
 		if (stats) stats.incorrect++
 	}
 
+	doublePenalizePlayer(playerIndex: number): void {
+		this.penalizePlayer(playerIndex)
+		this.penalizePlayer(playerIndex)
+	}
+
 	// Getters and setters
 	getPreviousActions(): Action[] {
 		return [...this.previousActions]
