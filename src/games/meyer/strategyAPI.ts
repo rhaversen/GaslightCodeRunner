@@ -125,18 +125,6 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				announcedValue: lieValue
 			})
 			gameState.endTurn()
-		},
-		endTurn: () => {
-			ensureTurnActive()
-			if (!gameState.hasPlayerRolled()) {
-				throw new PlayerError('You must roll before you can end your turn.')
-			}
-			const value = gameState.getPreviousActions()[0].value
-			const prevValue = gameState.getPreviousActions()[1]?.value || 0
-			if (value <= prevValue) {
-				throw new PlayerError('You must announce a higher value than the previous player.')
-			}
-			gameState.endTurn()
 		}
 	}
 }
