@@ -54,6 +54,7 @@ export interface MeyerStrategyAPI {
 	 * @description
 	 * Ends the turn by revealing the previous action and penalizes the player who lied.
 	 * If the previous player did not lie, the current player will be penalized.
+	 * Revealing a true "Meyer" score will cause double penalty to the revealing player. Revealing a false "Meyer" score will cause double penalty to the liar (Previous player).
 	 * Can only be called once per turn and only if the player is not the first in the round. Can only be called after the player has rolled the dice.
 	 */
 	reveal: () => void;
@@ -66,7 +67,7 @@ export interface MeyerStrategyAPI {
 	/**
 	 * @description
 	 * Ends the turn by announcing a score and passing the turn to the next player.
-	 * The lie value must be equal to or higher than the previously announced value.
+	 * The lie value must be equal to or higher than the previously announced value. Lying about "Meyer" score will cause double penalty if caught.
 	 * Can only be called once per turn. Can only be called after the player has rolled the dice.
 	 */
 	lie: (value: number) => void;
