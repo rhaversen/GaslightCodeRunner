@@ -26,3 +26,6 @@ export default function main(game: Game, players: Player[], callbacks: CodeRunne
 		}
 	}
 }
+
+// Example usage:
+// main(new MeyerGame(), [], { disqualifySubmission: () => {} })
