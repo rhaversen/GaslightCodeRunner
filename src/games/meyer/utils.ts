@@ -30,8 +30,9 @@ export function isValidScore(score: number): boolean {
 }
 
 export function roundUpToValidScore(score: number): number {
-	for (const validScore of validScores) {
-		if (score >= validScore) return validScore
+	const validScoresAscending = [...validScores].sort((a, b) => a - b)
+	for (const validScore of validScoresAscending) { 
+		if (score <= validScore) return validScore
 	}
 	return 0
 }
