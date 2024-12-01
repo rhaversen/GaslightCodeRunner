@@ -12,6 +12,7 @@ export class MeyerGame implements Game {
 		this.players = players
 	}
 
+	// TODO: Investigate how to handle different types of games, and how to control a game iteration. Some games are single player games and should be run until completion, while others are multiplayer games and should be run in turns.
 	executePlayerTurn(): void {
 		const playerIndex = gameState.getCurrentPlayerIndex()
 		const api = createStrategyAPI(playerIndex)

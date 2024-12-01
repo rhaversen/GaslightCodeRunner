@@ -36,6 +36,7 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				throw new PlayerError('Cannot do "det eller derover" as the first action in a round.')
 			}
 
+			// TODO: Dont add the roll to the actions immediatly. Only add action when turn is ended. Currently, calling roll and then getLatestAction will return the roll action, not the previous player's action.
 			gameState.removePreviousAction()
 
 			const dice = rollDice()
@@ -71,13 +72,13 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				if (prevAnnouncedValueIsMeyer) {
 					gameState.doublePenalizePlayer(prevPlayerIndex)
 				} else {
-				gameState.penalizePlayer(prevPlayerIndex)
+					gameState.penalizePlayer(prevPlayerIndex)
 				}
 			} else {
 				if (prevValueIsMeyer) {
 					gameState.doublePenalizePlayer(playerIndex)
-			} else {
-				gameState.penalizePlayer(playerIndex)
+				} else {
+					gameState.penalizePlayer(playerIndex)
 				}
 			}
 
