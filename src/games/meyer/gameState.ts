@@ -1,6 +1,6 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { GameResult, Statistic } from '../types.js'
+import { GameResult } from '../types.js'
 import { Action } from './types.js'
 import { Scoring } from './utils.js'
 
@@ -12,6 +12,8 @@ class GameState {
 	private amountOfPlayers = 0
 	private hasRolled = false
 	private scoring?: Scoring
+	private turnActive = true
+	private roundActive = true
 	private submissionIds: string[] = []
 	private statistics: Map<string, Statistic> = new Map()
 
@@ -37,14 +39,6 @@ class GameState {
 
 	addAction(action: Action): void {
 		this.previousActions.unshift(action)
-	}
-
-	endTurn(): void {
-		// Update statistics
-		const stats = this.statistics.get(this.submissionIds[this.currentPlayerIndex])
-		if (stats) stats.turns++
-		// Move to next player
-		this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.amountOfPlayers
 	}
 
 	penalizePlayer(playerIndex: number): void {
@@ -82,14 +76,34 @@ class GameState {
 		this.hasRolled = value
 	}
 
-	setCurrentPlayerIndex(index: number): void {
-		this.currentPlayerIndex = index
+	incrementCurrentPlayerIndex(): void {
+		this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.amountOfPlayers
+	}
+
+	endTurn(): void {
+		this.turnActive = false
 	}
 
 	endRound(): void {
-		this.firstInRound = true
-		this.previousActions = []
+		this.turnActive = false
+		this.roundActive = false
+	}
+
+	isTurnActive(): boolean {
+		return this.turnActive
+	}
+
+	prepareNextPlayer(): void {
+		if (this.roundActive) {
+			this.firstInRound = false
+		} else {
+			this.firstInRound = true
+			this.previousActions = []
+			this.roundActive = true
+		}
 		this.hasRolled = false
+		this.turnActive = true
+		this.incrementCurrentPlayerIndex()
 	}
 
 	getResults(): GameResult {

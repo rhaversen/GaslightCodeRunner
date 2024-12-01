@@ -6,8 +6,8 @@ import { PlayerError } from '../types'
 
 export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 	const ensureTurnActive = () => {
-		if (gameState.getCurrentPlayerIndex() !== playerIndex) {
-			throw new PlayerError('It is not your turn.')
+		if (gameState.isTurnActive()) {
+			throw new PlayerError('You cannot perform any more actions this turn.')
 		}
 	}
 

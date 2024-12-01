@@ -70,10 +70,4 @@ export interface MeyerStrategyAPI {
 	 * Can only be called once per turn. Can only be called after the player has rolled the dice.
 	 */
 	lie: (value: number) => void;
-	/**
-	 * @description
-	 * Ends the turn and locks in the roll as the announced value.
-	 * The announced value must be equal to or higher than the previously announced value.
-	 */
-	endTurn: () => void;
 }
