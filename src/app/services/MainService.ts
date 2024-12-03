@@ -42,7 +42,7 @@ export async function createGradingForSubmission(score: number, submissionId: st
 	}
 }
 
-export async function getSubmissions(): Promise<Array<Object> | undefined> {
+export async function getSubmissions(): Promise<Array<{ [key: string]: string }> | undefined> {
 	try {
 		const response = await axios.get(`http://${mainServiceHost}/api/v1/microservices/submissions`, {
 			headers: {
