@@ -167,7 +167,7 @@ import { Game, Player, GameResult, PlayerError } from './commonTypes.ts'
 import { gameState } from './gameState.ts'
 import { createStrategyAPI } from './strategyAPI.ts'
 
-export class MeyerGame implements Game {
+export class Main implements Game {
 	private players: Player[] = []
 
 	init(players: Player[]): void {
