@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/node'
 // Test environment settings
 process.env.NODE_ENV = 'test'
 process.env.SESSION_SECRET = 'TEST_SESSION_SECRET'
+process.env.MICROSERVICE_AUTHORIZATION = 'TEST_MICROSERVICE_AUTHORIZATION'
 
 // Global variables
 const chaiHttpObject = chai.use(chaiHttp)
