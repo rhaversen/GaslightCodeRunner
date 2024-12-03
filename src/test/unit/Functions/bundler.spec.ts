@@ -26,7 +26,6 @@ describe('gameBundler', function () {
 
 	it('should bundle the strategy files', async function () {
 		const bundledCode = await bundleFiles(strategyFiles)
-		console.log(bundledCode)
 		expect(bundledCode).to.be.a('string')
 	})
 })
