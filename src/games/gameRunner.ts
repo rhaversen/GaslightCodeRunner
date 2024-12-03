@@ -1,9 +1,9 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { CodeRunnerCallbacks, GameRunnerResult } from '../services/gamerunner/types'
-import { Game, Player, PlayerError } from './types'
+import { GameRunner } from '../services/gamerunner/types'
+import { PlayerError } from './types'
 
-export default function main(game: Game, players: Player[], callbacks: CodeRunnerCallbacks): GameRunnerResult {
+const main: GameRunner = (game, players, callbacks) => {
 	try {
 		game.init(players)
 
@@ -26,6 +26,8 @@ export default function main(game: Game, players: Player[], callbacks: CodeRunne
 		}
 	}
 }
+
+export default main
 
 // Example usage:
 // main(new MeyerGame(), [], { disqualifySubmission: () => {} })
