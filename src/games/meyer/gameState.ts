@@ -32,12 +32,11 @@ class GameState {
 	}
 
 	penalizePlayer(playerIndex: number): void {
-		this.scoring?.penalize(playerIndex)
+		this.scoring?.penalize(playerIndex, 1)
 	}
 
 	doublePenalizePlayer(playerIndex: number): void {
-		this.penalizePlayer(playerIndex)
-		this.penalizePlayer(playerIndex)
+		this.scoring?.penalize(playerIndex, 2)
 	}
 
 	// Getters and setters

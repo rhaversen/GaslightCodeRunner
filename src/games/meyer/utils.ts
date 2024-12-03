@@ -46,11 +46,11 @@ export class Scoring {
 		this.scores = new Map(submissionIds.map(id => [id, 6]))
 	}
 
-	penalize(playerIndex: number) {
+	penalize(playerIndex: number, subAmount: number) {
 		// Convert player indices to submission IDs
 		const id = this.submissionIds[playerIndex]
 		const currentScore = this.scores.get(id) || 6
-		this.scores.set(id, currentScore - 1)
+		this.scores.set(id, currentScore - subAmount)
 	}
 
 	getScores(): Map<string, number> {
