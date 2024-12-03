@@ -25,7 +25,7 @@ const createVirtualFilesPlugin = (files: GameFiles): Plugin => ({
 				const resolvedPath = path.replace(/^\.\.\//, '')
 					.replace(/^\.\//, '')
 				const resolvedWithTs = resolvedPath.endsWith('.ts') ? resolvedPath : `${resolvedPath}.ts`
-				const resolvedWithoutTs = resolvedPath.replace(/\.ts$/, '')
+				const resolvedWithoutTs = resolvedWithTs.replace(/\.ts$/, '')
 
 				if (files[resolvedWithTs] || files[resolvedWithoutTs]) {
 					return { path: resolvedWithTs, namespace: 'virtual' }
@@ -47,11 +47,12 @@ export async function bundleFiles(files: GameFiles) {
 		entryPoints: ['main.ts'],
 		bundle: true,
 		format: 'iife',
+		globalName: 'Game',
 		platform: 'node',
 		write: false,
 		plugins: [createVirtualFilesPlugin(files)],
 	})
 
-	const bundledCode = result.outputFiles[0].text // (() => { ... })();
+	const bundledCode = result.outputFiles[0].text
 	return bundledCode
 }
