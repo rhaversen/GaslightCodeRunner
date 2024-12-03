@@ -1,8 +1,8 @@
 /* eslint-disable local/enforce-comment-order */
 import { gameState } from './gameState'
-import { MeyerStrategyAPI, DiePair } from './types'
-import { calculateScore, isValidScore, rollDice, roundUpToValidScore } from './utils'
-import { PlayerError } from '../types'
+import { MeyerStrategyAPI, DiePair } from './types.js'
+import { calculateScore, isValidScore, rollDice, roundUpToValidScore } from './utils.js'
+import { PlayerError } from '../commonTypes.js'
 
 export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 	const ensureTurnActive = () => {

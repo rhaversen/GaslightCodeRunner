@@ -1,6 +1,6 @@
 /* eslint-disable local/enforce-comment-order */
 import ivm from 'isolated-vm'
-import { Player, GameResult } from '../../games/types'
+import { Player, GameResult } from '../../games/commonTypes.js'
 import gameRunner from '../../games/gameRunner'
 import { CodeRunnerCallbacks } from './types'
 

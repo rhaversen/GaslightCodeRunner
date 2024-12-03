@@ -1,6 +1,6 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { Game, Player } from '../../games/types'
+import { Game, Player } from '../../games/commonTypes.js'
 
 export interface GameRunner {
     (game: Game, players: Player[], callbacks: CodeRunnerCallbacks): GameRunnerResult

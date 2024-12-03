@@ -1,6 +1,6 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { Game, Player, GameResult, PlayerError } from '../types.js'
+import { Game, Player, GameResult, PlayerError } from '../commonTypes.js'
 import { gameState } from './gameState.js'
 import { createStrategyAPI } from './strategyAPI.js'
 

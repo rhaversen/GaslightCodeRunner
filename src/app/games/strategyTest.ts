@@ -1,5 +1,5 @@
 /* eslint-disable local/enforce-comment-order */
-import { Strategy } from './types.js'
+import { Strategy } from './commonTypes.js'
 import { MeyerStrategyAPI } from './meyer/types.js'
 
 export const myStrategy: Strategy<MeyerStrategyAPI> = (api) => {

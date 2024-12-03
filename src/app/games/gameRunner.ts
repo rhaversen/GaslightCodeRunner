@@ -1,7 +1,7 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { GameRunner } from '../services/gamerunner/types'
-import { PlayerError } from './types'
+import { GameRunner } from '../services/gamerunner/types.js'
+import { PlayerError } from './commonTypes.js'
 
 const main: GameRunner = (game, players, callbacks) => {
 	try {
