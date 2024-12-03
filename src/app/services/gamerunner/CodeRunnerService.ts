@@ -1,8 +1,8 @@
 /* eslint-disable local/enforce-comment-order */
 import ivm from 'isolated-vm'
 import { Player, GameResult } from '../../games/commonTypes.js'
-import gameRunner from '../../games/gameRunner'
-import { CodeRunnerCallbacks } from './types'
+import gameRunner from '../../games/gameRunner.js'
+import { CodeRunnerCallbacks } from './types.js'
 
 export async function runGame(gameLogic: string, strategies: string[]): Promise<GameResult> {
 	const isolate = new ivm.Isolate({ memoryLimit: 128 })

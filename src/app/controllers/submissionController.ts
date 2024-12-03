@@ -2,7 +2,7 @@
 
 // Third-party libraries
 import { Request, Response } from 'express'
-import { runGame } from '../services/gamerunner/CodeRunnerService'
+import { runGame } from '../services/gamerunner/CodeRunnerService.js'
 
 // Own modules
 
