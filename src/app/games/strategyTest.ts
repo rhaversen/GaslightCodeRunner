@@ -2,7 +2,7 @@
 import { Strategy } from './commonTypes.js'
 import { MeyerStrategyAPI } from './meyer/types.js'
 
-export const myStrategy: Strategy<MeyerStrategyAPI> = (api) => {
+const main: Strategy<MeyerStrategyAPI> = (api) => {
 	// If we're first in the round, we need to roll
 	if (api.isFirstInRound()) {
 		api.roll()
@@ -27,3 +27,5 @@ export const myStrategy: Strategy<MeyerStrategyAPI> = (api) => {
 		api.detEllerDerover()
 	}
 }
+
+export default main
