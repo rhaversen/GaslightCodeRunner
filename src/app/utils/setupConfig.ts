@@ -20,7 +20,7 @@ logger.info(`Using configs:\n${configString}`)
 const AppConfig = {
 	expressPort: config.get('expressPort') as number,
 	corsConfig: config.get('cors') as CorsOptions,
-	mainServiceHost: config.get('microservices.codeRunner.host') as string,
+	mainServiceHost: config.get('microservices.mainService.host') as string,
 }
 
 export default AppConfig
