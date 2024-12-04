@@ -1,8 +1,7 @@
 /* eslint-disable local/enforce-comment-order */
-import { Strategy } from './commonTypes.js'
-import { MeyerStrategyAPI } from './meyer/types.js'
+import { MeyerStrategyAPI } from '../meyer/types.ts'
 
-const main: Strategy<MeyerStrategyAPI> = (api) => {
+const main = (api: MeyerStrategyAPI) => {
 	// If we're first in the round, we need to roll
 	if (api.isFirstInRound()) {
 		api.roll()

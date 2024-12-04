@@ -1,8 +1,9 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { Game, Player, GameResult, PlayerError } from '../commonTypes.js'
-import { gameState } from './gameState.js'
-import { createStrategyAPI } from './strategyAPI.js'
+import type { Game, Player, GameResult } from '../commonTypes.d.ts'
+import { gameState } from './gameState.ts'
+import { createStrategyAPI } from './strategyAPI.ts'
+import { PlayerError } from '../errors.ts'
 
 export class Main implements Game {
 	private players: Player[] = []
@@ -34,3 +35,5 @@ export class Main implements Game {
 		return gameState.getResults()
 	}
 }
+
+export default Main

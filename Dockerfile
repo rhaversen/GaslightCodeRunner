@@ -18,6 +18,7 @@ RUN useradd -m gaslight_code_runner_user
 COPY dist/app/ ./
 COPY package*.json ./
 COPY config/ ./config/
+COPY sourceFiles/ ./sourceFiles/
 
 # Change the ownership of the copied files to gaslight_code_runner_user
 RUN chown -R gaslight_code_runner_user:gaslight_code_runner_user /app

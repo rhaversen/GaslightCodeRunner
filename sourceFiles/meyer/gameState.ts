@@ -1,8 +1,8 @@
 /* eslint-disable local/enforce-comment-order */
 
-import { GameResult } from '../commonTypes.js'
-import { Action } from './types.js'
-import { Scoring } from './utils.js'
+import type { GameResult } from '../commonTypes.d.ts'
+import { Action } from './types.ts'
+import { Scoring } from './utils.ts'
 
 class GameState {
 	private static instance: GameState
