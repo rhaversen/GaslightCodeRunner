@@ -8,6 +8,9 @@ FROM node:iron-bookworm-slim
 # Use a non-interactive frontend for debconf
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Install build dependencies
+RUN sudo apt-get update && sudo apt-get install python g++ build-essential
+
 # Set working directory
 WORKDIR /app
 
