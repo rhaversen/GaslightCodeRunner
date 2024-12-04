@@ -9,7 +9,9 @@ FROM node:iron-bookworm-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
-RUN sudo apt-get update && sudo apt-get install python g++ build-essential
+RUN apt-get update && \
+    apt-get install -y python g++ build-essential && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
