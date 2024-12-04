@@ -2,11 +2,19 @@
 
 import esbuild, { Plugin, PluginBuild } from 'esbuild'
 
-type GameFiles = {
+export interface FileMap {
+	'main.ts': string;
 	[key: string]: string;
 }
 
-const createVirtualFilesPlugin = (files: GameFiles): Plugin => ({
+export function isFileMap(obj: unknown): obj is FileMap {
+	return obj !== null &&
+		typeof obj === 'object' &&
+		'main.ts' in obj &&
+		Object.values(obj).every(value => typeof value === 'string')
+}
+
+const createVirtualFilesPlugin = (files: FileMap): Plugin => ({
 	name: 'virtual-files',
 	setup(build: PluginBuild) {
 		build.onResolve({ filter: /.*/ }, (args) => {
@@ -42,12 +50,12 @@ const createVirtualFilesPlugin = (files: GameFiles): Plugin => ({
 	},
 })
 
-export async function bundleFiles(files: GameFiles) {
+export async function bundleFiles(files: FileMap, globalName: string) {
 	const result = await esbuild.build({
 		entryPoints: ['main.ts'],
 		bundle: true,
 		format: 'iife',
-		globalName: 'Game',
+		globalName: globalName,
 		platform: 'node',
 		write: false,
 		plugins: [createVirtualFilesPlugin(files)],

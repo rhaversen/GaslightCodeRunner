@@ -37,4 +37,32 @@ const sourceFiles = {
 	strategies: { dumbStrategy: { 'main.ts': dumbStrategySource } },
 }
 
+export const gameFiles = {
+	...sourceFiles.meyer.main,
+	...sourceFiles.meyer.gameState,
+	...sourceFiles.meyer.strategyAPI,
+	...sourceFiles.meyer.types,
+	...sourceFiles.meyer.utils,
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors
+}
+
+export const strategyFiles = {
+	...sourceFiles.strategies.dumbStrategy,
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors
+}
+
+export const tournamentGameRunnerFiles = {
+	...sourceFiles.tournamentGameRunner,
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors,
+}
+
+export const evaluatingGameRunnerFiles = {
+	...sourceFiles.evaluatingGameRunner,
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors,
+} 
+
 export default sourceFiles

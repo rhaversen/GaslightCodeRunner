@@ -5,7 +5,7 @@ import { Router } from 'express'
 
 // Own modules
 import { authenticateMicroservice } from '../middleware/auth.js'
-import { gradeSubmission } from '../controllers/submissionController.js'
+import { evaluateSubmission } from '../controllers/submissionController.js'
 
 // Environment variables
 
@@ -26,6 +26,6 @@ router.use(authenticateMicroservice)
  * @param {string} req.body.language - The programming language of the submission.
  * @returns {number} res.status - HTTP status code
  */
-router.post('/grade-submission', gradeSubmission)
+router.post('/grade-submission', evaluateSubmission)
 
 export default router

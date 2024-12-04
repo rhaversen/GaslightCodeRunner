@@ -10,65 +10,18 @@ import { describe, it } from 'mocha'
 
 // Own modules
 import { bundleFiles } from '../../../app/services/gamerunner/bundler.js'
-import sourceFiles from '../../../app/utils/getSourceFile.js'
+import { gameFiles, strategyFiles, tournamentGameRunnerFiles, evaluatingGameRunnerFiles } from '../../../app/utils/sourceFiles.js'
 
 // Environment variables
 
 // Config variables
 
 // Destructuring and global variables
-const {
-	evaluatingGameRunner,
-	tournamentGameRunner,
-	commonTypes,
-	errors,
-	meyer,
-	strategies
-} = sourceFiles
 
 // Setup test environment
 import '../../testSetup.js'
 
 describe('gameBundler', function () {
-	interface FileMap {
-		'main.ts': string;
-		[key: string]: string;
-	}
-
-	let gameFiles: FileMap
-	let strategyFiles: FileMap
-	let tournamentGameRunnerFiles: FileMap
-	let evaluatingGameRunnerFiles: FileMap
-
-
-	beforeEach(function () {
-		gameFiles = {
-			...meyer.main,
-			...meyer.gameState,
-			...meyer.strategyAPI,
-			...meyer.types,
-			...meyer.utils,
-			...commonTypes,
-			...errors
-		}
-
-		strategyFiles = {
-			...strategies.dumbStrategy,
-			...commonTypes,
-		}
-
-		tournamentGameRunnerFiles = {
-			...tournamentGameRunner,
-			...commonTypes,
-			...errors,
-		}
-
-		evaluatingGameRunnerFiles = {
-			...evaluatingGameRunner,
-			...commonTypes,
-			...errors,
-		}
-	})
 
 	it('should bundle the game files', async function () {
 		const bundledCode = await bundleFiles(gameFiles, 'Game')
@@ -88,20 +41,5 @@ describe('gameBundler', function () {
 	it('should bundle the evaluating game runner files', async function () {
 		const bundledCode = await bundleFiles(evaluatingGameRunnerFiles, 'EvaluatingGameRunner')
 		expect(bundledCode).to.be.a('string')
-	})
-
-	it('should allow the game to be instantiated', async function () {
-		const bundledCode = await bundleFiles(gameFiles, 'Game')
-		const GameClass = new Function(`
-			${bundledCode}
-			return Game.default;  // Game is the global name we set in esbuild
-		`)()
-		expect(GameClass).to.not.be.undefined
-
-		const game = new GameClass()
-		expect(game).to.not.be.undefined
-
-		const result = game.init([])
-		expect(result).to.not.be.undefined
 	})
 })

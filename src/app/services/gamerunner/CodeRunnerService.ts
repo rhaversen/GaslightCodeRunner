@@ -1,11 +1,20 @@
-/* eslint-disable local/enforce-comment-order */
-import ivm from 'isolated-vm'
-import { Player, GameResult } from '../../games/commonTypes.js'
-import gameRunner from '../../games/gameRunner.js'
-import { CodeRunnerCallbacks, GameRunner } from './types.js'
-import { bundleFiles } from './bundler.js'
+// Node.js built-in modules
 
-export async function runGame(gameFiles: { [key: string]: string }, strategyFiles: { [key: string]: string }[]): Promise<GameResult> {
+// Third-party libraries
+import ivm from 'isolated-vm'
+
+// Own modules
+import { Player, GameResult } from '../../../../sourceFiles/commonTypes.js'
+import { bundleFiles, FileMap } from './bundler.js'
+import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles } from '../../../app/utils/sourceFiles.js'
+
+// Environment variables
+
+// Config variables
+
+// Destructuring and global variables
+
+export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[], type: 'Evaluation' | 'Tournament'): Promise<GameResult> {
 	const isolate = new ivm.Isolate({ memoryLimit: 128 })
 	const context = await isolate.createContext()
 	const jail = context.global
@@ -16,12 +25,20 @@ export async function runGame(gameFiles: { [key: string]: string }, strategyFile
 	await jail.set('import', undefined)
 
 	// Bundle game logic
-	const gameLogic = await bundleFiles(gameFiles)
+	const gameLogicCode = await bundleFiles(gameLogicFiles, 'Game')
+
+	// Select game runner and bundle
+	let gameRunnerCode: string
+	if (type === 'Evaluation') {
+		gameRunnerCode = await bundleFiles(evaluatingGameRunnerFiles, 'GameRunner')
+	} else {
+		gameRunnerCode = await bundleFiles(tournamentGameRunnerFiles, 'GameRunner')
+	}
 
 	// Bundle and create players from strategies
 	const players: Player[] = await Promise.all(
 		strategyFiles.map(async (files, index) => {
-			const bundledStrategy = await bundleFiles(files)
+			const bundledStrategy = await bundleFiles(files, 'Strategy')
 			return {
 				submissionId: `player${index + 1}`,
 				strategy: (api) => {
@@ -41,47 +58,59 @@ export async function runGame(gameFiles: { [key: string]: string }, strategyFile
 		})
 	)
 
-	const vmExecutor = (gameRunner: GameRunner, gameLogic: string, players: Player[], callbacks: CodeRunnerCallbacks) => {
-		// Evaluate and get the Game class directly
-		const GameClass = new Function(`
-			${gameLogic}
-			return Game.Main;  // Game is the global name we set in esbuild
+	const vmExecutor = (
+		gameRunnerCode: string,
+		gameLogicCode: string,
+		players: any[],
+		callbacksRef: any,
+		loggerRef: any
+	) => {
+		// Evaluate the game logic and get the Game class
+		const GameLogic = new Function(`
+			${gameLogicCode}
+			return Game.default;
 		`)()
 
-		if (!GameClass) {
-			throw new Error('Failed to load game class definition')
+		// Evaluate the game runner and get the Main class
+		const GameRunner = new Function(`
+			${gameRunnerCode}
+			return GameRunner.default;
+		`)()
+
+		if (!GameLogic || !GameRunner) {
+			throw new Error('Failed to load game class or game runner definition')
 		}
 
-		const game = new GameClass()
-		const result = gameRunner(game, players, callbacks)
+		console.log('gameLogic:', GameLogic)
+		console.log('gameRunner:', GameRunner)
 
-		// Ensure the result is properly returned
-		if (result && result.results) {
-			// Convert Map to plain object for serialization
-			return {
-				results: Object.fromEntries(result.results),
-				error: result.error
-			}
-		}
+		loggerRef.log('Logging from inside VM')
+
+		const game = new GameLogic()
+		console.log('game:', game)
+		const result = GameRunner.run(game, players, callbacksRef, loggerRef)
+
 		return result
 	}
+
 
 	try {
 		const vmExecutorString = vmExecutor.toString()
 		const result = await context.evalClosureSync(
 			vmExecutorString,
 			[
-				new ivm.Reference(gameRunner),
-				new ivm.Reference(gameLogic),
-				new ivm.Reference(players),
+				gameRunnerCode,
+				gameLogicCode,
+				players,
 				new ivm.Reference({
-					disqualifySubmission: (submissionId, message) => console.log(`Submission ${submissionId} disqualified.\nReason: ${message}`),
-				} as CodeRunnerCallbacks),
+					disqualifySubmission: (submissionId: string, message: string) =>
+						console.log(`Submission ${submissionId} disqualified.\nReason: ${message}`),
+				}),
+				new ivm.Reference(console),
 			],
 			{ arguments: { reference: true }, timeout: 2000 }
 		)
-
-		console.log('Game result:', result)
+		console.log('Game execution result:', result)
 		// Convert result back to expected format if needed
 		if (result && result.results) {
 			return new Map(Object.entries(result.results))
