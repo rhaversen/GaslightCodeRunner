@@ -85,6 +85,10 @@ class GameState {
 		return this.turnActive
 	}
 
+	isRoundActive(): boolean {
+		return this.roundActive
+	}
+
 	prepareNextPlayer(): void {
 		if (this.roundActive) {
 			this.firstInRound = false

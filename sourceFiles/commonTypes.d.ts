@@ -12,7 +12,7 @@
  */
 export interface Game {
 	init(players: Player[]): void;
-	executePlayerTurn(): void;
+	playRound(): void;
 	getResults(): GameResult;
 }
 
