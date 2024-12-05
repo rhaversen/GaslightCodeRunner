@@ -8,7 +8,7 @@
 		"build:watch": "tsc --watch",
 		"build:watch:clean": "npm run clean:dist && npm run build:watch",
 		"//2": "———————————————————————————————————————————————————Start————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————",
-		"start": "node \"index.js\"",
+		"start": "node --no-node-snapshot \"index.js\"",
 		"start:dev": "node --env-file .env \"dist/development/index.js\"",
 		"start:dev:clean": "npm run clean:logs && npm run start:dev",
 		"build-start:dev": "npm run build && npm run start:dev",
