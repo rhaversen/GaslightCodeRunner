@@ -14,15 +14,15 @@ import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles, } from '../../uti
 
 // Destructuring and global variables
 
-export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[], type: 'Evaluation' | 'Tournament'): Promise<GameResult> {
+export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[], type: 'Evaluation' | 'Tournament'): Promise<GameResults> {
 	const isolate = new ivm.Isolate({ memoryLimit: 128 })
 	const context = await isolate.createContext()
-	const jail = context.global
 
-	// Set up sandbox environment
-	await jail.set('global', jail.derefInto())
-	await jail.set('require', undefined)
-	await jail.set('import', undefined)
+	// Create a simple logging function for primitives only
+	const log = new ivm.Reference((value: any) => {
+		console.log('VM Log:', value.toString())
+	})
+	await context.global.set('log', log)
 
 	// Bundle game logic
 	const gameLogicCode = await bundleFiles(gameLogicFiles, 'Game')
@@ -35,89 +35,73 @@ export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[],
 		gameRunnerCode = await bundleFiles(tournamentGameRunnerFiles, 'GameRunner')
 	}
 
-	// Bundle and create players from strategies
-	const players: Player[] = await Promise.all(
-		strategyFiles.map(async (files, index) => {
-			const bundledStrategy = await bundleFiles(files, 'Strategy')
-			return {
-				submissionId: `player${index + 1}`,
-				strategy: (api) => {
-					try {
-						return context.evalClosureSync(bundledStrategy, [api], {
-							arguments: { reference: true },
-							timeout: 500,
-						})
-					} catch (error: any) {
-						if (error.message.includes('Script execution timed out')) {
-							console.log(`Strategy timeout for player${index + 1}`)
-						}
-						throw error
-					}
-				},
-			}
-		})
+	// Bundle strategies
+	const strategyBundles = await Promise.all(
+		strategyFiles.map(files => bundleFiles(files, 'Strategy'))
 	)
 
-	const vmExecutor = (
-		gameRunnerCode: string,
-		gameLogicCode: string,
-		players: any[],
-		callbacksRef: any,
-		loggerRef: any
-	) => {
-		// Evaluate the game logic and get the Game class
-		const GameLogic = new Function(`
-			${gameLogicCode}
-			return Game.default;
-		`)()
+	// Create the strategies array string
+	const strategiesStr = strategyBundles
+		.map((bundle, index) => `
+			(() => {
+				try {
+					${bundle}
+					return Strategy.default;
+				} catch (e) {
+					log.apply(undefined, ['Error loading strategy ${index + 1}:', e.message]);
+					return null;
+				}
+			})()
+		`).join(',')
 
-		// Evaluate the game runner and get the Main class
-		const GameRunner = new Function(`
-			${gameRunnerCode}
-			return GameRunner.default;
-		`)()
+	const testCode = `
+		(() => {
+			try {
+				// Evaluate game logic in its own scope
+				const Game = (() => {
+					${gameLogicCode}
+					return Game;
+				})();
+				
+				// Evaluate game runner in its own scope
+				const GameRunner = (() => {
+					${gameRunnerCode}
+					return GameRunner;
+				})();
+				
+				// Evaluate player strategies in their own scopes
+				const strategies = [${strategiesStr}];
 
-		if (!GameLogic || !GameRunner) {
-			throw new Error('Failed to load game class or game runner definition')
-		}
+				// Create array of Player objects as expected by GameRunner
+				const players = strategies.map((strategy, index) => ({
+					submissionId: 'player' + (index + 1),
+					strategy: strategy
+				}));
 
-		console.log('gameLogic:', GameLogic)
-		console.log('gameRunner:', GameRunner)
+				const game = new Game.default();
 
-		loggerRef.log('Logging from inside VM')
-
-		const game = new GameLogic()
-		console.log('game:', game)
-		const result = GameRunner.run(game, players, callbacksRef, loggerRef)
-
-		return result
-	}
-
+				const result = GameRunner.default.run(game, players, log);
+				const resultStr = JSON.stringify(result);
+				log.apply(undefined, ['Game results: ' + resultStr]);
+				return resultStr;
+			} catch (e) {
+				log.apply(undefined, ['Error: ' + e.message]);
+				return JSON.stringify({ error: e.message });
+			}
+		})();
+	`
 
 	try {
-		const vmExecutorString = vmExecutor.toString()
-		const result = await context.evalClosureSync(
-			vmExecutorString,
-			[
-				gameRunnerCode,
-				gameLogicCode,
-				players,
-				new ivm.Reference({
-					disqualifySubmission: (submissionId: string, message: string) =>
-						console.log(`Submission ${submissionId} disqualified.\nReason: ${message}`),
-				}),
-				new ivm.Reference(console),
-			],
-			{ arguments: { reference: true }, timeout: 2000 }
-		)
-		console.log('Game execution result:', result)
-		// Convert result back to expected format if needed
-		if (result && result.results) {
-			return new Map(Object.entries(result.results))
-		}
-		return new Map([['error', result?.error || 'No result returned from game execution']])
+		console.log('Starting execution...')
+		const resultString = await context.eval(testCode)
+		const results = JSON.parse(resultString) as GameResults
+		console.log('Raw result:', resultString)
+		console.log('Parsed results:', results)
+
+		// Convert results to GameResult map
+		return results
 	} catch (err) {
-		console.error('Error running game:', err)
+		console.error('VM Error:', err)
 		throw err
 	} finally {
 		isolate.dispose()
