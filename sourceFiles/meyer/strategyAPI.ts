@@ -6,7 +6,7 @@ import { PlayerError } from '../errors.ts'
 
 export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 	const ensureTurnActive = () => {
-		if (gameState.isTurnActive()) {
+		if (!gameState.isTurnActive()) {
 			throw new PlayerError('You cannot perform any more actions this turn.')
 		}
 	}
@@ -64,7 +64,7 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				throw new PlayerError('No previous action to reveal.')
 			}
 
-			const prevPlayerLied = prevAction.value !== prevAction.announcedValue // Doing 'det eller derover' while not scoring that or higher is considered lying
+			const prevPlayerLied = prevAction.value < prevAction.announcedValue // Doing 'det eller derover' while not scoring that or higher is considered lying
 			const prevAnnouncedValueIsMeyer = prevAction.announcedValue === 1000
 			const prevValueIsMeyer = prevAction.value === 1000
 
