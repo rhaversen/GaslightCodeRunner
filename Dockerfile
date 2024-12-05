@@ -8,7 +8,8 @@ FROM node:lts-bookworm
 # Use a non-interactive frontend for debconf
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build dependencies
+# Install build dependencies required for isolated-vm
+# python3 and g++ are already installed in the base image, but included here for explicitness
 RUN apt-get update && \
     apt-get install -y python3 g++ build-essential && \
     rm -rf /var/lib/apt/lists/*
