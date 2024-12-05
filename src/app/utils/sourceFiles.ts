@@ -21,6 +21,9 @@ const meyerUtilsSource = readFileSync(resolve(__dirname, '../../../sourceFiles/m
 
 //Strategies
 const dumbStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/dumbStrategy.ts'), 'utf-8')
+const honestStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/honestStrategy.ts'), 'utf-8')
+const lyingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/lyingStrategy.ts'), 'utf-8')
+const cheatingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/cheatingStrategy.ts'), 'utf-8')
 
 const sourceFiles = {
 	commonTypes: { 'commonTypes.ts': commonTypesSource },
@@ -34,7 +37,12 @@ const sourceFiles = {
 		types: { 'types.ts': meyerTypesSource },
 		utils: { 'utils.ts': meyerUtilsSource },
 	},
-	strategies: { dumbStrategy: { 'main.ts': dumbStrategySource } },
+	strategies: {
+		dumbStrategy: { 'main.ts': dumbStrategySource },
+		honestStrategy: { 'main.ts': honestStrategySource },
+		lyingStrategy: { 'main.ts': lyingStrategySource },
+		cheatingStrategy: { 'main.ts': cheatingStrategySource }
+	}
 }
 
 export const gameFiles = {
@@ -47,8 +55,29 @@ export const gameFiles = {
 	...sourceFiles.errors
 }
 
-export const strategyFiles = {
+export const dumbStrategyFiles = {
 	...sourceFiles.strategies.dumbStrategy,
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors
+}
+
+export const honestStrategyFiles = {
+	...sourceFiles.strategies.honestStrategy,
+	...sourceFiles.meyer.types,
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors
+}
+
+export const lyingStrategyFiles = {
+	...sourceFiles.strategies.lyingStrategy,
+	...sourceFiles.meyer.types,
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors
+}
+
+export const cheatingStrategyFiles = {
+	...sourceFiles.strategies.cheatingStrategy,
+	...sourceFiles.meyer.types,
 	...sourceFiles.commonTypes,
 	...sourceFiles.errors
 }
@@ -63,6 +92,6 @@ export const evaluatingGameRunnerFiles = {
 	...sourceFiles.evaluatingGameRunner,
 	...sourceFiles.commonTypes,
 	...sourceFiles.errors,
-} 
+}
 
 export default sourceFiles

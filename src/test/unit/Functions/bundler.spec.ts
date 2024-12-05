@@ -10,7 +10,7 @@ import { describe, it } from 'mocha'
 
 // Own modules
 import { bundleFiles } from '../../../app/services/gamerunner/bundler.js'
-import { gameFiles, strategyFiles, tournamentGameRunnerFiles, evaluatingGameRunnerFiles } from '../../../app/utils/sourceFiles.js'
+import { gameFiles, dumbStrategyFiles, tournamentGameRunnerFiles, evaluatingGameRunnerFiles } from '../../../app/utils/sourceFiles.js'
 
 // Environment variables
 
@@ -29,7 +29,7 @@ describe('gameBundler', function () {
 	})
 
 	it('should bundle the strategy files', async function () {
-		const bundledCode = await bundleFiles(strategyFiles, 'Strategy')
+		const bundledCode = await bundleFiles(dumbStrategyFiles, 'Strategy')
 		expect(bundledCode).to.be.a('string')
 	})
 
