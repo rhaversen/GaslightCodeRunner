@@ -2,6 +2,7 @@
 
 import type { Game, Player } from './commonTypes.d.ts'
 import { PlayerError } from './errors.ts'
+import { GameResults } from './gameRunners/types'
 
 export class Main {
 	static run = (
@@ -9,7 +10,7 @@ export class Main {
 		players: Player[],
 		callbacks: any,
 		logger: any,
-	): { results?: Map<string, number>; disqualified?: string[]; error?: string } => {
+	): GameResults => {
 		logger
 			.getSync('log')
 			.applySync(undefined, ['Logging from inside VM'])

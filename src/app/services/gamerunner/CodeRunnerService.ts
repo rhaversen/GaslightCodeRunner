@@ -2,9 +2,7 @@
 
 // Third-party libraries
 import ivm from 'isolated-vm'
-
-// Own modules
-import { Player, GameResult } from '../../../../sourceFiles/commonTypes.js'
+import type { GameResults } from '../../../../sourceFiles/gameRunners/types.d.ts'
 import { bundleFiles, FileMap } from './bundler.js'
 import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles } from '../../../app/utils/sourceFiles.js'
 
