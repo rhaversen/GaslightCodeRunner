@@ -2,15 +2,15 @@
 # code will be run in, along with what files are needed
 # for production
 
-# Use an official Node.js runtime as the base image
-FROM node:iron-bookworm-slim
+# Use 22.12.0 LTS version of Node.js and Debian as the base image
+FROM node:lts-bookworm
 
 # Use a non-interactive frontend for debconf
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
 RUN apt-get update && \
-    apt-get install -y python-is-python3 python3 g++ build-essential && \
+    apt-get install -y python g++ build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
