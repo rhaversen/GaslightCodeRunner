@@ -69,6 +69,8 @@ describe('CodeRunnerService', function () {
 		expect(result).to.not.have.property('results')
 		expect(result).to.have.property('disqualified')
 		expect(result).to.have.property('error')
+		expect(result.disqualified).to.have.lengthOf(1)
+		expect(result.disqualified![0]).to.be.a('string')
 	})
 
 	it('should include the message when disqualifying a strategy', async function () {
@@ -78,7 +80,7 @@ describe('CodeRunnerService', function () {
 			'Evaluation'
 		)
 
-		expect(result.error).to.have.property('message')
+		expect(result.error).to.be.a('string')
 	})
 })
 
