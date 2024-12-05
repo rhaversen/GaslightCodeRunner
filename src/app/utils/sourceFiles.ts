@@ -6,14 +6,16 @@ import { fileURLToPath } from 'node:url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// Read the contents of the source files
+// Game runners
 const EvaluatingGameRunnerSource = readFileSync(resolve(__dirname, '../../../sourceFiles/gameRunners/EvaluatingGameRunner.ts'), 'utf-8')
 const TournamentGameRunnerSource = readFileSync(resolve(__dirname, '../../../sourceFiles/gameRunners/TournamentGameRunner.ts'), 'utf-8')
 const GameRunnerTypesSource = readFileSync(resolve(__dirname, '../../../sourceFiles/gameRunners/types.d.ts'), 'utf-8')
+
+// Misc
 const commonTypesSource = readFileSync(resolve(__dirname, '../../../sourceFiles/commonTypes.d.ts'), 'utf-8')
 const errorsSource = readFileSync(resolve(__dirname, '../../../sourceFiles/errors.ts'), 'utf-8')
 
-//Meyer
+//Meyer game
 const meyerGameStateSource = readFileSync(resolve(__dirname, '../../../sourceFiles/meyer/gameState.ts'), 'utf-8')
 const meyerMainSource = readFileSync(resolve(__dirname, '../../../sourceFiles/meyer/main.ts'), 'utf-8')
 const meyerStrategyAPISource = readFileSync(resolve(__dirname, '../../../sourceFiles/meyer/strategyAPI.ts'), 'utf-8')
@@ -29,8 +31,8 @@ const cheatingStrategySource = readFileSync(resolve(__dirname, '../../../sourceF
 const sourceFiles = {
 	commonTypes: { 'commonTypes.ts': commonTypesSource },
 	gameRunners: {
-	evaluatingGameRunner: { 'main.ts': EvaluatingGameRunnerSource },
-	tournamentGameRunner: { 'main.ts': TournamentGameRunnerSource },
+		evaluatingGameRunner: { 'main.ts': EvaluatingGameRunnerSource },
+		tournamentGameRunner: { 'main.ts': TournamentGameRunnerSource },
 	},
 	gameRunnerTypes: { 'types.d.ts': GameRunnerTypesSource },
 	errors: { 'errors.ts': errorsSource },
