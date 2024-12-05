@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
 RUN apt-get update && \
-    apt-get install -y python g++ build-essential && \
+    apt-get install -y python3 g++ build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
