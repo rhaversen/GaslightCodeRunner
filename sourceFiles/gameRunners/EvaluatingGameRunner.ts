@@ -1,8 +1,8 @@
 /* eslint-disable local/enforce-comment-order */
 
-import type { Game, Player } from './commonTypes.d.ts'
-import { PlayerError } from './errors.ts'
-import { GameResults } from './gameRunners/types'
+import type { Game, Player } from '../commonTypes'
+import { PlayerError } from '../errors.ts'
+import { GameResults } from './types'
 
 export class Main {
 	static run = (

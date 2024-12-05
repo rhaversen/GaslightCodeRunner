@@ -4,7 +4,7 @@
 import ivm from 'isolated-vm'
 import type { GameResults } from '../../../../sourceFiles/gameRunners/types.d.ts'
 import { bundleFiles, FileMap } from './bundler.js'
-import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles } from '../../../app/utils/sourceFiles.js'
+import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles, } from '../../utils/sourceFiles.js'
 
 // Environment variables
 
