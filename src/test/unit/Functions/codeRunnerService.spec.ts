@@ -12,7 +12,7 @@ import { describe, it } from 'mocha'
 
 // Own modules
 import { runGame } from '../../../app/services/gamerunner/CodeRunnerService.js'
-import { gameFiles, dumbStrategyFiles, cheatingStrategyFiles } from '../../../app/utils/sourceFiles.js'
+import { gameFiles, dumbStrategyFiles, cheatingStrategyFiles, slowStrategyFiles } from '../../../app/utils/sourceFiles.js'
 
 // Setup test environment
 import '../../testSetup.js'
@@ -81,6 +81,21 @@ describe('CodeRunnerService', function () {
 		)
 
 		expect(result.error).to.be.a('string')
+	})
+
+	it('should timeout a strategy that takes too long', async function () {
+		const result = await runGame(
+			gameFiles,
+			[dumbStrategyFiles, slowStrategyFiles],
+			'Evaluation'
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.not.have.property('results')
+		expect(result).to.have.property('disqualified')
+		expect(result).to.have.property('error')
+		expect(result.disqualified).to.have.lengthOf(1)
+		expect(result.error).to.include('timed out')
 	})
 })
 
