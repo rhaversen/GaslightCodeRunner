@@ -8,8 +8,10 @@
  * The error should be thrown by the game when
  */
 export class PlayerError extends Error {
-	constructor(message: string) {
+	submissionId: string
+	constructor(message: string, submissionId: string) {
 		super(message)
 		this.name = 'PlayerError'
+		this.submissionId = submissionId
 	}
 }

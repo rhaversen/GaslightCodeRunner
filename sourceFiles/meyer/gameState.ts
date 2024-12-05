@@ -1,6 +1,5 @@
 /* eslint-disable local/enforce-comment-order */
 
-import type { GameResult } from '../commonTypes.d.ts'
 import { Action } from './types.ts'
 import { Scoring } from './utils.ts'
 
@@ -102,7 +101,7 @@ class GameState {
 		this.incrementCurrentPlayerIndex()
 	}
 
-	getResults(): GameResult {
+	getResults() {
 		return this.scoring?.getScores() || new Map<string, number>()
 	}
 }

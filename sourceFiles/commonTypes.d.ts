@@ -13,15 +13,8 @@
 export interface Game {
 	init(players: Player[]): void;
 	playRound(): void;
-	getResults(): GameResult;
+	getResults(): Map<string, number>;
 }
-
-/**
- * Represents the result of a game.
- * @description
- * A map of submission IDs to the player's final score. Score can be both positive and negative.
-*/
-export type GameResult = Map<string, number>;
 
 /**
  * Represents a player's strategy function.
