@@ -2,16 +2,14 @@
 
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
-import { GameLog, GameResults } from './types.ts'
+import { GameResults } from './types.ts'
 
 export class Main {
 	static run(
 		game: Game,
 		players: Player[],
-		log: GameLog,
 	): GameResults {
-		const amountOfPlayers = players.length.toString()
-		log.apply(undefined, ['Running game with ' + amountOfPlayers + ' players'])
+		console.log('Running game with ' + players.length + ' players')
 
 		let totalResults: { [key: string]: number } = {}
 		const numEpochs = 100
@@ -20,13 +18,12 @@ export class Main {
 		// Separate candidate from other players
 		const [candidate, ...otherPlayers] = players
 		if (!candidate) {
-			log.apply(undefined, ['No candidate player provided'])
+			console.log('No candidate player provided')
 			return { error: 'No candidate player provided' }
 		}
 
 		for (let epoch = 0; epoch < numEpochs; epoch++) {
-			const epochString = (epoch + 1).toString()
-			log.apply(undefined, ['Running epoch ' + epochString])
+			console.log('Running epoch ' + (epoch + 1))
 
 			// Select random players and add candidate
 			const randomPlayers = [...otherPlayers]
@@ -39,44 +36,37 @@ export class Main {
 
 				try {
 					game.playRound()
-					const logsString = 'Results after round: ' + JSON.stringify(game.getResults())
-					log.apply(undefined, [logsString])
+					console.log('Results after round: ' + JSON.stringify(game.getResults()))
 					// Collect results
 					const results = game.getResults()
 					for (const [key, value] of results) {
 						totalResults[key] = (totalResults[key] || 0) + value
 					}
-					const logString2 = 'Total results after round: ' + JSON.stringify(totalResults)
-					log.apply(undefined, [logString2])
+					console.log('Total results after round: ' + JSON.stringify(totalResults))
 				} catch (error) {
 					if (error instanceof Error && error.name === 'PlayerError' && error.message !== undefined) {
 						const playerError = error as PlayerError // Cast error to PlayerError
-						const logString = 'Player ' + playerError.submissionId.toString() + ' disqualified: ' + error.message.toString()
-						log.apply(undefined, [logString])
-						const logString2 = 'Returning total results: ' + JSON.stringify(totalResults)
-						log.apply(undefined, [logString2])
+						console.log('Player ' + playerError.submissionId + ' disqualified: ' + error.message)
+						console.log('Returning total results: ' + JSON.stringify(totalResults))
 						// End the evaluation
 						return {
 							error: error.message,
 							disqualified: [playerError.submissionId],
 						}
 					} else {
-						const logsString = 'Error executing player turn, no PlayerError thrown ' + error.toString()
-						log.apply(undefined, [logsString])
+						console.log('Error executing player turn, no PlayerError thrown ' + error)
 						throw error
 					}
 				}
 			} catch (error) {
-				const logString = 'Game execution failed: ' + (error instanceof Error ? error.message : 'Game execution failed')
-				log.apply(undefined, [logString])
+				console.log('Game execution failed: ' + (error instanceof Error ? error.message : 'Game execution failed'))
 				return {
 					error: error instanceof Error ? error.message : 'Game execution failed'
 				}
 			}
 		}
 
-		const logString2 = 'Returning total results: ' + JSON.stringify(totalResults)
-		log.apply(undefined, [logString2])
+		console.log('Returning total results: ' + JSON.stringify(totalResults))
 		return {
 			results: totalResults
 		}

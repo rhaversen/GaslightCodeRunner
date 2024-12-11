@@ -10,11 +10,3 @@ export interface GameResults {
 	disqualified?: string[]
 	error?: string
 }
-
-/**
- * Represents the logging interface for the game.
- * @property applySync - Logs a message synchronously.
-*/
-export interface GameLog {
-	apply: (thisArg: undefined, args: string[]) => void
-}

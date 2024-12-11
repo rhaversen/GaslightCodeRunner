@@ -18,11 +18,28 @@ export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[],
 	const isolate = new ivm.Isolate({ memoryLimit: 128 })
 	const context = await isolate.createContext()
 
-	// Create a simple logging function for primitives only
-	const log = new ivm.Reference((value: any) => {
-		console.log('VM Log:', value.toString())
+	// Create log function
+	const log = new ivm.Reference((...args: any[]) => {
+		console.log('VM:', ...args.map(arg => {
+			try {
+				return typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+			} catch {
+				return String(arg)
+			}
+		}))
 	})
 	await context.global.set('log', log)
+
+	// Set up console.log override
+	const consoleLogSetup = `
+		console = {
+			log: (...args) => log.apply(undefined, args),
+			error: (...args) => log.apply(undefined, ['ERROR:', ...args]),
+			warn: (...args) => log.apply(undefined, ['WARN:', ...args]),
+			info: (...args) => log.apply(undefined, ['INFO:', ...args])
+		};
+	`
+	await context.eval(consoleLogSetup)
 
 	// Bundle game logic
 	const gameLogicCode = await bundleFiles(gameLogicFiles, 'Game')
@@ -80,12 +97,12 @@ export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[],
 
 				const game = new Game.default();
 
-				const result = GameRunner.default.run(game, players, log);
+				const result = GameRunner.default.run(game, players);
 				const resultStr = JSON.stringify(result);
 				log.apply(undefined, ['Game results: ' + resultStr]);
 				return resultStr;
 			} catch (e) {
-				log.apply(undefined, ['Error: ' + e.message]);
+				console.error('Error:', e.message);
 				return JSON.stringify({ error: e.message });
 			}
 		})();
