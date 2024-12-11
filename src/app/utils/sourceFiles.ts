@@ -29,6 +29,7 @@ const lyingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFile
 const cheatingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/cheatingStrategy.ts'), 'utf-8')
 const slowStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/slowStrategy.ts'), 'utf-8')
 const revealingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/revealingStrategy.ts'), 'utf-8')
+const detEllerDeroverStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/detEllerDeroverStrategy.ts'), 'utf-8')
 
 const sourceFiles = {
 	commonTypes: { 'commonTypes.ts': commonTypesSource },
@@ -52,6 +53,7 @@ const sourceFiles = {
 		cheatingStrategy: { 'main.ts': cheatingStrategySource },
 		slowStrategy: { 'main.ts': slowStrategySource },
 		revealingStrategy: { 'main.ts': revealingStrategySource },
+		detEllerDeroverStrategy: { 'main.ts': detEllerDeroverStrategySource },
 	}
 }
 
@@ -102,6 +104,13 @@ export const slowStrategyFiles = {
 
 export const revealingStrategyFiles = {
 	...sourceFiles.strategies.revealingStrategy,
+	...sourceFiles.meyer.types,
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors
+}
+
+export const detEllerDeroverStrategyFiles = {
+	...sourceFiles.strategies.detEllerDeroverStrategy,
 	...sourceFiles.meyer.types,
 	...sourceFiles.commonTypes,
 	...sourceFiles.errors
