@@ -8,11 +8,8 @@ const main = (api: MeyerStrategyAPI) => {
 		return
 	}
 
-	// Get previous announced value
-	const lastScore = api.getPreviousAction()
-
-	// We always lie last turn
-	api.lie(api.roundUpToValidScore(lastScore + 1))
+	// We always lie with maximum score
+	api.lie(1000)
 }
 
 export default main
