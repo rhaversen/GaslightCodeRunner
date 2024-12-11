@@ -111,11 +111,11 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 			const realValue = gameState.getPreviousActions()[0].value
 
 			if (!isValidScore(lieValue)) {
-				throw new PlayerError('Invalid lie value.')
+				throw new PlayerError(`Invalid lie value. You announced ${lieValue}`)
 			}
 
 			if (lieValue <= prevValue) {
-				throw new PlayerError('You must announce a higher value than the previous player.')
+				throw new PlayerError(`You must announce a higher value than the previous player. You rolled ${realValue}, and they rolled ${prevValue}`)
 			}
 
 			gameState.addAction({

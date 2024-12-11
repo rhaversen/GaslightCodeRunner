@@ -31,7 +31,7 @@ export class Main implements Game {
 			const value = gameState.getPreviousActions()[0].announcedValue
 			const prevValue = gameState.getPreviousActions()[1]?.announcedValue || 0
 			if (value <= prevValue) {
-				throw new PlayerError('You must announce a higher value than the previous player.', this.players[playerIndex].submissionId)
+				throw new PlayerError(`You must announce a higher value than the previous player. You rolled ${value}, and they rolled ${prevValue}`, this.players[playerIndex].submissionId)
 			}
 
 			// Reset
