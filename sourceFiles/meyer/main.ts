@@ -25,8 +25,9 @@ export class Main implements Game {
 					throw new PlayerError(error.message, this.players[playerIndex].submissionId)
 				}
 			}
-			if (!gameState.hasPlayerRolled()) {
-				throw new PlayerError('You must roll before you can end your turn.', this.players[playerIndex].submissionId)
+			const canEndTurn = !gameState.isTurnActive() || gameState.hasPlayerRolled()
+			if (!canEndTurn) {
+				throw new PlayerError('You cannot return before your turn is over', this.players[playerIndex].submissionId)
 			}
 			const value = gameState.getPreviousActions()[0].announcedValue
 			const prevValue = gameState.getPreviousActions()[1]?.announcedValue || 0

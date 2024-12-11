@@ -9,6 +9,7 @@ const main = (api: MeyerStrategyAPI) => {
 	}
 
 	// We always call 'det eller derover'
+	api.roll()
 	api.detEllerDerover()
 }
 
