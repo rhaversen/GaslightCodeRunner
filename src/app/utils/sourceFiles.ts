@@ -65,6 +65,7 @@ export const gameFiles = {
 
 export const dumbStrategyFiles = {
 	...sourceFiles.strategies.dumbStrategy,
+	...sourceFiles.meyer.types,
 	...sourceFiles.commonTypes,
 	...sourceFiles.errors
 }
