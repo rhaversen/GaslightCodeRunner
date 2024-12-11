@@ -15,8 +15,6 @@ import { runGame } from '../../../app/services/gamerunner/CodeRunnerService.js'
 import {
 	gameFiles,
 	dumbStrategyFiles,
-	cheatingStrategyFiles,
-	slowStrategyFiles,
 	honestStrategyFiles,
 	revealingStrategyFiles,
 	detEllerDeroverStrategyFiles
@@ -26,6 +24,19 @@ import {
 import '../../testSetup.js'
 
 describe('Running games with different strategies', function () {
+	it('should run a game with all strategies', async function () {
+		const result = await runGame(
+			gameFiles,
+			[dumbStrategyFiles, honestStrategyFiles, revealingStrategyFiles, detEllerDeroverStrategyFiles],
+			'Evaluation'
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+	})
+
 	it('should run a game with detEllerDerover and revealing strategies', async function () {
 		const result = await runGame(
 			gameFiles,
@@ -38,5 +49,69 @@ describe('Running games with different strategies', function () {
 		expect(result).to.not.have.property('disqualified')
 		expect(result).to.not.have.property('error')
 	})
-})
 
+	it('should run a game with detEllerDerover and honest strategies', async function () {
+		const result = await runGame(
+			gameFiles,
+			[detEllerDeroverStrategyFiles, honestStrategyFiles],
+			'Evaluation'
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+	})
+
+	it('should run a game with detEllerDerover and dumb strategies', async function () {
+		const result = await runGame(
+			gameFiles,
+			[detEllerDeroverStrategyFiles, dumbStrategyFiles],
+			'Evaluation'
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+	})
+
+	it('should run a game with revealing and honest strategies', async function () {
+		const result = await runGame(
+			gameFiles,
+			[revealingStrategyFiles, honestStrategyFiles],
+			'Evaluation'
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+	})
+
+	it('should run a game with revealing and dumb strategies', async function () {
+		const result = await runGame(
+			gameFiles,
+			[revealingStrategyFiles, dumbStrategyFiles],
+			'Evaluation'
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+	})
+
+	it('should run a game with honest and dumb strategies', async function () {
+		const result = await runGame(
+			gameFiles,
+			[honestStrategyFiles, dumbStrategyFiles],
+			'Evaluation'
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+	})
+})
