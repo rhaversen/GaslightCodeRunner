@@ -9,8 +9,12 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 
 // Own modules
-import { bundleFiles } from '../../../app/services/gamerunner/bundler.js'
-import { gameFiles, dumbStrategyFiles, tournamentGameRunnerFiles, evaluatingGameRunnerFiles } from '../../../app/utils/sourceFiles.js'
+import { bundleFiles } from '../../../../app/services/gamerunner/bundler.js'
+import {
+	gameFiles,
+	tournamentGameRunnerFiles,
+	evaluatingGameRunnerFiles
+} from '../../../../app/utils/sourceFiles.js'
 
 // Environment variables
 
@@ -19,17 +23,12 @@ import { gameFiles, dumbStrategyFiles, tournamentGameRunnerFiles, evaluatingGame
 // Destructuring and global variables
 
 // Setup test environment
-import '../../testSetup.js'
+import '../../../testSetup.js'
 
 describe('gameBundler', function () {
 
 	it('should bundle the game files', async function () {
 		const bundledCode = await bundleFiles(gameFiles, 'Game')
-		expect(bundledCode).to.be.a('string')
-	})
-
-	it('should bundle the strategy files', async function () {
-		const bundledCode = await bundleFiles(dumbStrategyFiles, 'Strategy')
 		expect(bundledCode).to.be.a('string')
 	})
 

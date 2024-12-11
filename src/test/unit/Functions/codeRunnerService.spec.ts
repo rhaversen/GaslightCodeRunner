@@ -12,7 +12,12 @@ import { describe, it } from 'mocha'
 
 // Own modules
 import { runGame } from '../../../app/services/gamerunner/CodeRunnerService.js'
-import { gameFiles, dumbStrategyFiles, cheatingStrategyFiles, slowStrategyFiles } from '../../../app/utils/sourceFiles.js'
+import {
+	gameFiles,
+	cheatingStrategyFiles,
+	slowStrategyFiles,
+	dumbStrategyFiles,
+} from '../../../app/utils/sourceFiles.js'
 
 // Setup test environment
 import '../../testSetup.js'
@@ -59,7 +64,7 @@ describe('CodeRunnerService', function () {
 	it('should disqualify a strategy that throws an error', async function () {
 		const result = await runGame(
 			gameFiles,
-			[dumbStrategyFiles, cheatingStrategyFiles],
+			[cheatingStrategyFiles],
 			'Evaluation'
 		)
 
@@ -76,7 +81,7 @@ describe('CodeRunnerService', function () {
 	it('should include the message when disqualifying a strategy', async function () {
 		const result = await runGame(
 			gameFiles,
-			[dumbStrategyFiles, cheatingStrategyFiles],
+			[cheatingStrategyFiles],
 			'Evaluation'
 		)
 
@@ -86,7 +91,7 @@ describe('CodeRunnerService', function () {
 	it('should timeout a strategy that takes too long', async function () {
 		const result = await runGame(
 			gameFiles,
-			[dumbStrategyFiles, slowStrategyFiles],
+			[slowStrategyFiles],
 			'Evaluation'
 		)
 
