@@ -90,14 +90,18 @@ class GameState {
 
 	prepareNextPlayer(): void {
 		if (this.roundActive) {
+			// If the round is still active, we only need to prepare the next player
 			this.firstInRound = false
 		} else {
+			// If the round is over, we need to reset the round and prepare the next player
 			this.firstInRound = true
 			this.previousActions = []
 			this.roundActive = true
 		}
+		// Reset turn-specific variables
 		this.hasRolled = false
 		this.turnActive = true
+		// Increment the current player index
 		this.incrementCurrentPlayerIndex()
 	}
 
