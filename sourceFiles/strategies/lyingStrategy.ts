@@ -11,18 +11,8 @@ const main = (api: MeyerStrategyAPI) => {
 	// Get previous announced value
 	const lastScore = api.getPreviousAction()
 
-	// Roll the dice
-	const currentScore = api.roll()
-
-	// If our score is higher or equal, finish the turn
-	if (currentScore >= lastScore) {
-		return
-	}
-
-	// If our score is lower, we can either lie or call "det eller derover"
-	if (Math.random() > 0.5) {
-		api.lie(api.roundUpToValidScore(lastScore + 1))
-	}
+	// We always lie last turn
+	api.lie(api.roundUpToValidScore(lastScore + 1))
 }
 
 export default main

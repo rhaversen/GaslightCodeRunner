@@ -8,18 +8,7 @@ const main = (api: MeyerStrategyAPI) => {
 		return
 	}
 
-	// Get previous announced value
-	const lastScore = api.getPreviousAction()
-
-	// Roll the dice
-	const currentScore = api.roll()
-
-	// If our score is higher or equal, finish the turn
-	if (currentScore >= lastScore) {
-		return
-	}
-
-	// If our score is lower, we reveal
+	// We always reveal last turn
 	api.reveal()
 }
 
