@@ -9,6 +9,7 @@ import { PlayerError } from '../errors.ts'
 export class Main implements Game {
 	private players: Player[] = []
 	private isRoundActive = true
+	private turnCount = 0
 
 	init(players: Player[]) {
 		gameState.init(players.map(player => player.submissionId))
@@ -17,6 +18,13 @@ export class Main implements Game {
 
 	playRound() {
 		do {
+			this.turnCount++
+			if (this.turnCount > 100) {
+				// Prevent infinite loops
+				this.isRoundActive = false
+				break
+			}
+
 			const playerIndex = gameState.getCurrentPlayerIndex()
 			const api = createStrategyAPI(playerIndex)
 			try {
