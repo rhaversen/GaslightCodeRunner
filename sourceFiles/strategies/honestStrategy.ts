@@ -15,7 +15,7 @@ const main = (api: MeyerStrategyAPI) => {
 	const currentScore = api.roll()
 
 	// If our score is higher or equal, finish the turn
-	if (currentScore >= lastScore) {
+	if (lastScore === null || currentScore >= lastScore) {
 		return
 	}
 

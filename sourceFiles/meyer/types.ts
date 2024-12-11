@@ -31,14 +31,14 @@ export interface MeyerStrategyAPI {
 	 * Will only reveal the announced value (possible lie) of the previous actions.
 	 * The value of the action is the calculated score of the dice.
 	 */
-	getPreviousActions: () => number[];
+	getPreviousActions: () => number[] | null;
 	/**
 	 * @returns The previous action
 	 * @description
 	 * Will only reveal the announced value (possible lie) of the previous action.
 	 * The value of the action is the calculated score of the dice.
 	 */
-	getPreviousAction: () => number;
+	getPreviousAction: () => number | null;
 	/**
 	 * @param score - The score to round up
 	 * @returns The rounded up score

@@ -14,11 +14,19 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 		calculateDieScore: (dice: DiePair) => calculateScore(dice),
 		getPreviousActions: () => {
 			ensureTurnActive()
+			const actions = gameState.getPreviousActions()
+			if (actions.length === 0) {
+				return null
+			}
 			return gameState.getPreviousActions().map(action => action.announcedValue)
 		},
 		getPreviousAction: () => {
 			ensureTurnActive()
-			return gameState.getPreviousActions()[0]?.announcedValue
+			const actions = gameState.getPreviousActions()
+			if (actions.length === 0) {
+				return null
+			}
+			return gameState.getPreviousActions()[0].announcedValue
 		},
 		roundUpToValidScore: (score: number) => roundUpToValidScore(score),
 		isFirstInRound: () => {
