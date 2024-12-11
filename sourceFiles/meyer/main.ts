@@ -8,6 +8,7 @@ import { PlayerError } from '../errors.ts'
 
 export class Main implements Game {
 	private players: Player[] = []
+	private isRoundActive = true
 
 	init(players: Player[]) {
 		gameState.init(players.map(player => player.submissionId))
@@ -35,9 +36,13 @@ export class Main implements Game {
 				throw new PlayerError(`You must announce a higher value than the previous player. You rolled ${value}, and they rolled ${prevValue}`, this.players[playerIndex].submissionId)
 			}
 
+			// Check if the round is over
+			// The game can run indefinitely, but we want to stop after a single round
+			this.isRoundActive = gameState.isRoundActive() 
+
 			// Reset
 			gameState.prepareNextPlayer()
-		} while (gameState.isRoundActive())
+		} while (this.isRoundActive)
 	}
 
 	getResults() {
