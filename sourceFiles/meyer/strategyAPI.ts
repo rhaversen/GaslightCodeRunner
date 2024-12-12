@@ -114,6 +114,9 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				throw new PlayerError('You must roll before you can lie.')
 			}
 
+			// TODO: Dont add the roll to the actions immediatly. Only add action when turn is ended. Currently, calling roll and then getLatestAction will return the roll action, not the previous player's action.
+			gameState.removePreviousAction()
+
 			const lieValue = score
 			const prevValue = gameState.getPreviousActions()[1]?.announcedValue || 0
 			const realValue = gameState.getPreviousActions()[0].value
@@ -122,8 +125,8 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				throw new PlayerError(`Invalid lie value. You announced ${lieValue}`)
 			}
 
-			if (lieValue <= prevValue) {
-				throw new PlayerError(`You must announce a higher value than the previous player. You rolled ${realValue}, and they rolled ${prevValue}`)
+			if (lieValue < prevValue) {
+				throw new PlayerError(`You must announce a higher value than the previous player. You lied with ${lieValue}, and they announced ${prevValue}`)
 			}
 
 			gameState.addAction({
