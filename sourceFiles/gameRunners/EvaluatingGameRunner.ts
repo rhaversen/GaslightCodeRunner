@@ -38,6 +38,10 @@ export class Main {
 					game.playRound()
 					// Collect results
 					const results = game.getResults()
+					// Alert if all result values are 0
+					if (Object.values(Object.fromEntries(results)).every(value => value === 0)) {
+						console.warn('All results are 0')
+					}
 					for (const [key, value] of results) {
 						totalResults[key] = (totalResults[key] || 0) + value
 					}
