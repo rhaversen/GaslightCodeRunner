@@ -93,7 +93,7 @@ class GameState {
 		return this.roundActive
 	}
 
-	prepareNextPlayer(): void {
+	prepareNextTurn(): void {
 		if (this.roundActive) {
 			// If the round is still active, we only need to prepare the next player
 			this.firstInRound = false

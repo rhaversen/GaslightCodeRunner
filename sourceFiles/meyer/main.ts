@@ -49,7 +49,7 @@ export class Main implements Game {
 			this.isRoundActive = gameState.isRoundActive() 
 
 			// Reset
-			gameState.prepareNextPlayer()
+			gameState.prepareNextTurn()
 		} while (this.isRoundActive)
 	}
 
