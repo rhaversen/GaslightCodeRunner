@@ -21,7 +21,7 @@ const main = (api: MeyerStrategyAPI) => {
 
 	// If our score is lower, we can either lie or call "det eller derover"
 	if (Math.random() > 0.5) {
-		api.lie(api.roundUpToValidScore(lastScore + 1))
+		api.lie(lastScore)
 	} else {
 		api.detEllerDerover()
 	}
