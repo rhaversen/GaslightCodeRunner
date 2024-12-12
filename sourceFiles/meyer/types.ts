@@ -30,6 +30,8 @@ export interface MeyerStrategyAPI {
 	 * @description
 	 * Will only reveal the announced value (possible lie) of the previous actions.
 	 * The value of the action is the calculated score of the dice.
+	 * If there are no previous actions, null will be returned.
+	 * If the player has already rolled the dice, the previous action will be the roll action.
 	 */
 	getPreviousActions: () => number[] | null;
 	/**
@@ -37,6 +39,8 @@ export interface MeyerStrategyAPI {
 	 * @description
 	 * Will only reveal the announced value (possible lie) of the previous action.
 	 * The value of the action is the calculated score of the dice.
+	 * If there are no previous actions, null will be returned.
+	 * If the player has already rolled the dice, the previous action will be the roll action.
 	 */
 	getPreviousAction: () => number | null;
 	/**
