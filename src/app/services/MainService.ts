@@ -6,6 +6,7 @@ import axios from 'axios'
 // Own modules
 import logger from '../utils/logger.js'
 import AppConfig from '../utils/setupConfig.js'
+import { FileMap } from './gamerunner/bundler.js'
 
 // Environment variables
 const { MICROSERVICE_AUTHORIZATION } = process.env as Record<string, string>
@@ -42,7 +43,7 @@ export async function createGradingForSubmission(score: number, submissionId: st
 	}
 }
 
-export async function getSubmissions(): Promise<Array<{ [key: string]: string }> | undefined> {
+export async function getSubmissions(): Promise<Array<{ submissionId: string, files: FileMap }> | undefined> {
 	try {
 		const response = await axios.get(`http://${mainServiceHost}/api/v1/microservices/submissions`, {
 			headers: {

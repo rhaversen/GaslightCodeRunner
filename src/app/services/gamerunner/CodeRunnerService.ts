@@ -14,7 +14,7 @@ import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles, } from '../../uti
 
 // Destructuring and global variables
 
-export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[], type: 'Evaluation' | 'Tournament'): Promise<GameResults> {
+export async function runGame(gameLogicFiles: FileMap, strategies: { submissionId: string, files: FileMap }[], type: 'Evaluation' | 'Tournament'): Promise<GameResults> {
 	const isolate = new ivm.Isolate({ memoryLimit: 128 })
 	const context = await isolate.createContext()
 
@@ -54,10 +54,11 @@ export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[],
 
 	// Bundle strategies
 	const strategyBundles = await Promise.all(
-		strategyFiles.map(files => bundleFiles(files, 'Strategy'))
+		strategies.map(s => bundleFiles(s.files, 'Strategy'))
 	)
 
 	// Create the strategies array string
+	const submissionIds = strategies.map(s => s.submissionId)
 	const strategiesStr = strategyBundles
 		.map((bundle, index) => `
 			(() => {
@@ -88,10 +89,11 @@ export async function runGame(gameLogicFiles: FileMap, strategyFiles: FileMap[],
 				
 				// Evaluate player strategies in their own scopes
 				const strategies = [${strategiesStr}];
+				const submissionIds = ${JSON.stringify(submissionIds)};
 
 				// Create array of Player objects as expected by GameRunner
 				const players = strategies.map((strategy, index) => ({
-					submissionId: 'player' + (index + 1),
+					submissionId: submissionIds[index],
 					strategy: strategy
 				}));
 

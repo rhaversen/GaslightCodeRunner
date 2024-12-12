@@ -31,37 +31,37 @@ import '../../../testSetup.js'
 
 describe('gameBundler', function () {
 	it('should bundle dumb strategy', async function () {
-		const bundledCode = await bundleFiles(dumbStrategyFiles, 'Game')
+		const bundledCode = await bundleFiles(dumbStrategyFiles.files, 'Game')
 		expect(bundledCode).to.be.a('string')
 	})
 
 	it('should bundle honest strategy', async function () {
-		const bundledCode = await bundleFiles(honestStrategyFiles, 'Game')
+		const bundledCode = await bundleFiles(honestStrategyFiles.files, 'Game')
 		expect(bundledCode).to.be.a('string')
 	})
 
 	it('should bundle lying strategy', async function () {
-		const bundledCode = await bundleFiles(lyingStrategyFiles, 'Game')
+		const bundledCode = await bundleFiles(lyingStrategyFiles.files, 'Game')
 		expect(bundledCode).to.be.a('string')
 	})
 
 	it('should bundle cheating strategy', async function () {
-		const bundledCode = await bundleFiles(cheatingStrategyFiles, 'Game')
+		const bundledCode = await bundleFiles(cheatingStrategyFiles.files, 'Game')
 		expect(bundledCode).to.be.a('string')
 	})
 
 	it('should bundle slow strategy', async function () {
-		const bundledCode = await bundleFiles(slowStrategyFiles, 'Game')
+		const bundledCode = await bundleFiles(slowStrategyFiles.files, 'Game')
 		expect(bundledCode).to.be.a('string')
 	})
 
 	it('should bundle detEllerDerover strategy', async function () {
-		const bundledCode = await bundleFiles(detEllerDeroverStrategyFiles, 'Game')
+		const bundledCode = await bundleFiles(detEllerDeroverStrategyFiles.files, 'Game')
 		expect(bundledCode).to.be.a('string')
 	})
 
 	it('should bundle revealing strategy', async function () {
-		const bundledCode = await bundleFiles(revealingStrategyFiles, 'Game')
+		const bundledCode = await bundleFiles(revealingStrategyFiles.files, 'Game')
 		expect(bundledCode).to.be.a('string')
 	})
 })

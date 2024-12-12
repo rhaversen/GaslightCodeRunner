@@ -6,7 +6,7 @@ import { Request, Response } from 'express'
 // Own modules
 import { runGame } from '../services/gamerunner/CodeRunnerService.js'
 import { getSubmissions } from '../services/MainService.js'
-import { isFileMap } from '../services/gamerunner/bundler.js'
+import { FileMap, isFileMap } from '../services/gamerunner/bundler.js'
 
 // Environment variables
 
@@ -23,12 +23,18 @@ export async function evaluateSubmission(req: Request, res: Response) {
 
 	const strategies = await getSubmissions()
 
-	if (!strategies || !strategies.every(isFileMap)) {
+	// First validate all strategies have valid files
+	if (!strategies?.length || !strategies.every(strategy => isFileMap(strategy.files))) {
 		return res.status(500).json({ error: 'Invalid submission format' })
 	}
 
 	try {
-		const result = await runGame(code, strategies, 'Evaluation')
+		// After validation, we can safely assert the type
+		const mappedStrategies = strategies.map(strategy => ({
+			submissionId: strategy.submissionId,
+			files: strategy.files as FileMap
+		}))
+		const result = await runGame(code, mappedStrategies, 'Evaluation')
 		res.json(result)
 	} catch (error) {
 		res.status(500).json({ error: error instanceof Error ? error.message : 'Execution failed' })

@@ -68,52 +68,73 @@ export const gameFiles = {
 }
 
 export const dumbStrategyFiles = {
-	...sourceFiles.strategies.dumbStrategy,
-	...sourceFiles.meyer.types,
-	...sourceFiles.commonTypes,
-	...sourceFiles.errors
+	submissionId: 'dumb',
+	files: {
+		...sourceFiles.strategies.dumbStrategy,
+		...sourceFiles.meyer.types,
+		...sourceFiles.commonTypes,
+		...sourceFiles.errors
+	}
 }
 
 export const honestStrategyFiles = {
-	...sourceFiles.strategies.honestStrategy,
-	...sourceFiles.meyer.types,
-	...sourceFiles.commonTypes,
-	...sourceFiles.errors
+	submissionId: 'honest',
+	files: {
+		...sourceFiles.strategies.honestStrategy,
+		...sourceFiles.meyer.types,
+		...sourceFiles.commonTypes,
+		...sourceFiles.errors
+	}
 }
 
 export const lyingStrategyFiles = {
-	...sourceFiles.strategies.lyingStrategy,
-	...sourceFiles.meyer.types,
-	...sourceFiles.commonTypes,
-	...sourceFiles.errors
+	submissionId: 'lying',
+	files: {
+		...sourceFiles.strategies.lyingStrategy,
+		...sourceFiles.meyer.types,
+		...sourceFiles.commonTypes,
+		...sourceFiles.errors
+	}
 }
 
 export const cheatingStrategyFiles = {
-	...sourceFiles.strategies.cheatingStrategy,
-	...sourceFiles.meyer.types,
-	...sourceFiles.commonTypes,
-	...sourceFiles.errors
+	submissionId: 'cheating',
+	files: {
+		...sourceFiles.strategies.cheatingStrategy,
+		...sourceFiles.meyer.types,
+		...sourceFiles.commonTypes,
+		...sourceFiles.errors
+	}
 }
 
 export const slowStrategyFiles = {
-	...sourceFiles.strategies.slowStrategy,
-	...sourceFiles.meyer.types,
-	...sourceFiles.commonTypes,
-	...sourceFiles.errors
+	submissionId: 'slow',
+	files: {
+		...sourceFiles.strategies.slowStrategy,
+		...sourceFiles.meyer.types,
+		...sourceFiles.commonTypes,
+		...sourceFiles.errors
+	}
 }
 
 export const revealingStrategyFiles = {
-	...sourceFiles.strategies.revealingStrategy,
-	...sourceFiles.meyer.types,
-	...sourceFiles.commonTypes,
-	...sourceFiles.errors
+	submissionId: 'revealing',
+	files: {
+		...sourceFiles.strategies.revealingStrategy,
+		...sourceFiles.meyer.types,
+		...sourceFiles.commonTypes,
+		...sourceFiles.errors
+	}
 }
 
 export const detEllerDeroverStrategyFiles = {
-	...sourceFiles.strategies.detEllerDeroverStrategy,
-	...sourceFiles.meyer.types,
-	...sourceFiles.commonTypes,
-	...sourceFiles.errors
+	submissionId: 'detEllerDerover',
+	files: {
+		...sourceFiles.strategies.detEllerDeroverStrategy,
+		...sourceFiles.meyer.types,
+		...sourceFiles.commonTypes,
+		...sourceFiles.errors
+	}
 }
 
 export const tournamentGameRunnerFiles = {
