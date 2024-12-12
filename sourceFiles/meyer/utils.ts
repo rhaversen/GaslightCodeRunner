@@ -36,24 +36,3 @@ export function roundUpToValidScore(score: number): number {
 	}
 	return 0
 }
-
-export class Scoring {
-	private scores: Map<string, number>
-	private submissionIds: string[]
-
-	constructor(submissionIds: string[]) {
-		this.submissionIds = submissionIds
-		this.scores = new Map(submissionIds.map(id => [id, 6]))
-	}
-
-	penalize(playerIndex: number, subAmount: number) {
-		// Convert player indices to submission IDs
-		const id = this.submissionIds[playerIndex]
-		const currentScore = this.scores.get(id) || 6
-		this.scores.set(id, currentScore - subAmount)
-	}
-
-	getScores(): Map<string, number> {
-		return this.scores
-	}
-}

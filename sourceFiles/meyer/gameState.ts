@@ -1,7 +1,6 @@
 /* eslint-disable local/enforce-comment-order */
 
 import { Action } from './types.ts'
-import { Scoring } from './utils.ts'
 
 class GameState {
 	private static instance: GameState
@@ -10,9 +9,10 @@ class GameState {
 	private currentPlayerIndex = 0
 	private amountOfPlayers = 0
 	private hasRolled = false
-	private scoring?: Scoring
+	private scoring: Map<string, number> = new Map()
 	private turnActive = true
 	private roundActive = true
+	private playerIds: string[] = []
 
 	static getInstance(): GameState {
 		if (!GameState.instance) {
@@ -23,7 +23,8 @@ class GameState {
 
 	init(ids: string[]) {
 		this.amountOfPlayers = ids.length
-		this.scoring = new Scoring(ids)
+		this.playerIds = [...ids]
+		this.scoring = new Map(ids.map(id => [id, 0]))
 	}
 
 	addAction(action: Action): void {
@@ -31,11 +32,15 @@ class GameState {
 	}
 
 	penalizePlayer(playerIndex: number): void {
-		this.scoring?.penalize(playerIndex, 1)
+		const playerId = this.playerIds[playerIndex]
+		const currentScore = this.scoring.get(playerId)!
+		this.scoring.set(playerId, currentScore - 1)
 	}
 
 	doublePenalizePlayer(playerIndex: number): void {
-		this.scoring?.penalize(playerIndex, 2)
+		const playerId = this.playerIds[playerIndex]
+		const currentScore = this.scoring.get(playerId)!
+		this.scoring.set(playerId, currentScore - 2)
 	}
 
 	// Getters and setters
@@ -106,7 +111,7 @@ class GameState {
 	}
 
 	getResults() {
-		return this.scoring?.getScores() || new Map<string, number>()
+		return this.scoring
 	}
 }
 
