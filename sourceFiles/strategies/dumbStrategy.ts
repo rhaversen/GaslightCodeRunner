@@ -8,6 +8,12 @@ const main = (api: MeyerStrategyAPI) => {
 		return
 	}
 
+	// Randomly reveal
+	if (Math.random() > 0.5) {
+		api.reveal()
+		return
+	}
+
 	// Get previous announced value
 	const lastScore = api.getPreviousAction()
 
