@@ -25,6 +25,10 @@ export class Main {
 		for (let epoch = 0; epoch < numEpochs; epoch++) {
 			console.info('Running epoch ' + (epoch + 1))
 
+			// Create fresh game instance for each epoch
+			const gameInstance = Object.create(game)
+			Object.setPrototypeOf(gameInstance, Object.getPrototypeOf(game))
+
 			// Select random players and add candidate
 			const randomPlayers = [...otherPlayers]
 				.sort(() => Math.random() - 0.5)
@@ -32,12 +36,12 @@ export class Main {
 			const activePlayers = [candidate, ...randomPlayers]
 
 			try {
-				game.init(activePlayers)
+				gameInstance.init(activePlayers)
 
 				try {
-					game.playRound()
+					gameInstance.playRound()
 					// Collect results
-					const results = game.getResults()
+					const results = gameInstance.getResults()
 					// Alert if all result values are 0
 					if (Object.values(Object.fromEntries(results)).every(value => value === 0)) {
 						console.warn('All results are 0')
