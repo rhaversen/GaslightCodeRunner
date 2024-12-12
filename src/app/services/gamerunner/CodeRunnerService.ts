@@ -114,8 +114,7 @@ export async function runGame(gameLogicFiles: FileMap, strategies: { submissionI
 		console.log('Starting execution...')
 		const resultString = await context.eval(testCode)
 		const results = JSON.parse(resultString) as GameResults
-		console.log('Raw result:', resultString)
-		console.log('Parsed results:', results)
+		console.log('Results:', results)
 
 		// Convert results to GameResult map
 		return results

@@ -36,7 +36,6 @@ export class Main {
 
 				try {
 					game.playRound()
-					console.log('Results after round: ' + JSON.stringify(game.getResults()))
 					// Collect results
 					const results = game.getResults()
 					for (const [key, value] of results) {

@@ -68,8 +68,6 @@ describe('CodeRunnerService', function () {
 			'Evaluation'
 		)
 
-		console.log('Result:', result)
-
 		expect(result).to.not.be.undefined
 		expect(result).to.not.have.property('results')
 		expect(result).to.have.property('disqualified')

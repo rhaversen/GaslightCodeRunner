@@ -16,8 +16,10 @@ class GameState {
 
 	static getInstance(): GameState {
 		if (!GameState.instance) {
+			console.log('GameState instance created')
 			GameState.instance = new GameState()
 		}
+		console.log('GameState instance returned')
 		return GameState.instance
 	}
 
