@@ -9,7 +9,7 @@ export class Main {
 		game: Game,
 		players: Player[],
 	): GameResults {
-		console.log('Running game with ' + players.length + ' players')
+		console.info('Running game with ' + players.length + ' players')
 
 		let totalResults: { [key: string]: number } = {}
 		const numEpochs = 100
@@ -18,12 +18,12 @@ export class Main {
 		// Separate candidate from other players
 		const [candidate, ...otherPlayers] = players
 		if (!candidate) {
-			console.log('No candidate player provided')
+			console.error('No candidate player provided')
 			return { error: 'No candidate player provided' }
 		}
 
 		for (let epoch = 0; epoch < numEpochs; epoch++) {
-			console.log('Running epoch ' + (epoch + 1))
+			console.info('Running epoch ' + (epoch + 1))
 
 			// Select random players and add candidate
 			const randomPlayers = [...otherPlayers]
@@ -41,31 +41,30 @@ export class Main {
 					for (const [key, value] of results) {
 						totalResults[key] = (totalResults[key] || 0) + value
 					}
-					console.log('Total results after round: ' + JSON.stringify(totalResults))
+					console.info('Total results after round: ' + JSON.stringify(totalResults))
 				} catch (error) {
 					if (error instanceof Error && error.name === 'PlayerError' && error.message !== undefined) {
 						const playerError = error as PlayerError // Cast error to PlayerError
 						console.log('Player ' + playerError.submissionId + ' disqualified: ' + error.message)
-						console.log('Returning total results: ' + JSON.stringify(totalResults))
 						// End the evaluation
 						return {
 							error: error.message,
 							disqualified: [playerError.submissionId],
 						}
 					} else {
-						console.log('Error executing player turn, no PlayerError thrown ' + error)
+						console.error('Error executing player turn, no PlayerError thrown ' + error)
 						throw error
 					}
 				}
 			} catch (error) {
-				console.log('Game execution failed: ' + (error instanceof Error ? error.message : 'Game execution failed'))
+				console.error('Game execution failed: ' + (error instanceof Error ? error.message : 'Game execution failed'))
 				return {
 					error: error instanceof Error ? error.message : 'Game execution failed'
 				}
 			}
 		}
 
-		console.log('Returning total results: ' + JSON.stringify(totalResults))
+		console.info('Returning total results: ' + JSON.stringify(totalResults))
 		return {
 			results: totalResults
 		}

@@ -34,9 +34,9 @@ export async function runGame(gameLogicFiles: FileMap, strategies: { submissionI
 	const consoleLogSetup = `
 		console = {
 			log: (...args) => log.apply(undefined, args),
-			error: (...args) => log.apply(undefined, ['ERROR:', ...args]),
-			warn: (...args) => log.apply(undefined, ['WARN:', ...args]),
-			info: (...args) => log.apply(undefined, ['INFO:', ...args])
+			error: (...args) => log.apply(undefined, ['\x1b[31mERROR:\x1b[0m', ...args]),
+			warn: (...args) => log.apply(undefined, ['\x1b[33mWARN:\x1b[0m', ...args]),
+			info: (...args) => log.apply(undefined, ['\x1b[36mINFO:\x1b[0m', ...args])
 		};
 	`
 	await context.eval(consoleLogSetup)
@@ -101,7 +101,6 @@ export async function runGame(gameLogicFiles: FileMap, strategies: { submissionI
 
 				const result = GameRunner.default.run(game, players);
 				const resultStr = JSON.stringify(result);
-				log.apply(undefined, ['Game results: ' + resultStr]);
 				return resultStr;
 			} catch (e) {
 				console.error('Error:', e.message);
