@@ -3,11 +3,13 @@
 /**
  * Represents a game.
  * @property init - Initializes the game state with the provided players.
- * @property executePlayerTurn - Executes a single player's turn.
+ * @property playRound - Executes a single round of the game.
  * @property getResults - Returns the final results of the game. 
+ * @throws PlayerError if a player's strategy contains invalid moves or actions.
  * @description
  * A game is a class that manages the game state and executes player turns.
- * The game should be able to initialize the game state, execute player turns, and return the final results of the game.
+ * The game should be able to initialize the game state, execute game rounds and return the final results of the game.
+ * The init method should initialize field variables, as the game instance is reused for multiple rounds.
  * The game should throw a PlayerError if a player's strategy contains invalid moves or actions.
  */
 export interface Game {
