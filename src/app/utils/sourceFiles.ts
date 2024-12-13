@@ -37,8 +37,8 @@ const sourceFiles = {
 	gameRunners: {
 		evaluatingGameRunner: { 'main.ts': EvaluatingGameRunnerSource },
 		tournamentGameRunner: { 'main.ts': TournamentGameRunnerSource },
+		types: { 'types.d.ts': GameRunnerTypesSource },
 	},
-	gameRunnerTypes: { 'types.d.ts': GameRunnerTypesSource },
 	errors: { 'errors.ts': errorsSource },
 	meyer: {
 		gameState: { 'gameState.ts': meyerGameStateSource },
@@ -73,9 +73,6 @@ export const dumbStrategyFiles = {
 	submissionId: 'dumb',
 	files: {
 		...sourceFiles.strategies.dumbStrategy,
-		...sourceFiles.meyer.types,
-		...sourceFiles.commonTypes,
-		...sourceFiles.errors
 	}
 }
 
@@ -83,9 +80,6 @@ export const honestStrategyFiles = {
 	submissionId: 'honest',
 	files: {
 		...sourceFiles.strategies.honestStrategy,
-		...sourceFiles.meyer.types,
-		...sourceFiles.commonTypes,
-		...sourceFiles.errors
 	}
 }
 
@@ -93,9 +87,6 @@ export const lyingStrategyFiles = {
 	submissionId: 'lying',
 	files: {
 		...sourceFiles.strategies.lyingStrategy,
-		...sourceFiles.meyer.types,
-		...sourceFiles.commonTypes,
-		...sourceFiles.errors
 	}
 }
 
@@ -103,9 +94,6 @@ export const cheatingStrategyFiles = {
 	submissionId: 'cheating',
 	files: {
 		...sourceFiles.strategies.cheatingStrategy,
-		...sourceFiles.meyer.types,
-		...sourceFiles.commonTypes,
-		...sourceFiles.errors
 	}
 }
 
@@ -113,9 +101,6 @@ export const slowStrategyFiles = {
 	submissionId: 'slow',
 	files: {
 		...sourceFiles.strategies.slowStrategy,
-		...sourceFiles.meyer.types,
-		...sourceFiles.commonTypes,
-		...sourceFiles.errors
 	}
 }
 
@@ -123,9 +108,6 @@ export const revealingStrategyFiles = {
 	submissionId: 'revealing',
 	files: {
 		...sourceFiles.strategies.revealingStrategy,
-		...sourceFiles.meyer.types,
-		...sourceFiles.commonTypes,
-		...sourceFiles.errors
 	}
 }
 
@@ -133,9 +115,6 @@ export const detEllerDeroverStrategyFiles = {
 	submissionId: 'detEllerDerover',
 	files: {
 		...sourceFiles.strategies.detEllerDeroverStrategy,
-		...sourceFiles.meyer.types,
-		...sourceFiles.commonTypes,
-		...sourceFiles.errors
 	}
 }
 
@@ -143,24 +122,19 @@ export const chatGptStrategyFiles = {
 	submissionId: 'chatGpt',
 	files: {
 		...sourceFiles.strategies.chatGptStrategy,
-		...sourceFiles.meyer.types,
-		...sourceFiles.commonTypes,
-		...sourceFiles.errors
 	}
 }
 
 export const tournamentGameRunnerFiles = {
 	...sourceFiles.gameRunners.tournamentGameRunner,
-	...sourceFiles.commonTypes,
 	...sourceFiles.errors,
-	...sourceFiles.gameRunnerTypes,
+	...sourceFiles.gameRunners.types,
 }
 
 export const evaluatingGameRunnerFiles = {
 	...sourceFiles.gameRunners.evaluatingGameRunner,
-	...sourceFiles.commonTypes,
 	...sourceFiles.errors,
-	...sourceFiles.gameRunnerTypes,
+	...sourceFiles.gameRunners.types,
 }
 
 export default sourceFiles
