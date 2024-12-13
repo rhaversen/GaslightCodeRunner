@@ -14,6 +14,8 @@ export class Main implements Game {
 	init(players: Player[]) {
 		gameState.init(players.map(player => player.submissionId))
 		this.players = players
+		this.isRoundActive = true
+		this.turnCount = 0
 	}
 
 	playRound() {
