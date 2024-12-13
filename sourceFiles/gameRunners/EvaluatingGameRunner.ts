@@ -3,11 +3,11 @@
 import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
-import type { GameResults } from './types.d.ts'
+import type { EvaluationResults } from './types.d.ts'
 import { insertRandomly } from './utils.ts'
 
 export class Main {
-	static run(game: Game, players: Player[]): GameResults {
+	static run(game: Game, players: Player[]): EvaluationResults {
 		console.info(`Running evaluation with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }

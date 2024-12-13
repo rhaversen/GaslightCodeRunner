@@ -3,10 +3,10 @@
 import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
-import type { GameResults } from './types.d.ts'
+import type { TournamentResults } from './types.d.ts'
 
 export class Main {
-	static run(game: Game, players: Player[]): GameResults {
+	static run(game: Game, players: Player[]): TournamentResults {
 		console.info(`Running tournament with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }

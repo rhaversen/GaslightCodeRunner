@@ -10,3 +10,20 @@ export interface GameResults {
 	disqualified?: string[]
 	error?: string
 }
+
+export interface EvaluationResults extends GameResults {
+	results?: {
+		candidate: number
+		average: number
+	}
+	disqualified?: string[]
+	error?: string
+}
+
+export interface TournamentResults extends GameResults {
+	results?: {
+		[key: string]: number
+	}
+	disqualified?: string[]
+	error?: string
+}
