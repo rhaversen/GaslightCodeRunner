@@ -12,6 +12,7 @@ export class Main {
 		if (players.length === 0) return { error: 'No players provided' }
 
 		const totalResults: Record<string, number> = {}
+		const playerParticipation: Record<string, number> = {} // Track games played per player
 		const numEpochs = 1000
 		const epochBatchSize = 10 // TODO: Group size should be configurable by the game developer
 
@@ -39,9 +40,13 @@ export class Main {
 				break
 			}
 
-
 			try {
 				gameInstance.init(selectedPlayers)
+
+				// Track participation for selected players
+				for (const player of selectedPlayers) {
+					playerParticipation[player.submissionId] = (playerParticipation[player.submissionId] || 0) + 1
+				}
 
 				try {
 					gameInstance.playRound()
@@ -74,8 +79,14 @@ export class Main {
 			}
 		}
 
+		// Normalize scores by dividing by number of games played by each player
+		const normalizedScores: Record<string, number> = {}
+		for (const key in totalResults) {
+			normalizedScores[key] = totalResults[key] / (playerParticipation[key] || 1)
+		}
+
 		return {
-			results: totalResults,
+			results: normalizedScores,
 			disqualified: disqualified.length > 0 ? disqualified : undefined,
 		}
 	}

@@ -12,10 +12,12 @@ export class Main {
 
 		if (players.length === 0) return { error: 'No players provided' }
 
-		const totalResults: Record<string, number> = {}
 		const numEpochs = 100
 		const epochBatchSize = 10 // TODO: Group size should be configurable by the game developer
 		let totalTurns = 0
+
+		let totalCandidateScore = 0
+		let totalOtherScores = 0
 
 		// Separate candidate from other players
 		const [candidate, ...otherPlayers] = players
@@ -44,9 +46,18 @@ export class Main {
 					const stats = gameInstance.getStats ? gameInstance.getStats() : undefined
 					totalTurns += stats?.turnCount ?? 0
 
-					for (const [key, value] of results) {
-						totalResults[key] = (totalResults[key] || 0) + value
-					}
+					// Get the candidate's score
+					const candidateScore = results.get(candidate.submissionId) ?? 0
+					// Get the scores of other players
+					const otherScores = Array.from(results.entries())
+						.filter(([id]) => id !== candidate.submissionId)
+						.map(([, score]) => score)
+					// Calculate average score of other players
+					const averageScoreOthers = otherScores.reduce((a, b) => a + b, 0) / otherScores.length
+
+					// Add to total scores
+					totalCandidateScore += candidateScore
+					totalOtherScores += averageScoreOthers
 				} catch (error) {
 					if (error instanceof PlayerError) {
 						console.warn(`Player ${error.submissionId} disqualified: ${error.message}`)
@@ -64,6 +75,10 @@ export class Main {
 
 		console.info(`total turns: ${totalTurns}`)
 		console.info(`average turns: ${totalTurns / numEpochs}`)
+		const totalResults = {
+			candidate: totalCandidateScore / numEpochs,
+			average: totalOtherScores / numEpochs,
+		}
 		return { results: totalResults }
 	}
 }
