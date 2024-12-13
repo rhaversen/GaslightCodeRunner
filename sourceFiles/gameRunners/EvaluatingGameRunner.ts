@@ -4,6 +4,7 @@ import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
 import type { GameResults } from './types.d.ts'
+import { insertRandomly } from './utils.ts'
 
 export class Main {
 	static run(game: Game, players: Player[]): GameResults {
@@ -32,7 +33,7 @@ export class Main {
 			const selectedPlayers = playerSelector.select(epochBatchSize - 1)
 
 			// Mix candidate in randomly with selected players
-			const activePlayers = [candidate, ...selectedPlayers].sort(() => Math.random() - 0.5)
+			const activePlayers = insertRandomly(selectedPlayers, candidate)
 
 			try {
 				gameInstance.init(activePlayers)
