@@ -58,6 +58,12 @@ export class Main implements Game {
 	getResults() {
 		return gameState.getResults()
 	}
+
+	getStats() {
+		return {
+			turnCount: this.turnCount
+		}
+	}
 }
 
 export default Main

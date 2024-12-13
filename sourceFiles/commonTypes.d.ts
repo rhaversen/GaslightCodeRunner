@@ -16,6 +16,7 @@ export interface Game {
 	init(players: Player[]): void;
 	playRound(): void;
 	getResults(): Map<string, number>;
+	getStats?(): { turnCount?: number };
 }
 
 /**
