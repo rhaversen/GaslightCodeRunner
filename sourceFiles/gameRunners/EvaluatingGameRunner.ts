@@ -13,6 +13,7 @@ export class Main {
 		const totalResults: Record<string, number> = {}
 		const numEpochs = 100
 		const epochBatchSize = 10 // TODO: Group size should be configurable by the game developer
+		let totalTurns = 0
 
 		// Separate candidate from other players
 		const [candidate, ...otherPlayers] = players
@@ -24,7 +25,7 @@ export class Main {
 
 		for (let epoch = 0; epoch < numEpochs; epoch++) {
 			// Create fresh game instance for each epoch
-			const gameInstance = Object.create(game)
+			const gameInstance = Object.create(game) as Game
 			Object.setPrototypeOf(gameInstance, Object.getPrototypeOf(game))
 
 			// Calculate average selections among the "otherPlayers"
@@ -55,6 +56,8 @@ export class Main {
 				try {
 					gameInstance.playRound()
 					const results = gameInstance.getResults()
+					const stats = gameInstance.getStats ? gameInstance.getStats() : undefined
+					totalTurns += stats?.turnCount ?? 0
 
 					for (const [key, value] of results) {
 						totalResults[key] = (totalResults[key] || 0) + value
@@ -74,6 +77,8 @@ export class Main {
 			}
 		}
 
+		console.info(`total turns: ${totalTurns}`)
+		console.info(`average turns: ${totalTurns / numEpochs}`)
 		return { results: totalResults }
 	}
 }
