@@ -1,8 +1,9 @@
 /* eslint-disable local/enforce-comment-order */
 
+import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
-import { GameResults } from './types.ts'
+import type { GameResults } from './types.d.ts'
 
 export class Main {
 	static run(game: Game, players: Player[]): GameResults {
@@ -19,35 +20,18 @@ export class Main {
 		const [candidate, ...otherPlayers] = players
 		if (!candidate) return { error: 'No candidate player provided' }
 
-		// Use submissionId as the key for uniform distribution tracking
-		const playerSelectionCounts = new Map<string, number>()
-		for (const p of otherPlayers) playerSelectionCounts.set(p.submissionId, 0)
+		// Create player selector instance for other players
+		const playerSelector = new PlayerSelector(otherPlayers)
 
 		for (let epoch = 0; epoch < numEpochs; epoch++) {
 			// Create fresh game instance for each epoch
 			const gameInstance = Object.create(game) as Game
 			Object.setPrototypeOf(gameInstance, Object.getPrototypeOf(game))
 
-			// Calculate average selections among the "otherPlayers"
-			const counts = Array.from(playerSelectionCounts.values())
-			const avgSelections = counts.reduce((sum, c) => sum + c, 0) / (counts.length || 1)
+			// Select players for the current epoch
+			const selectedPlayers = playerSelector.select(epochBatchSize - 1)
 
-			// Filter players who are not selected too often
-			const eligiblePlayers = otherPlayers.filter(p =>
-				(playerSelectionCounts.get(p.submissionId) ?? 0) <= avgSelections + 1
-			)
-
-			// Randomly pick a subset of players for this game
-			const selectedPlayers = [...eligiblePlayers]
-				.sort(() => Math.random() - 0.5)
-				.slice(0, Math.min(epochBatchSize, eligiblePlayers.length))
-
-			// Update selection counts
-			for (const p of selectedPlayers) {
-				playerSelectionCounts.set(p.submissionId, (playerSelectionCounts.get(p.submissionId) ?? 0) + 1)
-			}
-
-			// Mix candidate in randomly
+			// Mix candidate in randomly with selected players
 			const activePlayers = [candidate, ...selectedPlayers].sort(() => Math.random() - 0.5)
 
 			try {
