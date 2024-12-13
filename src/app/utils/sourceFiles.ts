@@ -14,6 +14,8 @@ const GameRunnerTypesSource = readFileSync(resolve(__dirname, '../../../sourceFi
 // Misc
 const commonTypesSource = readFileSync(resolve(__dirname, '../../../sourceFiles/commonTypes.d.ts'), 'utf-8')
 const errorsSource = readFileSync(resolve(__dirname, '../../../sourceFiles/errors.ts'), 'utf-8')
+const utilsSource = readFileSync(resolve(__dirname, '../../../sourceFiles/gameRunners/utils.ts'), 'utf-8')
+const playerShufflerSource = readFileSync(resolve(__dirname, '../../../sourceFiles/gameRunners/playerShuffler.ts'), 'utf-8')
 
 //Meyer game
 const meyerGameStateSource = readFileSync(resolve(__dirname, '../../../sourceFiles/meyer/gameState.ts'), 'utf-8')
@@ -37,6 +39,8 @@ const sourceFiles = {
 	gameRunners: {
 		evaluatingGameRunner: { 'main.ts': EvaluatingGameRunnerSource },
 		tournamentGameRunner: { 'main.ts': TournamentGameRunnerSource },
+		utils: { 'utils.ts': utilsSource },
+		playerShuffler: { 'playerShuffler.ts': playerShufflerSource },
 		types: { 'types.d.ts': GameRunnerTypesSource },
 	},
 	errors: { 'errors.ts': errorsSource },
@@ -129,12 +133,16 @@ export const tournamentGameRunnerFiles = {
 	...sourceFiles.gameRunners.tournamentGameRunner,
 	...sourceFiles.errors,
 	...sourceFiles.gameRunners.types,
+	...sourceFiles.gameRunners.utils,
+	...sourceFiles.gameRunners.playerShuffler,
 }
 
 export const evaluatingGameRunnerFiles = {
 	...sourceFiles.gameRunners.evaluatingGameRunner,
 	...sourceFiles.errors,
 	...sourceFiles.gameRunners.types,
+	...sourceFiles.gameRunners.utils,
+	...sourceFiles.gameRunners.playerShuffler,
 }
 
 export default sourceFiles
