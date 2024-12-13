@@ -30,6 +30,7 @@ const cheatingStrategySource = readFileSync(resolve(__dirname, '../../../sourceF
 const slowStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/slowStrategy.ts'), 'utf-8')
 const revealingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/revealingStrategy.ts'), 'utf-8')
 const detEllerDeroverStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/detEllerDeroverStrategy.ts'), 'utf-8')
+const chatGptStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/chatGptStrategy.ts'), 'utf-8')
 
 const sourceFiles = {
 	commonTypes: { 'commonTypes.ts': commonTypesSource },
@@ -54,6 +55,7 @@ const sourceFiles = {
 		slowStrategy: { 'main.ts': slowStrategySource },
 		revealingStrategy: { 'main.ts': revealingStrategySource },
 		detEllerDeroverStrategy: { 'main.ts': detEllerDeroverStrategySource },
+		chatGptStrategy: { 'main.ts': chatGptStrategySource },
 	}
 }
 
@@ -131,6 +133,16 @@ export const detEllerDeroverStrategyFiles = {
 	submissionId: 'detEllerDerover',
 	files: {
 		...sourceFiles.strategies.detEllerDeroverStrategy,
+		...sourceFiles.meyer.types,
+		...sourceFiles.commonTypes,
+		...sourceFiles.errors
+	}
+}
+
+export const chatGptStrategyFiles = {
+	submissionId: 'chatGpt',
+	files: {
+		...sourceFiles.strategies.chatGptStrategy,
 		...sourceFiles.meyer.types,
 		...sourceFiles.commonTypes,
 		...sourceFiles.errors
