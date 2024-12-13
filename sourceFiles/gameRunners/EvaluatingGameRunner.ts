@@ -23,8 +23,6 @@ export class Main {
 		for (const p of otherPlayers) playerSelectionCounts.set(p.submissionId, 0)
 
 		for (let epoch = 0; epoch < numEpochs; epoch++) {
-			console.info(`Running epoch ${epoch + 1}`)
-
 			// Create fresh game instance for each epoch
 			const gameInstance = Object.create(game)
 			Object.setPrototypeOf(gameInstance, Object.getPrototypeOf(game))
@@ -57,9 +55,6 @@ export class Main {
 				try {
 					gameInstance.playRound()
 					const results = gameInstance.getResults()
-					if (Object.values(Object.fromEntries(results)).every(v => v === 0)) {
-						console.warn('All results are 0')
-					}
 
 					for (const [key, value] of results) {
 						totalResults[key] = (totalResults[key] || 0) + value
@@ -79,7 +74,6 @@ export class Main {
 			}
 		}
 
-		console.info(`Returning total results: ${JSON.stringify(totalResults)}`)
 		return { results: totalResults }
 	}
 }
