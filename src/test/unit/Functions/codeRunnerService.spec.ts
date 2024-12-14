@@ -23,7 +23,7 @@ import {
 import '../../testSetup.js'
 
 describe('CodeRunnerService', function () {
-	it('should run a game session with one strategy', async function () {
+	it('should have an error when running an evaluation with only a candidate', async function () {
 		const result = await runGame(
 			gameFiles,
 			[dumbStrategyFiles],
@@ -32,9 +32,9 @@ describe('CodeRunnerService', function () {
 		)
 
 		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('results')
 		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
+		expect(result).to.have.property('error')
 	})
 
 	it('should run a game session with two strategies', async function () {
