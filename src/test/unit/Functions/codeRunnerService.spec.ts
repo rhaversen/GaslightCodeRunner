@@ -27,7 +27,8 @@ describe('CodeRunnerService', function () {
 		const result = await runGame(
 			gameFiles,
 			[dumbStrategyFiles],
-			'Evaluation'
+			'Evaluation',
+			10
 		)
 
 		expect(result).to.not.be.undefined
@@ -40,7 +41,8 @@ describe('CodeRunnerService', function () {
 		const result = await runGame(
 			gameFiles,
 			[dumbStrategyFiles, dumbStrategyFiles],
-			'Evaluation'
+			'Evaluation',
+			10
 		)
 
 		expect(result).to.not.be.undefined
@@ -53,7 +55,8 @@ describe('CodeRunnerService', function () {
 		const result = await runGame(
 			gameFiles,
 			[],
-			'Evaluation'
+			'Evaluation',
+			10
 		)
 		expect(result).to.not.be.undefined
 		expect(result).to.not.have.property('results')
@@ -65,7 +68,8 @@ describe('CodeRunnerService', function () {
 		const result = await runGame(
 			gameFiles,
 			[cheatingStrategyFiles],
-			'Evaluation'
+			'Evaluation',
+			10
 		)
 
 		expect(result).to.not.be.undefined
@@ -80,7 +84,8 @@ describe('CodeRunnerService', function () {
 		const result = await runGame(
 			gameFiles,
 			[cheatingStrategyFiles],
-			'Evaluation'
+			'Evaluation',
+			10
 		)
 
 		expect(result.error).to.be.a('string')
@@ -90,7 +95,8 @@ describe('CodeRunnerService', function () {
 		const result = await runGame(
 			gameFiles,
 			[slowStrategyFiles],
-			'Evaluation'
+			'Evaluation',
+			10
 		)
 
 		expect(result).to.not.be.undefined
