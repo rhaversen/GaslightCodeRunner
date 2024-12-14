@@ -4,6 +4,7 @@ import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
 import type { TournamentResults } from './types.d.ts'
+import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
 	static run(game: Game, players: Player[]): TournamentResults {
@@ -11,20 +12,21 @@ export class Main {
 
 		if (players.length === 0) return { error: 'No players provided' }
 
-		const totalResults: Record<string, number> = {}
-		const playerParticipation: Record<string, number> = {} // Track games played per player
-		const numEpochs = 1000
-		const epochBatchSize = 10 // TODO: Group size should be configurable by the game developer
+		const numEpochs = 1000000
+		const epochBatchSize = 10
 
-		// Keep track of disqualified players
+		// Track disqualified players
 		const disqualified: string[] = []
 
 		// Create player selector instance for all players
 		const playerSelector = new PlayerSelector(players)
 
+		// Initialize structures for incremental averaging using RunningAverage
+		const averageScores: Record<string, RunningAverage> = {}
+
 		for (let epoch = 0; epoch < numEpochs; epoch++) {
 			// Create fresh game instance for each epoch
-			const gameInstance = Object.create(game)
+			const gameInstance = Object.create(game) as Game
 			Object.setPrototypeOf(gameInstance, Object.getPrototypeOf(game))
 
 			if (players.length === 0) {
@@ -43,20 +45,22 @@ export class Main {
 			try {
 				gameInstance.init(selectedPlayers)
 
-				// Track participation for selected players
-				for (const player of selectedPlayers) {
-					playerParticipation[player.submissionId] = (playerParticipation[player.submissionId] || 0) + 1
-				}
-
 				try {
 					gameInstance.playRound()
 					const results = gameInstance.getResults()
+
 					if (Object.values(Object.fromEntries(results)).every(v => v === 0)) {
 						console.warn('All results are 0')
 					}
 
-					for (const [key, value] of results) {
-						totalResults[key] = (totalResults[key] || 0) + value
+					for (const [submissionId, score] of results) {
+						// Initialize RunningAverage instance if not already
+						if (!(submissionId in averageScores)) {
+							averageScores[submissionId] = new RunningAverage()
+						}
+
+						// Update running average
+						averageScores[submissionId].update(score)
 					}
 				} catch (error) {
 					if (error instanceof PlayerError) {
@@ -79,16 +83,21 @@ export class Main {
 			}
 		}
 
-		// Normalize scores by dividing by number of games played by each player
-		const normalizedScores: Record<string, number> = {}
-		for (const key in totalResults) {
-			normalizedScores[key] = totalResults[key] / (playerParticipation[key] || 1)
+		// Prepare the final results
+		const finalResults: TournamentResults = {
+			results: {},
+		}
+		finalResults.results = {}
+
+		for (const [submissionId, runningAvg] of Object.entries(averageScores)) {
+			finalResults.results[submissionId] = runningAvg.getAverage()
 		}
 
-		return {
-			results: normalizedScores,
-			disqualified: disqualified.length > 0 ? disqualified : undefined,
+		if (disqualified.length > 0) {
+			finalResults.disqualified = disqualified
 		}
+
+		return finalResults
 	}
 }
 

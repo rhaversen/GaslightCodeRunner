@@ -16,6 +16,7 @@ const commonTypesSource = readFileSync(resolve(__dirname, '../../../sourceFiles/
 const errorsSource = readFileSync(resolve(__dirname, '../../../sourceFiles/errors.ts'), 'utf-8')
 const utilsSource = readFileSync(resolve(__dirname, '../../../sourceFiles/gameRunners/utils.ts'), 'utf-8')
 const PlayerSelectorSource = readFileSync(resolve(__dirname, '../../../sourceFiles/gameRunners/PlayerSelector.ts'), 'utf-8')
+const RunningAverageSource = readFileSync(resolve(__dirname, '../../../sourceFiles/gameRunners/RunningAverage.ts'), 'utf-8')
 
 //Meyer game
 const meyerGameStateSource = readFileSync(resolve(__dirname, '../../../sourceFiles/meyer/gameState.ts'), 'utf-8')
@@ -42,6 +43,7 @@ const sourceFiles = {
 		utils: { 'utils.ts': utilsSource },
 		PlayerSelector: { 'PlayerSelector.ts': PlayerSelectorSource },
 		types: { 'types.d.ts': GameRunnerTypesSource },
+		RunningAverage: { 'RunningAverage.ts': RunningAverageSource },
 	},
 	errors: { 'errors.ts': errorsSource },
 	meyer: {
@@ -135,6 +137,7 @@ export const tournamentGameRunnerFiles = {
 	...sourceFiles.gameRunners.types,
 	...sourceFiles.gameRunners.utils,
 	...sourceFiles.gameRunners.PlayerSelector,
+	...sourceFiles.gameRunners.RunningAverage,
 }
 
 export const evaluatingGameRunnerFiles = {
@@ -143,6 +146,7 @@ export const evaluatingGameRunnerFiles = {
 	...sourceFiles.gameRunners.types,
 	...sourceFiles.gameRunners.utils,
 	...sourceFiles.gameRunners.PlayerSelector,
+	...sourceFiles.gameRunners.RunningAverage,
 }
 
 export default sourceFiles

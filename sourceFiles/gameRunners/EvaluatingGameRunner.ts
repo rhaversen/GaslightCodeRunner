@@ -5,6 +5,7 @@ import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
 import type { EvaluationResults } from './types.d.ts'
 import { insertRandomly } from './utils.ts'
+import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
 	static run(game: Game, players: Player[]): EvaluationResults {
@@ -12,13 +13,14 @@ export class Main {
 
 		if (players.length === 0) return { error: 'No players provided' }
 
-		const numEpochs = 100
-		const epochBatchSize = 10 // TODO: Group size should be configurable by the game developer
-		let totalTurns = 0
-		let maxTurnCount = 0
+		const numEpochs = 10000
+		const epochBatchSize = 10
 
-		let totalCandidateScore = 0
-		let totalOtherScores = 0
+		// Initialize RunningAverage instances
+		const candidateAverage = new RunningAverage()
+		const othersAverage = new RunningAverage()
+		const turnsAverage = new RunningAverage()
+		let maxTurnCount = 0
 
 		// Separate candidate from other players
 		const [candidate, ...otherPlayers] = players
@@ -45,21 +47,33 @@ export class Main {
 					gameInstance.playRound()
 					const results = gameInstance.getResults()
 					const stats = gameInstance.getStats ? gameInstance.getStats() : undefined
-					totalTurns += stats?.turnCount ?? 0
-					maxTurnCount = Math.max(maxTurnCount, stats?.turnCount ?? 0)
+					const turnCount = stats?.turnCount ?? 0
 
 					// Get the candidate's score
 					const candidateScore = results.get(candidate.submissionId) ?? 0
-					// Get the scores of other players
-					const otherScores = Array.from(results.entries())
-						.filter(([id]) => id !== candidate.submissionId)
-						.map(([, score]) => score)
-					// Calculate average score of other players
-					const averageScoreOthers = otherScores.reduce((a, b) => a + b, 0) / otherScores.length
 
-					// Add to total scores
-					totalCandidateScore += candidateScore
-					totalOtherScores += averageScoreOthers
+					// Get the scores of other players
+					const otherScores: number[] = []
+					const targetId = candidate.submissionId
+					for (const entry of results) {
+						const id = entry[0]
+						const score = entry[1]
+						if (id !== targetId) {
+							otherScores.push(score)
+						}
+					}
+
+					// Calculate average score of other players
+					const totalOtherScores = otherScores.reduce((a, b) => a + b, 0)
+					const averageOtherScore = totalOtherScores / otherScores.length
+
+					// Update max turn count
+					maxTurnCount = Math.max(maxTurnCount, turnCount)
+
+					// Update running averages
+					turnsAverage.update(turnCount)
+					candidateAverage.update(candidateScore)
+					othersAverage.update(averageOtherScore)
 				} catch (error) {
 					if (error instanceof PlayerError) {
 						console.warn(`Player ${error.submissionId} disqualified: ${error.message}`)
@@ -75,12 +89,13 @@ export class Main {
 			}
 		}
 
-		console.info(`total turns: ${totalTurns}`)
-		console.info(`average turns: ${totalTurns / numEpochs}`)
-		console.info(`max turns: ${maxTurnCount}`)
+		console.info(`Average turns: ${turnsAverage.getAverage().toFixed(2)}`)
+		console.info(`Max turns: ${maxTurnCount}`)
+
+		// Prepare the final results
 		const totalResults = {
-			candidate: totalCandidateScore / numEpochs,
-			average: totalOtherScores / numEpochs,
+			candidate: candidateAverage.getAverage(),
+			average: othersAverage.getAverage(),
 		}
 		return { results: totalResults }
 	}
