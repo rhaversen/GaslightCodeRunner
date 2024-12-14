@@ -222,9 +222,14 @@ describe('Running games with different strategies', function () {
 
 	it('should run a tournament with all strategies', async function () {
 		this.timeout(twoMinuteTimeout)
-		const result = await runGame(
-			gameFiles,
-			[dumbStrategyFiles, honestStrategyFiles, revealingStrategyFiles, detEllerDeroverStrategyFiles, chatGptStrategyFiles],
+		const result = await runGame(gameFiles,
+			[
+				dumbStrategyFiles,
+				honestStrategyFiles,
+				revealingStrategyFiles,
+				detEllerDeroverStrategyFiles,
+				chatGptStrategyFiles
+			],
 			'Tournament',
 			10
 		) as TournamentResults
