@@ -23,6 +23,7 @@ export class Main implements Game {
 			this.turnCount++
 			if (this.turnCount > 100) {
 				// Prevent infinite loops
+				console.warn('Game is taking too long, stopping')
 				this.isRoundActive = false
 				break
 			}
