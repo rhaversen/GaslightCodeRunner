@@ -7,7 +7,7 @@ import type { TournamentResults } from './types.d.ts'
 import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
-	static run(game: Game, players: Player[]): TournamentResults {
+	static run(gameFactory: () => Game, players: Player[]): TournamentResults {
 		console.info(`Running tournament with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }
@@ -26,8 +26,7 @@ export class Main {
 
 		for (let epoch = 0; epoch < numEpochs; epoch++) {
 			// Create fresh game instance for each epoch
-			const gameInstance = Object.create(game) as Game
-			Object.setPrototypeOf(gameInstance, Object.getPrototypeOf(game))
+			const gameInstance = gameFactory()
 
 			if (players.length === 0) {
 				console.warn('No players left, they have all been disqualified')

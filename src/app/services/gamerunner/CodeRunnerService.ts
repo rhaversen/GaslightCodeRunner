@@ -76,13 +76,13 @@ export async function runGame(gameLogicFiles: FileMap, strategies: { submissionI
 		(() => {
 			try {
 				// Evaluate game logic in its own scope
-				const Game = (() => {
+				const GameModule = (() => {
 					${gameLogicCode}
 					return Game;
 				})();
 				
 				// Evaluate game runner in its own scope
-				const GameRunner = (() => {
+				const GameRunnerModule = (() => {
 					${gameRunnerCode}
 					return GameRunner;
 				})();
@@ -97,9 +97,11 @@ export async function runGame(gameLogicFiles: FileMap, strategies: { submissionI
 					strategy: strategy
 				}));
 
-				const game = new Game.default();
+				// Create a factory function for Game instances
+				const gameFactory = () => new GameModule.default();
 
-				const result = GameRunner.default.run(game, players);
+				// Pass the factory to the GameRunner
+				const result = GameRunnerModule.default.run(gameFactory, players);
 				const resultStr = JSON.stringify(result);
 				return resultStr;
 			} catch (e) {
