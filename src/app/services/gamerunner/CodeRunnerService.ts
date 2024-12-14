@@ -7,14 +7,19 @@ import ivm from 'isolated-vm'
 import type { GameResults } from '../../../../sourceFiles/gameRunners/types.d.ts'
 import { bundleFiles, FileMap } from './bundler.js'
 import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles, } from '../../utils/sourceFiles.js'
+import config from '../../utils/setupConfig.js'
 
 // Environment variables
 
 // Config variables
+const {
+	tournamentEpochs,
+	evaluationEpochs
+} = config
 
 // Destructuring and global variables
 
-export async function runGame(gameLogicFiles: FileMap, strategies: { submissionId: string, files: FileMap }[], type: 'Evaluation' | 'Tournament'): Promise<GameResults> {
+export async function runGame(gameLogicFiles: FileMap, strategies: { submissionId: string, files: FileMap }[], type: 'Evaluation' | 'Tournament', epochBatchSize: number): Promise<GameResults> {
 	const isolate = new ivm.Isolate({ memoryLimit: 128 })
 	const context = await isolate.createContext()
 
@@ -56,6 +61,9 @@ export async function runGame(gameLogicFiles: FileMap, strategies: { submissionI
 	const strategyBundles = await Promise.all(
 		strategies.map(s => bundleFiles(s.files, 'Strategy'))
 	)
+
+	// Get number of epochs
+	const numEpochs = type === 'Evaluation' ? evaluationEpochs : tournamentEpochs
 
 	// Create the strategies array string
 	const submissionIds = strategies.map(s => s.submissionId)
@@ -101,7 +109,7 @@ export async function runGame(gameLogicFiles: FileMap, strategies: { submissionI
 				const gameFactory = () => new GameModule.default();
 
 				// Pass the factory to the GameRunner
-				const result = GameRunnerModule.default.run(gameFactory, players);
+				const result = GameRunnerModule.default.run(gameFactory, players, ${numEpochs}, ${epochBatchSize});
 				const resultStr = JSON.stringify(result);
 				return resultStr;
 			} catch (e) {

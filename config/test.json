@@ -8,5 +8,13 @@
 		"mainService": {
 			"host": "http://localhost:5000"
 		}
+	},
+	"codeRunner": {
+		"tournament": {
+			"numEpochs": 10000
+		},
+		"evaluation": {
+			"numEpochs": 10000
+		}
 	}
 }

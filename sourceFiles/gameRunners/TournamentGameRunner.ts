@@ -7,13 +7,10 @@ import type { TournamentResults } from './types.d.ts'
 import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
-	static run(gameFactory: () => Game, players: Player[]): TournamentResults {
+	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): TournamentResults {
 		console.info(`Running tournament with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }
-
-		const numEpochs = 1000000
-		const epochBatchSize = 10
 
 		// Track disqualified players
 		const disqualified: string[] = []

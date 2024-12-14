@@ -8,13 +8,10 @@ import { insertRandomly } from './utils.ts'
 import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
-	static run(gameFactory: () => Game, players: Player[]): EvaluationResults {
+	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): EvaluationResults {
 		console.info(`Running evaluation with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }
-
-		const numEpochs = 10000
-		const epochBatchSize = 10
 
 		// Initialize RunningAverage instances
 		const candidateAverage = new RunningAverage()

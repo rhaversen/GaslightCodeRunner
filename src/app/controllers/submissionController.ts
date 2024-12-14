@@ -34,7 +34,7 @@ export async function evaluateSubmission(req: Request, res: Response) {
 			submissionId: strategy.submissionId,
 			files: strategy.files as FileMap
 		}))
-		const result = await runGame(code, mappedStrategies, 'Evaluation')
+		const result = await runGame(code, mappedStrategies, 'Evaluation', 10) // Hardcoded batch size for now
 		res.json(result)
 	} catch (error) {
 		res.status(500).json({ error: error instanceof Error ? error.message : 'Execution failed' })
