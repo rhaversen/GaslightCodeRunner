@@ -15,6 +15,7 @@ export class Main {
 		const numEpochs = 100
 		const epochBatchSize = 10 // TODO: Group size should be configurable by the game developer
 		let totalTurns = 0
+		let maxTurnCount = 0
 
 		let totalCandidateScore = 0
 		let totalOtherScores = 0
@@ -45,6 +46,7 @@ export class Main {
 					const results = gameInstance.getResults()
 					const stats = gameInstance.getStats ? gameInstance.getStats() : undefined
 					totalTurns += stats?.turnCount ?? 0
+					maxTurnCount = Math.max(maxTurnCount, stats?.turnCount ?? 0)
 
 					// Get the candidate's score
 					const candidateScore = results.get(candidate.submissionId) ?? 0
@@ -75,6 +77,7 @@ export class Main {
 
 		console.info(`total turns: ${totalTurns}`)
 		console.info(`average turns: ${totalTurns / numEpochs}`)
+		console.info(`max turns: ${maxTurnCount}`)
 		const totalResults = {
 			candidate: totalCandidateScore / numEpochs,
 			average: totalOtherScores / numEpochs,
