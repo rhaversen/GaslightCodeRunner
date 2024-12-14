@@ -22,6 +22,7 @@ export class Main {
 		// Separate candidate from other players
 		const [candidate, ...otherPlayers] = players
 		if (!candidate) return { error: 'No candidate player provided' }
+		if (!otherPlayers.length) return { error: 'No other players provided' }
 
 		// Create player selector instance for other players
 		const playerSelector = new PlayerSelector(otherPlayers)
