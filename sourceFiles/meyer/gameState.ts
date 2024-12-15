@@ -22,9 +22,15 @@ class GameState {
 	}
 
 	init(ids: string[]) {
+		this.previousActions = []
+		this.firstInRound = true
+		this.currentPlayerIndex = 0
 		this.amountOfPlayers = ids.length
-		this.playerIds = [...ids]
+		this.hasRolled = false
 		this.scoring = new Map(ids.map(id => [id, 0]))
+		this.turnActive = true
+		this.roundActive = true
+		this.playerIds = [...ids]
 	}
 
 	addAction(action: Action): void {
