@@ -6,7 +6,7 @@ import axios from 'axios'
 // Own modules
 import logger from '../utils/logger.js'
 import AppConfig from '../utils/setupConfig.js'
-import { FileMap } from './gamerunner/bundler.js'
+import { submission } from '../../../sourceFiles/gameRunners/types.js'
 
 // Environment variables
 const { MICROSERVICE_AUTHORIZATION } = process.env as Record<string, string>
@@ -18,37 +18,36 @@ const {
 
 // Destructuring and global variables
 
-export async function createGradingForSubmission(score: number, submissionId: string): Promise<Object | undefined> {
+export async function createTournamen(results: { [key: string]: number }, disqualified: string[], error: string): Promise<boolean> {
 	try {
-		const response = await axios.post(`http://${mainServiceHost}/api/v1/microservices/grading`, {
-			score,
-			submission: submissionId,
+		await axios.post(`http://${mainServiceHost}/api/v1/microservices/tournament`, {
+			results,
 		}, {
 			headers: {
 				authorization: MICROSERVICE_AUTHORIZATION
 			}
 		})
 
-		logger.info('Grading submitted for submission', submissionId)
+		logger.info('Tournament created for submissions', { results, disqualified, error })
 
-		return response.data
+		return true
 	} catch (error) {
 		if (error instanceof Error) {
-			logger.error('Error submitting grading', { error: error.message })
+			logger.error('Error creating tournament', { error: error.message })
 		} else {
-			logger.error('Error submitting grading', { error: String(error) })
+			logger.error('Error creating tournament', { error: String(error) })
 		}
 
-		return undefined
+		return false
 	}
 }
 
-export async function getSubmissions(): Promise<Array<{ submissionId: string, files: FileMap }> | undefined> {
+export async function getActiveSubmissions(): Promise<Array<submission> | undefined> {
 	try {
-		const response = await axios.get(`http://${mainServiceHost}/api/v1/microservices/submissions`, {
+		const response = await axios.get(`http://${mainServiceHost}/api/v1/microservices/submissions&active=true`, {
 			headers: {
 				authorization: MICROSERVICE_AUTHORIZATION
-			},
+			}
 		})
 
 		return response.data

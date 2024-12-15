@@ -27,3 +27,8 @@ export interface TournamentResults extends GameResults {
 	disqualified?: string[]
 	error?: string
 }
+
+export interface submission {
+	submissionId: string
+	files: FileMap
+}
