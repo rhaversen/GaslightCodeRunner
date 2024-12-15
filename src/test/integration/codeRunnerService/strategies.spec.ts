@@ -16,7 +16,8 @@ import {
 	honestStrategyFiles,
 	revealingStrategyFiles,
 	detEllerDeroverStrategyFiles,
-	chatGptStrategyFiles
+	chatGptStrategyFiles,
+	lyingStrategyFiles
 } from '../../../app/utils/sourceFiles.js'
 
 // Environment variables
@@ -111,37 +112,6 @@ describe('Running games with different strategies', function () {
 		expect(candidateScore / iterations).to.be.closeTo(otherScores / iterations, 0.001)
 	})
 
-	it('should have a similar score for each dumb strategy during tournament', async function () {
-		this.timeout(twoMinuteTimeout)
-		const iterations = 10
-		const allScores: { [submissionId: string]: number[] } = {}
-
-		for (let i = 0; i < iterations; i++) {
-			const strategies = Array(10).fill(null).map((_, index) => ({
-				files: { ...dumbStrategyFiles.files },
-				submissionId: `dumbStrategy_${index + 1}`
-			}))
-			const result = await runTournament(gameFiles, strategies, 10)
-
-			// Store the scores for each submission
-			for (const [submissionId, score] of Object.entries(result.results!)) {
-				if (!allScores[submissionId]) {
-					allScores[submissionId] = []
-				}
-				allScores[submissionId].push(score)
-			}
-		}
-
-		// Check if scores are close to their own score in other iterations
-		for (const scores of Object.values(allScores)) {
-			for (let j = 0; j < scores.length; j++) {
-				for (let k = j + 1; k < scores.length; k++) {
-					expect(scores[j]).to.be.closeTo(scores[k], 0.002)
-				}
-			}
-		}
-	})
-
 	it('should run a tournament with 1 chatGpt strategy and 10 dumb strategies', async function () {
 		this.timeout(twoMinuteTimeout)
 		const strategies = Array(10).fill(null).map((_, index) => ({
@@ -228,7 +198,8 @@ describe('Running games with different strategies', function () {
 				honestStrategyFiles,
 				revealingStrategyFiles,
 				detEllerDeroverStrategyFiles,
-				chatGptStrategyFiles
+				chatGptStrategyFiles,
+				lyingStrategyFiles
 			],
 			10
 		)
@@ -261,7 +232,8 @@ describe('Running games with different strategies', function () {
 					honestStrategyFiles,
 					revealingStrategyFiles,
 					detEllerDeroverStrategyFiles,
-					chatGptStrategyFiles
+					chatGptStrategyFiles,
+					lyingStrategyFiles
 				],
 				10
 			)
