@@ -39,52 +39,53 @@ export class Main {
 
 			try {
 				gameInstance.init(activePlayers)
+			} catch (error) {
+				return { error: error instanceof Error ? error.message : 'Game initialization failed' }
+			}
 
-				try {
-					gameInstance.playRound()
-					const results = gameInstance.getResults()
-					const stats = gameInstance.getStats ? gameInstance.getStats() : undefined
-					const turnCount = stats?.turnCount ?? 0
+			try {
+				gameInstance.playRound()
+				const results = gameInstance.getResults()
+				const stats = gameInstance.getStats ? gameInstance.getStats() : undefined
+				const turnCount = stats?.turnCount ?? 0
 
-					// Get the candidate's score
-					const candidateScore = results.get(candidate.submissionId) ?? 0
+				// Get the candidate's score
+				const candidateScore = results.get(candidate.submissionId) ?? 0
 
-					// Get the scores of other players
-					const otherScores: number[] = []
-					const targetId = candidate.submissionId
-					for (const entry of results) {
-						const id = entry[0]
-						const score = entry[1]
-						if (id !== targetId) {
-							otherScores.push(score)
-						}
-					}
-
-					// Calculate average score of other players
-					const totalOtherScores = otherScores.reduce((a, b) => a + b, 0)
-					const averageOtherScore = totalOtherScores / otherScores.length
-
-					// Update max turn count
-					maxTurnCount = Math.max(maxTurnCount, turnCount)
-
-					// Update running averages
-					turnsAverage.update(turnCount)
-					candidateAverage.update(candidateScore)
-					othersAverage.update(averageOtherScore)
-				} catch (error) {
-					// We cannot check instanceof, as the different evaluation contexts will lead to a broken prototype chain 
-					if (error && typeof error === 'object' && error.name === 'PlayerError') {
-						const playerError = error as PlayerError
-						console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
-						return { error: playerError.message, disqualified: [playerError.submissionId] }
-					} else {
-						console.error(`Error executing player turn: ${error}`)
-						throw error
+				// Get the scores of other players
+				const otherScores: number[] = []
+				const targetId = candidate.submissionId
+				for (const entry of results) {
+					const id = entry[0]
+					const score = entry[1]
+					if (id !== targetId) {
+						otherScores.push(score)
 					}
 				}
+
+				// Calculate average score of other players
+				const totalOtherScores = otherScores.reduce((a, b) => a + b, 0)
+				const averageOtherScore = totalOtherScores / otherScores.length
+
+				// Update max turn count
+				maxTurnCount = Math.max(maxTurnCount, turnCount)
+
+				// Update running averages
+				turnsAverage.update(turnCount)
+				candidateAverage.update(candidateScore)
+				othersAverage.update(averageOtherScore)
 			} catch (error) {
-				console.error(`Game execution failed: ${error instanceof Error ? error.message : ''}`)
-				return { error: error instanceof Error ? error.message : 'Game execution failed' }
+				// Check if the player was disqualified
+				// We cannot check instanceof, as the different evaluation contexts will lead to a broken prototype chain 
+				if (error && typeof error === 'object' && error.name === 'PlayerError') {
+					// Report the disqualification
+					const playerError = error as PlayerError
+					console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
+					return { error: playerError.message, disqualified: [playerError.submissionId] }
+				} else {
+					console.error(`Error executing player turn: ${error}`)
+					return { error: error instanceof Error ? error.message : 'Game execution failed' }
+				}
 			}
 		}
 

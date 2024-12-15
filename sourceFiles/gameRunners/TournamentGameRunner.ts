@@ -40,44 +40,44 @@ export class Main {
 
 			try {
 				gameInstance.init(selectedPlayers)
+			} catch (error) {
+				return { error: error instanceof Error ? error.message : 'Game initialization failed' }
+			}
 
-				try {
-					gameInstance.playRound()
-					const results = gameInstance.getResults()
+			try {
+				gameInstance.playRound()
+				const results = gameInstance.getResults()
 
-					if (Object.values(Object.fromEntries(results)).every(v => v === 0)) {
-						console.warn('All results are 0')
+				if (Object.values(Object.fromEntries(results)).every(v => v === 0)) {
+					console.warn('All results are 0')
+				}
+
+				for (const [submissionId, score] of results) {
+					// Initialize RunningAverage instance if not already
+					if (!(submissionId in averageScores)) {
+						averageScores[submissionId] = new RunningAverage()
 					}
 
-					for (const [submissionId, score] of results) {
-						// Initialize RunningAverage instance if not already
-						if (!(submissionId in averageScores)) {
-							averageScores[submissionId] = new RunningAverage()
-						}
-
-						// Update running average
-						averageScores[submissionId].update(score)
-					}
-				} catch (error) {
-					// We cannot check instanceof, as the different evaluation contexts will lead to a broken prototype chain 
-					if (error && typeof error === 'object' && error.name === 'PlayerError') {
-						const playerError = error as PlayerError
-						console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
-
-						// Remove disqualified player
-						playerSelector.removePlayer(error.submissionId)
-						disqualified.push(error.submissionId)
-
-						// Decrement epoch to ensure we run the same number of epochs
-						epoch--
-					} else {
-						console.error(`Error executing player turn: ${error}`)
-						throw error
-					}
+					// Update running average
+					averageScores[submissionId].update(score)
 				}
 			} catch (error) {
-				console.error(`Game execution failed: ${error instanceof Error ? error.message : ''}`)
-				return { error: error instanceof Error ? error.message : 'Game execution failed' }
+				// Check if the player was disqualified
+				// We cannot check instanceof, as the different evaluation contexts will lead to a broken prototype chain 
+				if (error && typeof error === 'object' && error.name === 'PlayerError') {
+					const playerError = error as PlayerError
+					console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
+
+					// Remove disqualified player
+					playerSelector.removePlayer(error.submissionId)
+					disqualified.push(error.submissionId)
+
+					// Decrement epoch to ensure we run the same number of epochs
+					epoch--
+				} else {
+					console.error(`Error executing player turn: ${error}`)
+					return { error: error instanceof Error ? error.message : 'Game execution failed' }
+				}
 			}
 		}
 
