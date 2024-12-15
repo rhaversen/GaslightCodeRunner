@@ -103,6 +103,34 @@ describe('CodeRunnerService', function () {
 		expect(result.disqualified![0]).to.equal('errorThrowing')
 	})
 
+	it('should not throw an error when other strategies are disqualified during evaluation', async function () {
+		const result = await runEvaluation(
+			gameFiles,
+			dumbStrategyFiles,
+			[errorThrowingStrategyFiles],
+			10
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('error')
+		expect(result).to.not.have.property('disqualified')
+	})
+
+	it('should not throw an error when other strategies cheat during evaluation', async function () {
+		const result = await runEvaluation(
+			gameFiles,
+			dumbStrategyFiles,
+			[cheatingStrategyFiles],
+			10
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('error')
+		expect(result).to.not.have.property('disqualified')
+	})
+
 	it('should have an error when running a tournament with no strategies', async function () {
 		const result = await runTournament(
 			gameFiles,
@@ -179,6 +207,7 @@ describe('CodeRunnerService', function () {
 	})
 
 	it('should timeout a strategy that takes too long during a tournament', async function () {
+		this.timeout(twoMinuteTimeout)
 		const result = await runTournament(
 			gameFiles,
 			[slowStrategyFiles, dumbStrategyFiles],
