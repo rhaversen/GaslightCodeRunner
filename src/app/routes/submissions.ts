@@ -22,8 +22,8 @@ router.use(authenticateMicroservice)
  * @description Grade a submission
  * @access Private (Microservice)
  * @param {string} req.header.authorization - The secret key for the microservice.
- * @param {Object} req.body.submissionCode - The submission code.
- * @param {string} req.body.submissionId - The submission ID.
+ * @param {Object} req.body.candidateSubmission - The submission to be evaluated.
+ * @param {Object[]} req.body.otherSubmissions - The other submissions to be evaluated against.
  * @returns {Object} The result of the evaluation.
  */
 router.post('/grade-submission', handleSubmissionEvaluation)
