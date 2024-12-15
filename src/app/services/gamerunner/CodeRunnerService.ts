@@ -4,7 +4,7 @@
 import ivm from 'isolated-vm'
 
 // Own modules
-import type { GameResults } from '../../../../sourceFiles/gameRunners/types.d.ts'
+import type { EvaluationResults, GameResults, submission, TournamentResults } from '../../../../sourceFiles/gameRunners/types.d.ts'
 import { bundleFiles, FileMap } from './bundler.js'
 import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles, } from '../../utils/sourceFiles.js'
 import config from '../../utils/setupConfig.js'
@@ -19,7 +19,15 @@ const {
 
 // Destructuring and global variables
 
-export async function runGame(gameLogicFiles: FileMap, strategies: { submissionId: string, files: FileMap }[], type: 'Evaluation' | 'Tournament', epochBatchSize: number): Promise<GameResults> {
+export async function runEvaluation(gameLogicFiles: FileMap, candidate: submission, others: submission[], epochBatchSize: number): Promise<EvaluationResults> {
+	return runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize) as Promise<EvaluationResults>
+}
+
+export async function runTournament(gameLogicFiles: FileMap, strategies: submission[], epochBatchSize: number): Promise<TournamentResults> {
+	return runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize) as Promise<TournamentResults>
+}
+
+async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 'Evaluation' | 'Tournament', epochBatchSize: number): Promise<GameResults> {
 	const isolate = new ivm.Isolate({ memoryLimit: 128 })
 	const context = await isolate.createContext()
 

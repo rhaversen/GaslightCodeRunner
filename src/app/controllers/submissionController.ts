@@ -4,7 +4,7 @@
 import { Request, Response } from 'express'
 
 // Own modules
-import { runGame } from '../services/gamerunner/CodeRunnerService.js'
+import { runEvaluation } from '../services/gamerunner/CodeRunnerService.js'
 import { isFileMap } from '../services/gamerunner/bundler.js'
 import { gameFiles } from '../utils/sourceFiles.js'
 
@@ -40,7 +40,7 @@ export async function handleSubmissionEvaluation(req: Request, res: Response) {
 	}
 
 	try {
-		const result = await runGame(gameFiles, [candidateSubmission, ...otherSubmissions], 'Evaluation', 10) // Hardcoded batch size for now
+		const result = await runEvaluation(gameFiles, candidateSubmission,otherSubmissions, 10) // Hardcoded batch size for now
 		res.status(200).json(result)
 	} catch (error) {
 		res.status(500).json({ error: error instanceof Error ? error.message : 'Execution failed' })

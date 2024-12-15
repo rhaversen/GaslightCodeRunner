@@ -9,7 +9,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 
 // Own modules
-import { runGame } from '../../../app/services/gamerunner/CodeRunnerService.js'
+import { runEvaluation, runTournament } from '../../../app/services/gamerunner/CodeRunnerService.js'
 import {
 	gameFiles,
 	dumbStrategyFiles,
@@ -18,7 +18,6 @@ import {
 	detEllerDeroverStrategyFiles,
 	chatGptStrategyFiles
 } from '../../../app/utils/sourceFiles.js'
-import { EvaluationResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
 // Environment variables
 
@@ -31,12 +30,12 @@ const twoMinuteTimeout = 1200000
 import '../../testSetup.js'
 
 describe('Running games with different strategies', function () {
-	it('should run a game with 10 dumb strategies', async function () {
-		const strategies = Array(10).fill(null).map((_, index) => ({
+	it('should run an evaluation with 10 dumb strategies', async function () {
+		const strategies = Array(9).fill(null).map((_, index) => ({
 			files: { ...dumbStrategyFiles.files },
 			submissionId: `dumbStrategy_${index + 1}`
 		}))
-		const result = await runGame(gameFiles, strategies, 'Evaluation', 10) as EvaluationResults
+		const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
 
 		expect(result).to.not.be.undefined
 		expect(result).to.have.property('results')
@@ -46,12 +45,12 @@ describe('Running games with different strategies', function () {
 		expect(result.results).to.have.property('average')
 	})
 
-	it('should run a game with 1000 dumb strategies', async function () {
-		const strategies = Array(1000).fill(null).map((_, index) => ({
+	it('should run an evaluation with 1000 dumb strategies', async function () {
+		const strategies = Array(999).fill(null).map((_, index) => ({
 			files: { ...dumbStrategyFiles.files },
 			submissionId: `dumbStrategy_${index + 1}`
 		}))
-		const result = await runGame(gameFiles, strategies, 'Evaluation', 10) as EvaluationResults
+		const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
 
 		expect(result).to.not.be.undefined
 		expect(result).to.have.property('results')
@@ -67,7 +66,7 @@ describe('Running games with different strategies', function () {
 			files: { ...dumbStrategyFiles.files },
 			submissionId: `dumbStrategy_${index + 1}`
 		}))
-		const result = await runGame(gameFiles, strategies, 'Tournament', 10) as TournamentResults
+		const result = await runTournament(gameFiles, strategies, 10)
 
 		expect(result).to.not.be.undefined
 		expect(result).to.have.property('results')
@@ -83,7 +82,7 @@ describe('Running games with different strategies', function () {
 			files: { ...dumbStrategyFiles.files },
 			submissionId: `dumbStrategy_${index + 1}`
 		}))
-		const result = await runGame(gameFiles, strategies, 'Tournament', 10) as TournamentResults
+		const result = await runTournament(gameFiles, strategies, 10)
 
 		expect(result).to.not.be.undefined
 		expect(result).to.have.property('results')
@@ -100,11 +99,11 @@ describe('Running games with different strategies', function () {
 		let candidateScore = 0
 		const iterations = 10
 		for (let i = 0; i < iterations; i++) {
-			const strategies = Array(10).fill(null).map((_, index) => ({
+			const strategies = Array(9).fill(null).map((_, index) => ({
 				files: { ...dumbStrategyFiles.files },
 				submissionId: `dumbStrategy_${index + 1}`
 			}))
-			const result = await runGame(gameFiles, strategies, 'Evaluation', 10) as EvaluationResults
+			const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
 			// Add the scores to the array
 			otherScores += result.results!.average
 			candidateScore += result.results!.candidate
@@ -122,7 +121,7 @@ describe('Running games with different strategies', function () {
 				files: { ...dumbStrategyFiles.files },
 				submissionId: `dumbStrategy_${index + 1}`
 			}))
-			const result = await runGame(gameFiles, strategies, 'Tournament', 10) as TournamentResults
+			const result = await runTournament(gameFiles, strategies, 10)
 
 			// Store the scores for each submission
 			for (const [submissionId, score] of Object.entries(result.results!)) {
@@ -154,7 +153,7 @@ describe('Running games with different strategies', function () {
 			submissionId: 'chatGptStrategy'
 		}
 
-		const result = await runGame(gameFiles, [...strategies, chatGptStrategy], 'Tournament', 10) as TournamentResults
+		const result = await runTournament(gameFiles, [chatGptStrategy, ...strategies], 10)
 
 		expect(result).to.not.be.undefined
 		expect(result).to.have.property('results')
@@ -170,7 +169,7 @@ describe('Running games with different strategies', function () {
 			files: { ...dumbStrategyFiles.files },
 			submissionId: `dumbStrategy_${index + 1}`
 		}))
-		const result = await runGame(gameFiles, strategies, 'Tournament', 10) as TournamentResults
+		const result = await runTournament(gameFiles, strategies, 10)
 
 		const scores = Object.values(result.results!)
 
@@ -189,7 +188,7 @@ describe('Running games with different strategies', function () {
 			submissionId: 'chatGptStrategy'
 		}
 
-		const result = await runGame(gameFiles, [chatGptStrategy, ...strategies], 'Evaluation', 10) as EvaluationResults
+		const result = await runEvaluation(gameFiles, chatGptStrategy, strategies, 10)
 
 		const candidateScore = result.results!.candidate
 		const averageScore = result.results!.average
@@ -209,7 +208,7 @@ describe('Running games with different strategies', function () {
 			submissionId: 'chatGptStrategy'
 		}
 
-		const result = await runGame(gameFiles, [chatGptStrategy, ...strategies], 'Tournament', 10) as TournamentResults
+		const result = await runTournament(gameFiles, [chatGptStrategy, ...strategies], 10)
 
 		const chatGptScore = result.results!.chatGptStrategy
 		const otherScores = Object.values(result.results!)
@@ -222,7 +221,8 @@ describe('Running games with different strategies', function () {
 
 	it('should run a tournament with all strategies', async function () {
 		this.timeout(twoMinuteTimeout)
-		const result = await runGame(gameFiles,
+		const result = await runTournament(
+			gameFiles,
 			[
 				dumbStrategyFiles,
 				honestStrategyFiles,
@@ -230,9 +230,8 @@ describe('Running games with different strategies', function () {
 				detEllerDeroverStrategyFiles,
 				chatGptStrategyFiles
 			],
-			'Tournament',
 			10
-		) as TournamentResults
+		)
 
 		expect(result).to.not.be.undefined
 		expect(result).to.have.property('results')
@@ -255,7 +254,7 @@ describe('Running games with different strategies', function () {
 		const allScores: { [submissionId: string]: number[] } = {}
 
 		for (let i = 0; i < iterations; i++) {
-			const result = await runGame(
+			const result = await runTournament(
 				gameFiles,
 				[
 					dumbStrategyFiles,
@@ -264,9 +263,8 @@ describe('Running games with different strategies', function () {
 					detEllerDeroverStrategyFiles,
 					chatGptStrategyFiles
 				],
-				'Tournament',
 				10
-			) as TournamentResults
+			)
 
 			// Store the scores for each submission
 			for (const [submissionId, score] of Object.entries(result.results!)) {
