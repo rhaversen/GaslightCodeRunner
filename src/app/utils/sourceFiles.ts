@@ -34,6 +34,7 @@ const slowStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles
 const revealingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/revealingStrategy.ts'), 'utf-8')
 const detEllerDeroverStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/detEllerDeroverStrategy.ts'), 'utf-8')
 const chatGptStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/chatGptStrategy.ts'), 'utf-8')
+const errorThrowingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/errorThrowingStrategy.ts'), 'utf-8')
 
 const sourceFiles = {
 	commonTypes: { 'commonTypes.ts': commonTypesSource },
@@ -62,6 +63,7 @@ const sourceFiles = {
 		revealingStrategy: { 'main.ts': revealingStrategySource },
 		detEllerDeroverStrategy: { 'main.ts': detEllerDeroverStrategySource },
 		chatGptStrategy: { 'main.ts': chatGptStrategySource },
+		errorThrowingStrategy: { 'main.ts': errorThrowingStrategySource },
 	}
 }
 
@@ -128,6 +130,13 @@ export const chatGptStrategyFiles = {
 	submissionId: 'chatGpt',
 	files: {
 		...sourceFiles.strategies.chatGptStrategy,
+	}
+}
+
+export const errorThrowingStrategyFiles = {
+	submissionId: 'errorThrowing',
+	files: {
+		...sourceFiles.strategies.errorThrowingStrategy,
 	}
 }
 

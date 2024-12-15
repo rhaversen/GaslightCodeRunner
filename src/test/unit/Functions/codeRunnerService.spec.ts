@@ -15,6 +15,7 @@ import {
 	cheatingStrategyFiles,
 	slowStrategyFiles,
 	dumbStrategyFiles,
+	errorThrowingStrategyFiles,
 } from '../../../app/utils/sourceFiles.js'
 
 // Environment variables
@@ -84,6 +85,22 @@ describe('CodeRunnerService', function () {
 		expect(result.disqualified).to.have.lengthOf(1)
 		expect(result.disqualified![0]).to.equal('slow')
 		expect(result.error).to.include('timed out')
+	})
+
+	it('should disqualify a strategy that throws an error during evaluation', async function () {
+		const result = await runEvaluation(
+			gameFiles,
+			errorThrowingStrategyFiles,
+			[dumbStrategyFiles],
+			10
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.not.have.property('results')
+		expect(result).to.have.property('disqualified')
+		expect(result).to.have.property('error')
+		expect(result.disqualified).to.have.lengthOf(1)
+		expect(result.disqualified![0]).to.equal('errorThrowing')
 	})
 
 	it('should have an error when running a tournament with no strategies', async function () {
@@ -175,5 +192,52 @@ describe('CodeRunnerService', function () {
 		expect(result.disqualified).to.have.lengthOf(1)
 		expect(result.disqualified![0]).to.equal('slow')
 		expect(result.error).to.include('timed out')
+	})
+
+	it('should disqualify all strategies that cheat during a tournament', async function () {
+		const result = await runTournament(
+			gameFiles,
+			[
+				{ files: cheatingStrategyFiles.files, submissionId: 'cheating1' },
+				{ files: cheatingStrategyFiles.files, submissionId: 'cheating2' },
+				{ files: dumbStrategyFiles.files, submissionId: 'dumb' },
+			],
+			10
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('disqualified')
+		expect(result.disqualified).to.have.lengthOf(2)
+		expect(result.disqualified).to.include.members(['cheating1', 'cheating2'])
+	})
+
+	it('should disqualify a strategy that throws an error during a tournament', async function () {
+		const result = await runTournament(
+			gameFiles,
+			[errorThrowingStrategyFiles, dumbStrategyFiles],
+			10
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('disqualified')
+		expect(result.disqualified).to.have.lengthOf(1)
+		expect(result.disqualified![0]).to.equal('errorThrowing')
+	})
+
+	it('should disqualify all strategies that throw an error during a tournament', async function () {
+		const result = await runTournament(
+			gameFiles,
+			[
+				{ files: errorThrowingStrategyFiles.files, submissionId: 'errorThrowing1' },
+				{ files: errorThrowingStrategyFiles.files, submissionId: 'errorThrowing2' },
+				{ files: dumbStrategyFiles.files, submissionId: 'dumb' },
+			],
+			10
+		)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('disqualified')
+		expect(result.disqualified).to.have.lengthOf(2)
+		expect(result.disqualified).to.include.members(['errorThrowing1', 'errorThrowing2'])
 	})
 })
