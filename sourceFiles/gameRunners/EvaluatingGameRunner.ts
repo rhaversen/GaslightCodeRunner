@@ -72,9 +72,11 @@ export class Main {
 					candidateAverage.update(candidateScore)
 					othersAverage.update(averageOtherScore)
 				} catch (error) {
-					if (error instanceof PlayerError) {
-						console.warn(`Player ${error.submissionId} disqualified: ${error.message}`)
-						return { error: error.message, disqualified: [error.submissionId] }
+					// We cannot check instanceof, as the different evaluation contexts will lead to a broken prototype chain 
+					if (error && typeof error === 'object' && error.name === 'PlayerError') {
+						const playerError = error as PlayerError
+						console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
+						return { error: playerError.message, disqualified: [playerError.submissionId] }
 					} else {
 						console.error(`Error executing player turn: ${error}`)
 						throw error

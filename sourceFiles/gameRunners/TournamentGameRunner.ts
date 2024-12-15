@@ -59,8 +59,10 @@ export class Main {
 						averageScores[submissionId].update(score)
 					}
 				} catch (error) {
-					if (error instanceof PlayerError) {
-						console.warn(`Player ${error.submissionId} disqualified: ${error.message}`)
+					// We cannot check instanceof, as the different evaluation contexts will lead to a broken prototype chain 
+					if (error && typeof error === 'object' && error.name === 'PlayerError') {
+						const playerError = error as PlayerError
+						console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
 
 						// Remove disqualified player
 						playerSelector.removePlayer(error.submissionId)
