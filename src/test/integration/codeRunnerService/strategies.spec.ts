@@ -191,16 +191,17 @@ describe('Running games with different strategies', function () {
 
 	it('should run a tournament with all strategies', async function () {
 		this.timeout(twoMinuteTimeout)
+		const strategies = [
+			dumbStrategyFiles,
+			honestStrategyFiles,
+			revealingStrategyFiles,
+			detEllerDeroverStrategyFiles,
+			chatGptStrategyFiles,
+			lyingStrategyFiles
+		]
 		const result = await runTournament(
 			gameFiles,
-			[
-				dumbStrategyFiles,
-				honestStrategyFiles,
-				revealingStrategyFiles,
-				detEllerDeroverStrategyFiles,
-				chatGptStrategyFiles,
-				lyingStrategyFiles
-			],
+			strategies,
 			10
 		)
 
@@ -209,11 +210,11 @@ describe('Running games with different strategies', function () {
 		expect(result).to.not.have.property('disqualified')
 		expect(result).to.not.have.property('error')
 		// It should have a result for each strategy
-		expect(Object.keys(result.results!)).to.have.lengthOf(5)
+		expect(Object.keys(result.results!)).to.have.lengthOf(strategies.length)
 		// It should have a result for each strategy
 		expect(result.results).to.not.be.undefined
-		expect(Object.keys(result.results!)).to.have.lengthOf(5)
-		expect(result.results).to.include.all.keys('dumb', 'honest', 'revealing', 'detEllerDerover', 'chatGpt')
+		expect(Object.keys(result.results!)).to.have.lengthOf(strategies.length)
+		expect(result.results).to.include.all.keys(strategies.map((strategy) => strategy.submissionId))
 		// The scores should be unique
 		const scores = Object.values(result.results!)
 		expect(scores).to.have.lengthOf(new Set(scores).size)
