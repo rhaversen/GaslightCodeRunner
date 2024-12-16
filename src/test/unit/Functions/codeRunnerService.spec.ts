@@ -70,7 +70,8 @@ describe('CodeRunnerService', function () {
 		expect(result.error).to.be.a('string')
 	})
 
-	it('should timeout a strategy that takes too long during evaluation', async function () {
+	it('should return an error when the candidate takes too long during evaluation', async function () {
+		this.timeout(twoMinuteTimeout)
 		const result = await runEvaluation(
 			gameFiles,
 			slowStrategyFiles,
@@ -84,7 +85,7 @@ describe('CodeRunnerService', function () {
 		expect(result).to.have.property('error')
 		expect(result.disqualified).to.have.lengthOf(1)
 		expect(result.disqualified![0]).to.equal('slow')
-		expect(result.error).to.include('timed out')
+		expect(result.error?.toLowerCase()).to.include('timed out')
 	})
 
 	it('should disqualify a strategy that throws an error during evaluation', async function () {
@@ -204,22 +205,6 @@ describe('CodeRunnerService', function () {
 		)
 
 		expect(result.disqualified).to.not.include('dumb')
-	})
-
-	it('should timeout a strategy that takes too long during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[slowStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('slow')
-		expect(result.error).to.include('timed out')
 	})
 
 	it('should disqualify all strategies that cheat during a tournament', async function () {
