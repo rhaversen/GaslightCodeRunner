@@ -11,10 +11,11 @@
 	},
 	"codeRunner": {
 		"tournament": {
-			"numEpochs": 10000
+			"numEpochs": 1000000
 		},
 		"evaluation": {
-			"numEpochs": 10000
+			"numEpochs": 100000,
+			"timeout": 2000
 		}
 	}
 }

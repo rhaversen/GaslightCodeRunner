@@ -23,6 +23,7 @@ const AppConfig = {
 	mainServiceHost: config.get('microservices.mainService.host') as string,
 	tournamentEpochs: config.get('codeRunner.tournament.numEpochs') as number,
 	evaluationEpochs: config.get('codeRunner.evaluation.numEpochs') as number,
+	evaluationTimeout: config.get('codeRunner.evaluation.timeout') as number,
 }
 
 export default AppConfig
