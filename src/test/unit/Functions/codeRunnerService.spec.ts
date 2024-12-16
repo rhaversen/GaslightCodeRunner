@@ -207,7 +207,6 @@ describe('CodeRunnerService', function () {
 	})
 
 	it('should timeout a strategy that takes too long during a tournament', async function () {
-		this.timeout(twoMinuteTimeout)
 		const result = await runTournament(
 			gameFiles,
 			[slowStrategyFiles, dumbStrategyFiles],
