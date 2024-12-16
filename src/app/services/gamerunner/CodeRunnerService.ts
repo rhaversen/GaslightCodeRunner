@@ -14,7 +14,8 @@ import config from '../../utils/setupConfig.js'
 // Config variables
 const {
 	tournamentEpochs,
-	evaluationEpochs
+	evaluationEpochs,
+	evaluationTimeout
 } = config
 
 // Destructuring and global variables
@@ -129,15 +130,25 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 
 	try {
 		console.log('Starting execution...')
-		const resultString = await context.eval(testCode)
+		const resultString = type === 'Evaluation'
+			? await context.eval(testCode, { timeout: evaluationTimeout })
+			: await context.eval(testCode)
 		const results = JSON.parse(resultString) as GameResults
 		console.log('Results:', results)
 
-		// Convert results to GameResult map
 		return results
-	} catch (err) {
+	} catch (err: any) {
 		console.error('VM Error:', err)
-		throw err
+		// Check if the err is a timeout
+		// Error: Script execution timed out.
+		if (err.message === 'Script execution timed out.') {
+			console.error('Timed out:', err)
+			return {
+				disqualified: [strategies[0].submissionId],
+				error: 'Timed out'
+			}
+		}
+		return { error: err.message }
 	} finally {
 		isolate.dispose()
 	}
