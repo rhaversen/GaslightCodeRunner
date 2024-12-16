@@ -65,6 +65,7 @@ export class Main {
 				// Check if the player was disqualified
 				// We cannot check instanceof, as the different evaluation contexts will lead to a broken prototype chain 
 				if (error && typeof error === 'object' && error.name === 'PlayerError') {
+					// Report the disqualification
 					const playerError = error as PlayerError
 					console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
 

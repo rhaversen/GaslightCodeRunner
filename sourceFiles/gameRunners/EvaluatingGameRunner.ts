@@ -81,7 +81,15 @@ export class Main {
 					// Report the disqualification
 					const playerError = error as PlayerError
 					console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
-					return { error: playerError.message, disqualified: [playerError.submissionId] }
+					if (playerError.submissionId === candidate.submissionId) {
+						return { error: playerError.message, disqualified: [playerError.submissionId] }
+					}
+
+					// Remove disqualified player
+					playerSelector.removePlayer(error.submissionId)
+
+					// Decrement epoch to ensure we run the same number of epochs
+					epoch--
 				} else {
 					console.error(`Error executing player turn: ${error}`)
 					return { error: error instanceof Error ? error.message : 'Game execution failed' }
