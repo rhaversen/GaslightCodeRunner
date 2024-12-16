@@ -9,6 +9,7 @@ const main = (api: MeyerStrategyAPI) => {
 	}
 
 	// We always lie with maximum score
+	api.roll()
 	api.lie(1000)
 }
 
