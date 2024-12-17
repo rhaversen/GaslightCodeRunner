@@ -1,15 +1,16 @@
 /* eslint-disable local/enforce-comment-order */
 import { MeyerStrategyAPI } from '../meyer/types.ts'
 
-const main = (api: MeyerStrategyAPI) => {
-	// Do nonsense work for 20 ms
-	let i = 0
-	const start = Date.now()
-	while (Date.now() - start < 100) {
-		i++
-		i % 100
-	}
+// Do nonsense work for 20 ms
+let i = 0
+const start = Date.now()
+while (Date.now() - start < 20) {
+	i++
+	i % 100
+}
 
+// Just a simple strategy that rolls if it's first in the round, otherwise it calls "det eller derover"
+const main = (api: MeyerStrategyAPI) => {
 	// If we're first in the round, we need to roll
 	if (api.isFirstInRound()) {
 		api.roll()

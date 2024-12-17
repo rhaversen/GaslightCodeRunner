@@ -1,11 +1,11 @@
+/* eslint-disable no-unreachable */
 /* eslint-disable local/enforce-comment-order */
 import { MeyerStrategyAPI } from '../meyer/types.ts'
 
 const main = (api: MeyerStrategyAPI) => {
-	// Do nonsense work for 20 ms
+	// Never halts
 	let i = 0
-	const start = Date.now()
-	while (Date.now() - start < 100) {
+	while (true) {
 		i++
 		i % 100
 	}

@@ -35,6 +35,9 @@ const revealingStrategySource = readFileSync(resolve(__dirname, '../../../source
 const detEllerDeroverStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/detEllerDeroverStrategy.ts'), 'utf-8')
 const chatGptStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/chatGptStrategy.ts'), 'utf-8')
 const errorThrowingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/errorThrowingStrategy.ts'), 'utf-8')
+const slowLoadingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/slowLoadingStrategy.ts'), 'utf-8')
+const nonHaltingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/nonHaltingStrategy.ts'), 'utf-8')
+const nonHaltingLoadingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/nonHaltingLoadingStrategy.ts'), 'utf-8')
 
 const sourceFiles = {
 	commonTypes: { 'commonTypes.ts': commonTypesSource },
@@ -64,6 +67,9 @@ const sourceFiles = {
 		detEllerDeroverStrategy: { 'main.ts': detEllerDeroverStrategySource },
 		chatGptStrategy: { 'main.ts': chatGptStrategySource },
 		errorThrowingStrategy: { 'main.ts': errorThrowingStrategySource },
+		slowLoadingStrategy: { 'main.ts': slowLoadingStrategySource },
+		nonHaltingStrategy: { 'main.ts': nonHaltingStrategySource },
+		nonHaltingLoadingStrategy: { 'main.ts': nonHaltingLoadingStrategySource },
 	}
 }
 
@@ -137,6 +143,27 @@ export const errorThrowingStrategyFiles = {
 	submissionId: 'errorThrowing',
 	files: {
 		...sourceFiles.strategies.errorThrowingStrategy,
+	}
+}
+
+export const slowLoadingStrategyFiles = {
+	submissionId: 'slowLoading',
+	files: {
+		...sourceFiles.strategies.slowLoadingStrategy,
+	}
+}
+
+export const nonHaltingStrategyFiles = {
+	submissionId: 'nonHalting',
+	files: {
+		...sourceFiles.strategies.nonHaltingStrategy,
+	}
+}
+
+export const nonHaltingLoadingStrategyFiles = {
+	submissionId: 'nonHaltingLoading',
+	files: {
+		...sourceFiles.strategies.nonHaltingLoadingStrategy,
 	}
 }
 
