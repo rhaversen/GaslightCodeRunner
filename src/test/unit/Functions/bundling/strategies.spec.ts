@@ -17,7 +17,12 @@ import {
 	cheatingStrategyFiles,
 	slowStrategyFiles,
 	detEllerDeroverStrategyFiles,
-	revealingStrategyFiles
+	revealingStrategyFiles,
+	slowLoadingStrategyFiles,
+	chatGptStrategyFiles,
+	nonHaltingLoadingStrategyFiles,
+	nonHaltingStrategyFiles,
+	errorThrowingStrategyFiles,
 } from '../../../../app/utils/sourceFiles.js'
 
 // Environment variables
@@ -62,6 +67,31 @@ describe('gameBundler', function () {
 
 	it('should bundle revealing strategy', async function () {
 		const bundledCode = await bundleFiles(revealingStrategyFiles.files, 'Game')
+		expect(bundledCode).to.be.a('string')
+	})
+
+	it('should bundle slow loading strategy', async function () {
+		const bundledCode = await bundleFiles(slowLoadingStrategyFiles.files, 'Game')
+		expect(bundledCode).to.be.a('string')
+	})
+
+	it('should bundle chatGpt strategy', async function () {
+		const bundledCode = await bundleFiles(chatGptStrategyFiles.files, 'Game')
+		expect(bundledCode).to.be.a('string')
+	})
+
+	it('should bundle non halting loading strategy', async function () {
+		const bundledCode = await bundleFiles(nonHaltingLoadingStrategyFiles.files, 'Game')
+		expect(bundledCode).to.be.a('string')
+	})
+
+	it('should bundle non halting strategy', async function () {
+		const bundledCode = await bundleFiles(nonHaltingStrategyFiles.files, 'Game')
+		expect(bundledCode).to.be.a('string')
+	})
+
+	it('should bundle error throwing strategy', async function () {
+		const bundledCode = await bundleFiles(errorThrowingStrategyFiles.files, 'Game')
 		expect(bundledCode).to.be.a('string')
 	})
 })

@@ -26,7 +26,6 @@ import {
 import '../../../testSetup.js'
 
 describe('gameBundler', function () {
-
 	it('should bundle the game files', async function () {
 		const bundledCode = await bundleFiles(gameFiles, 'Game')
 		expect(bundledCode).to.be.a('string')

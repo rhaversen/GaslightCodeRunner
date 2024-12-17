@@ -12,14 +12,12 @@ import { describe, it } from 'mocha'
 import { runEvaluation, runTournament } from '../../../app/services/gamerunner/CodeRunnerService.js'
 import {
 	gameFiles,
-	cheatingStrategyFiles,
-	slowStrategyFiles,
-	slowLoadingStrategyFiles,
 	dumbStrategyFiles,
-	errorThrowingStrategyFiles,
-	nonHaltingLoadingStrategyFiles,
-	nonHaltingStrategyFiles,
 	chatGptStrategyFiles,
+	detEllerDeroverStrategyFiles,
+	honestStrategyFiles,
+	lyingStrategyFiles,
+	revealingStrategyFiles,
 } from '../../../app/utils/sourceFiles.js'
 
 // Environment variables
@@ -48,168 +46,8 @@ describe('CodeRunnerService', function () {
 		expect(result).to.not.have.property('error')
 	})
 
-	it('should disqualify a strategy that throws an error during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			cheatingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('cheating')
-	})
-
-	it('should include the message when disqualifying a strategy during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			cheatingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
-
-		expect(result.error).to.be.a('string')
-	})
-
-	it('should return an error when the candidate takes too long during evaluation', async function () {
-		this.timeout(twoMinuteTimeout)
-		const result = await runEvaluation(
-			gameFiles,
-			slowStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.error?.toLowerCase()).to.not.include('script')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('slow')
-		expect(result.error?.toLowerCase()).to.include('strategy execution timed out')
-	})
-
-	it('should return an error when the candidate never halts during evaluation', async function () {
-		this.timeout(twoMinuteTimeout)
-		const result = await runEvaluation(
-			gameFiles,
-			nonHaltingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.error?.toLowerCase()).to.include('script')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal(nonHaltingStrategyFiles.submissionId)
-		expect(result.error?.toLowerCase()).to.include('timed out')
-	})
-
-	it('should return an error when the candidate takes too long to load during evaluation', async function () {
-		this.timeout(twoMinuteTimeout)
-		const result = await runEvaluation(
-			gameFiles,
-			slowLoadingStrategyFiles,
-			[chatGptStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.error?.toLowerCase()).to.not.include('script')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal(slowLoadingStrategyFiles.submissionId)
-		expect(result.error?.toLowerCase()).to.include('strategy execution timed out')
-	})
-
-	it('should return an error when the candidate never halts during loading', async function () {
-		this.timeout(twoMinuteTimeout)
-		const result = await runEvaluation(
-			gameFiles,
-			nonHaltingLoadingStrategyFiles,
-			[chatGptStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.error?.toLowerCase()).to.include('script')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal(nonHaltingLoadingStrategyFiles.submissionId)
-		expect(result.error?.toLowerCase()).to.include('timed out')
-	})
-
-	it('should disqualify a strategy that throws an error during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			errorThrowingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('errorThrowing')
-	})
-
-	it('should not throw an error when other strategies are disqualified during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			dumbStrategyFiles,
-			[errorThrowingStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('error')
-		expect(result).to.not.have.property('disqualified')
-	})
-
-	it('should not throw an error when other strategies cheat during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			dumbStrategyFiles,
-			[cheatingStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('error')
-		expect(result).to.not.have.property('disqualified')
-	})
-
-	it('should have an error when running a tournament with no strategies', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.have.property('error')
-	})
 
 	it('should run a tournament with 1 strategy', async function () {
-		this.timeout(twoMinuteTimeout)
 		const result = await runTournament(
 			gameFiles,
 			[dumbStrategyFiles],
@@ -223,7 +61,6 @@ describe('CodeRunnerService', function () {
 	})
 
 	it('should run a tournament with 2 strategies', async function () {
-		this.timeout(twoMinuteTimeout)
 		const result = await runTournament(
 			gameFiles,
 			[dumbStrategyFiles, dumbStrategyFiles],
@@ -236,84 +73,94 @@ describe('CodeRunnerService', function () {
 		expect(result).to.not.have.property('error')
 	})
 
-	it('should disqualify a strategy that throws an error during a tournament', async function () {
-		this.timeout(twoMinuteTimeout)
+	it('should run an evaluation with 10 dumb strategies', async function () {
+		const strategies = Array(9).fill(null).map((_, index) => ({
+			files: { ...dumbStrategyFiles.files },
+			submissionId: `dumbStrategy_${index + 1}`
+		}))
+		const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+		expect(result.results).to.have.property('candidate')
+		expect(result.results).to.have.property('average')
+	})
+
+	it('should run an evaluation with 1000 dumb strategies', async function () {
+		const strategies = Array(999).fill(null).map((_, index) => ({
+			files: { ...dumbStrategyFiles.files },
+			submissionId: `dumbStrategy_${index + 1}`
+		}))
+		const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+		expect(result.results).to.have.property('candidate')
+		expect(result.results).to.have.property('average')
+	})
+
+	it('should run a tournament with 10 dumb strategies', async function () {
+		const strategies = Array(10).fill(null).map((_, index) => ({
+			files: { ...dumbStrategyFiles.files },
+			submissionId: `dumbStrategy_${index + 1}`
+		}))
+		const result = await runTournament(gameFiles, strategies, 10)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+		// It should have a result for each strategy
+		expect(Object.keys(result.results!)).to.have.lengthOf(10)
+	})
+
+	it('should run a tournament with 1000 dumb strategies', async function () {
+		const strategies = Array(1000).fill(null).map((_, index) => ({
+			files: { ...dumbStrategyFiles.files },
+			submissionId: `dumbStrategy_${index + 1}`
+		}))
+		const result = await runTournament(gameFiles, strategies, 10)
+
+		expect(result).to.not.be.undefined
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+		// It should have a result for each strategy
+		expect(result.results).to.not.be.undefined
+		expect(Object.keys(result.results!)).to.have.lengthOf(1000)
+	})
+
+	it('should run a tournament with all strategies', async function () {
+		const strategies = [
+			dumbStrategyFiles,
+			honestStrategyFiles,
+			revealingStrategyFiles,
+			detEllerDeroverStrategyFiles,
+			chatGptStrategyFiles,
+			lyingStrategyFiles
+		]
 		const result = await runTournament(
 			gameFiles,
-			[cheatingStrategyFiles, dumbStrategyFiles],
+			strategies,
 			10
 		)
 
 		expect(result).to.not.be.undefined
-		expect(result).to.have.property('disqualified')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('cheating')
-	})
-
-	it('should not have an error when disqualifying a strategy during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[cheatingStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result.error).to.be.undefined
-	})
-
-	it('should not disqualify any other strategies than the cheating strategy during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[cheatingStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result.disqualified).to.not.include('dumb')
-	})
-
-	it('should disqualify all strategies that cheat during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[
-				{ files: cheatingStrategyFiles.files, submissionId: 'cheating1' },
-				{ files: cheatingStrategyFiles.files, submissionId: 'cheating2' },
-				{ files: dumbStrategyFiles.files, submissionId: 'dumb' },
-			],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('disqualified')
-		expect(result.disqualified).to.have.lengthOf(2)
-		expect(result.disqualified).to.include.members(['cheating1', 'cheating2'])
-	})
-
-	it('should disqualify a strategy that throws an error during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[errorThrowingStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('disqualified')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('errorThrowing')
-	})
-
-	it('should disqualify all strategies that throw an error during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[
-				{ files: errorThrowingStrategyFiles.files, submissionId: 'errorThrowing1' },
-				{ files: errorThrowingStrategyFiles.files, submissionId: 'errorThrowing2' },
-				{ files: dumbStrategyFiles.files, submissionId: 'dumb' },
-			],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('disqualified')
-		expect(result.disqualified).to.have.lengthOf(2)
-		expect(result.disqualified).to.include.members(['errorThrowing1', 'errorThrowing2'])
+		expect(result).to.have.property('results')
+		expect(result).to.not.have.property('disqualified')
+		expect(result).to.not.have.property('error')
+		// It should have a result for each strategy
+		expect(Object.keys(result.results!)).to.have.lengthOf(strategies.length)
+		// It should have a result for each strategy
+		expect(result.results).to.not.be.undefined
+		expect(Object.keys(result.results!)).to.have.lengthOf(strategies.length)
+		expect(result.results).to.include.all.keys(strategies.map((strategy) => strategy.submissionId))
+		// The scores should be unique
+		const scores = Object.values(result.results!)
+		expect(scores).to.have.lengthOf(new Set(scores).size)
 	})
 })

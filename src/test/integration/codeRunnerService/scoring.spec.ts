@@ -31,69 +31,6 @@ const twoMinuteTimeout = 1200000
 import '../../testSetup.js'
 
 describe('Running games with different strategies', function () {
-	it('should run an evaluation with 10 dumb strategies', async function () {
-		const strategies = Array(9).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		expect(result.results).to.have.property('candidate')
-		expect(result.results).to.have.property('average')
-	})
-
-	it('should run an evaluation with 1000 dumb strategies', async function () {
-		const strategies = Array(999).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		expect(result.results).to.have.property('candidate')
-		expect(result.results).to.have.property('average')
-	})
-
-	it('should run a tournament with 10 dumb strategies', async function () {
-		this.timeout(twoMinuteTimeout)
-		const strategies = Array(10).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const result = await runTournament(gameFiles, strategies, 10)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		// It should have a result for each strategy
-		expect(Object.keys(result.results!)).to.have.lengthOf(10)
-	})
-
-	it('should run a tournament with 1000 dumb strategies', async function () {
-		this.timeout(twoMinuteTimeout)
-		const strategies = Array(1000).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const result = await runTournament(gameFiles, strategies, 10)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		// It should have a result for each strategy
-		expect(result.results).to.not.be.undefined
-		expect(Object.keys(result.results!)).to.have.lengthOf(1000)
-	})
-
 	it('should have a similar candidate score and average score for 10 dumb strategies during evaluation', async function () {
 		this.timeout(twoMinuteTimeout)
 		let otherScores = 0
@@ -110,27 +47,6 @@ describe('Running games with different strategies', function () {
 			candidateScore += result.results!.candidate
 		}
 		expect(candidateScore / iterations).to.be.closeTo(otherScores / iterations, 0.001)
-	})
-
-	it('should run a tournament with 1 chatGpt strategy and 10 dumb strategies', async function () {
-		this.timeout(twoMinuteTimeout)
-		const strategies = Array(10).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const chatGptStrategy = {
-			files: { ...chatGptStrategyFiles.files },
-			submissionId: 'chatGptStrategy'
-		}
-
-		const result = await runTournament(gameFiles, [chatGptStrategy, ...strategies], 10)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		// It should have a result for each strategy
-		expect(Object.keys(result.results!)).to.have.lengthOf(11)
 	})
 
 	it('should have a low difference between the highest and lowest score for 10 dumb strategies during tournament', async function () {
@@ -187,37 +103,6 @@ describe('Running games with different strategies', function () {
 
 		// Higher score is better
 		expect(chatGptScore).to.be.greaterThan(otherScores / 10)
-	})
-
-	it('should run a tournament with all strategies', async function () {
-		this.timeout(twoMinuteTimeout)
-		const strategies = [
-			dumbStrategyFiles,
-			honestStrategyFiles,
-			revealingStrategyFiles,
-			detEllerDeroverStrategyFiles,
-			chatGptStrategyFiles,
-			lyingStrategyFiles
-		]
-		const result = await runTournament(
-			gameFiles,
-			strategies,
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		// It should have a result for each strategy
-		expect(Object.keys(result.results!)).to.have.lengthOf(strategies.length)
-		// It should have a result for each strategy
-		expect(result.results).to.not.be.undefined
-		expect(Object.keys(result.results!)).to.have.lengthOf(strategies.length)
-		expect(result.results).to.include.all.keys(strategies.map((strategy) => strategy.submissionId))
-		// The scores should be unique
-		const scores = Object.values(result.results!)
-		expect(scores).to.have.lengthOf(new Set(scores).size)
 	})
 
 	it('should have a similar score for each strategy when using all strategies during tournament', async function () {
