@@ -2,8 +2,8 @@
 import { MeyerStrategyAPI } from '../meyer/types.ts'
 
 const main = (api: MeyerStrategyAPI) => {
-	// Rolling twice is considered cheating
-	api.roll()
+	// Rolling after revealing is considered cheating
+	api.reveal()
 	api.roll()
 }
 
