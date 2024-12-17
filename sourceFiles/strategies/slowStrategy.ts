@@ -2,10 +2,10 @@
 import { MeyerStrategyAPI } from '../meyer/types.ts'
 
 const main = (api: MeyerStrategyAPI) => {
-	// Do nonsense work for 20 ms
+	// Do nonsense work for 2 ms
 	let i = 0
 	const start = Date.now()
-	while (Date.now() - start < 100) {
+	while (Date.now() - start < 2) {
 		i++
 		i % 100
 	}
