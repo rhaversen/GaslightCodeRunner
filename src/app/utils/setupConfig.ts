@@ -24,6 +24,7 @@ const AppConfig = {
 	tournamentEpochs: config.get('codeRunner.tournament.numEpochs') as number,
 	evaluationEpochs: config.get('codeRunner.evaluation.numEpochs') as number,
 	evaluationTimeout: config.get('codeRunner.evaluation.timeout') as number,
+	strategyTimeout: config.get('codeRunner.strategy.timeout') as number,
 }
 
 export default AppConfig

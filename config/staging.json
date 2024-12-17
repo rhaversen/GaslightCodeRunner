@@ -16,6 +16,9 @@
 		"evaluation": {
 			"numEpochs": 100000,
 			"timeout": 2000
+		},
+		"strategy": {
+			"timeout": 10
 		}
 	}
 }
