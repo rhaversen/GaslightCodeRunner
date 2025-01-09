@@ -30,8 +30,11 @@ export class Main {
 				break
 			}
 
-			// Select players for the current epoch
-			const selectedPlayers = playerSelector.select(epochBatchSize)
+			// Select players for the current epoch and inject epoch number
+			const selectedPlayers = playerSelector.select(epochBatchSize).map(player => ({
+				...player,
+				epoch: epoch
+			}))
 
 			if (selectedPlayers.length === 0) {
 				console.warn('No players could be selected this epoch')

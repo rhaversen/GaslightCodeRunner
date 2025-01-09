@@ -32,10 +32,13 @@ export class Main {
 			const gameInstance = gameFactory()
 
 			// Select players for the current epoch
-			const selectedPlayers = playerSelector.select(epochBatchSize - 1)
+			const selectedPlayers = playerSelector.select(epochBatchSize - 1).map(player => ({
+				...player,
+				epoch
+			}))
 
 			// Mix candidate in randomly with selected players
-			const activePlayers = insertRandomly(selectedPlayers, candidate)
+			const activePlayers = insertRandomly(selectedPlayers, { ...candidate, epoch })
 
 			try {
 				gameInstance.init(activePlayers)
