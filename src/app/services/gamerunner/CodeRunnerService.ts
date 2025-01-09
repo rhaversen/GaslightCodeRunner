@@ -5,7 +5,7 @@ import { performance } from 'perf_hooks'
 import ivm from 'isolated-vm'
 
 // Own modules
-import type { EvaluationExecutionResults, EvaluationResults, submission, TournamentExecutionResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.d.ts'
+import type { EvaluationExecutionResults, EvaluationResults, GameResults, submission, TournamentExecutionResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.d.ts'
 import { bundleFiles, FileMap } from './bundler.js'
 import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles, } from '../../utils/sourceFiles.js'
 import config from '../../utils/setupConfig.js'
@@ -22,20 +22,57 @@ const {
 
 // Destructuring and global variables
 
+export enum ErrorCategory {
+	STRATEGY_EXECUTION_TIMEOUT = 'STRATEGY_EXECUTION_TIMEOUT',
+	STRATEGY_LOADING_TIMEOUT = 'STRATEGY_LOADING_TIMEOUT',
+	STRATEGY_ERROR = 'STRATEGY_ERROR',
+	SCRIPT_TIMEOUT = 'Script execution timed out', // This is defined by ivm, do not change
+	GAME_EXECUTION_ERROR = 'Game execution failed' // This is defined by the game runner, do not change
+}
+
 export async function runEvaluation(gameLogicFiles: FileMap, candidate: submission, others: submission[], epochBatchSize: number): Promise<EvaluationResults> {
-	return runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize) as Promise<EvaluationResults>
+	const results = await runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize)
+
+	const evaluationResults: EvaluationResults = {
+		error: results.error,
+		results: results.results ? {
+			candidate: results.results.candidate,
+			average: results.results.average
+		} : undefined,
+		disqualified: results.disqualified?.includes(candidate.submissionId) ? candidate.submissionId : '',
+		strategyTimings: results.strategyTimings?.get(candidate.submissionId) || []
+	}
+
+	return evaluationResults
 }
 
 export async function runTournament(gameLogicFiles: FileMap, strategies: submission[], epochBatchSize: number): Promise<TournamentResults> {
-	return runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize) as Promise<TournamentResults>
+	const results = await runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize)
+
+	const tournamentResults: TournamentResults = {
+		error: results.error,
+		results: results.results,
+		disqualified: results.disqualified,
+		strategyTimings: results.strategyTimings,
+		timedOutPlayers: results.timedOutPlayers,
+	}
+
+	return tournamentResults
 }
 
-async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 'Evaluation' | 'Tournament', epochBatchSize: number): Promise<EvaluationResults | TournamentResults> {
-	const isolate = new ivm.Isolate({ memoryLimit: 128 })
+async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 'Evaluation' | 'Tournament', epochBatchSize: number): Promise<GameResults> {
+	const isolate = new ivm.Isolate({ memoryLimit: 1024 })
 	const context = await isolate.createContext()
+
+	// Create resolver for termination
+	let terminateResolver: (result: GameResults) => void
+	const terminationPromise = new Promise<GameResults>(resolve => {
+		terminateResolver = resolve
+	})
 
 	// Track disqualified players
 	const timedOutPlayers = new Set<string>()
+	const errorPlayers = new Set<string>()
 
 	// Create log function
 	const log = new ivm.Reference((...args: any[]) => {
@@ -61,14 +98,14 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 	await context.eval(consoleLogSetup)
 
 	// Create strategy timing epoch time array 
-	const strategyTimings = new Map<string, Map<number, number>>()
+	const strategyTimings = new Map<string, number[]>()
 
 	// Create strategy timing function
-	const strategyTimingFunction = new ivm.Reference((submissionId: string, time: number, epoch: number) => {
+	const strategyTimingFunction = new ivm.Reference((submissionId: string, time: number) => {
 		if (!strategyTimings.has(submissionId)) {
-			strategyTimings.set(submissionId, new Map<number, number>())
+			strategyTimings.set(submissionId, new Array<number>())
 		}
-		strategyTimings.get(submissionId)!.set(epoch, time)
+		strategyTimings.get(submissionId)!.push(time)
 	})
 	await context.global.set('strategyTimingFunction', strategyTimingFunction)
 
@@ -89,6 +126,27 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 			now: () => perfNowRef.applySync(undefined)
 		};
 	`)
+
+	// Create terminate function that resolves the terminationPromise with the result
+	const terminateFunction = new ivm.Reference((category: ErrorCategory, message?: string, submissionId?: string) => {
+		console.log('Terminating:', category, message)
+		if (submissionId) {
+			if (category === ErrorCategory.STRATEGY_ERROR) {
+				errorPlayers.add(submissionId)
+			} else if (category === ErrorCategory.STRATEGY_EXECUTION_TIMEOUT || 
+					   category === ErrorCategory.STRATEGY_LOADING_TIMEOUT) {
+				timedOutPlayers.add(submissionId)
+			}
+		}
+		terminateResolver({
+			error: `${category}: ${message}`,
+			results: undefined,
+			disqualified: Array.from(category === ErrorCategory.STRATEGY_ERROR ? errorPlayers : timedOutPlayers),
+			strategyTimings: strategyTimings,
+			timedOutPlayers: Array.from(timedOutPlayers)
+		})
+	})
+	await context.global.set('terminateFunction', terminateFunction)
 
 	// Bundle game logic
 	const gameLogicCode = await bundleFiles(gameLogicFiles, 'Game')
@@ -113,33 +171,53 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 				const startTime = performance.now();
 				${bundle}
 				const strategy = Strategy.default;
-
-				log.apply(undefined, ['${strategies[index].submissionId} loaded']);
 				
 				const wrappedStrategy = function(api) {
 					// Only measure time on every 1000th epoch
 					if (this.epoch % 1000 === 0) {
 						const start = performance.now();
-						const result = strategy(api);
+						let result;
+						try {
+							result = strategy(api);
+						} catch (error) {
+							if (${index === 0} && ${type === 'Evaluation'}) {
+								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_ERROR}', error.message, '${strategies[index].submissionId}']);
+							}
+							throw error;
+						}
 						const end = performance.now();
 
 						const duration = end - start;
 						strategyTimingFunction.apply(undefined, ['${strategies[index].submissionId}', duration, this.epoch]);
 
-						// Only check timeout on these epochs
+						// Check if strategy took too long
 						if (duration > ${strategyTimeout}) {
-							timeoutFunction.applySync(undefined, ['${strategies[index].submissionId}']);
+							timeoutFunction.apply(undefined, ['${strategies[index].submissionId}']);
+							if (${index === 0} && ${type === 'Evaluation'}) {
+								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_EXECUTION_TIMEOUT}', 'Strategy took ' + duration + ' ms to execute. Max allowed time is ${strategyTimeout}ms', '${strategies[index].submissionId}']);
+							}
 						}
 						return result;
 					} else {
-						// Skip timing on other epochs
-						return strategy(api);
+						try {
+							const result = strategy(api);
+							return result;
+						} catch (error) {
+							if (${index === 0} && ${type === 'Evaluation'}) {
+								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_ERROR}', error.message, '${strategies[index].submissionId}']);
+							}
+							throw error;
+						}
 					}
 				};
 
 				const endTime = performance.now();
-				if (endTime - startTime > ${strategyTimeout}) {
-					timeoutFunction.applySync(undefined, ['${strategies[index].submissionId}']);
+				const duration = endTime - startTime;
+				if (duration > ${strategyTimeout}) {
+					timeoutFunction.apply(undefined, ['${strategies[index].submissionId}']);
+					if (${index === 0} && ${type === 'Evaluation'}) {
+						terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_LOADING_TIMEOUT}', 'Strategy took ' + duration + ' ms to load. Max allowed time is ${strategyTimeout}ms', '${strategies[index].submissionId}']);
+					}
 				};
 
 				return wrappedStrategy;
@@ -150,87 +228,61 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 	const submissionIds = strategies.map(s => s.submissionId)
 	const numEpochs = type === 'Evaluation' ? evaluationEpochs : tournamentEpochs
 	const testCode = `
-		(() => {
-			try {
-				// Evaluate game logic in its own scope
-				const GameModule = (() => {
-					${gameLogicCode}
-					return Game;
-				})();
+(() => {
+	// Evaluate game logic in its own scope
+	const GameModule = (() => {
+		${gameLogicCode}
+		return Game;
+	})();
 
-				// Evaluate game runner in its own scope
-				const GameRunnerModule = (() => {
-					${gameRunnerCode}
-					return GameRunner;
-				})();
+	// Evaluate game runner in its own scope
+	const GameRunnerModule = (() => {
+		${gameRunnerCode}
+		return GameRunner;
+	})();
 
-				// Evaluate player strategies in their own scopes
-				const strategies = [${strategiesStr}];
-				const submissionIds = ${JSON.stringify(submissionIds)};
+	// Evaluate player strategies in their own scopes
+	const strategies = [${strategiesStr}];
+	const submissionIds = ${JSON.stringify(submissionIds)};
 
-				// Create array of Player objects as expected by GameRunner
-				const players = strategies.map((strategy, index) => ({
-					submissionId: submissionIds[index],
-					strategy: strategy
-				}));
+	// Create array of Player objects as expected by GameRunner
+	const players = strategies.map((strategy, index) => ({
+		submissionId: submissionIds[index],
+		strategy: strategy
+	}));
 
-				// Create a factory function for Game instances
-				const gameFactory = () => new GameModule.default();
+	// Create a factory function for Game instances
+	const gameFactory = () => new GameModule.default();
 
-				// Pass the factory to the GameRunner
-				const result = GameRunnerModule.default.run(gameFactory, players, ${numEpochs}, ${epochBatchSize});
-				const resultStr = JSON.stringify(result);
-				return resultStr;
-			} catch (e) {
-				return JSON.stringify({ error: e.message });
-			}
-		})();
-	`
+	// Pass the factory to the GameRunner
+	const result = GameRunnerModule.default.run(gameFactory, players, ${numEpochs}, ${epochBatchSize});
+	const resultStr = JSON.stringify(result);
+	return resultStr;
+})();
+`
 
-	try {
-		const resultString: string = type === 'Evaluation'
-			? await context.eval(testCode, { timeout: evaluationTimeout })
-			: await context.eval(testCode)
+	const result = await Promise.race([
+		context.eval(testCode, { timeout: type === 'Evaluation' ? evaluationTimeout : undefined })
+			.then(resultString => {
+				const parsed = JSON.parse(resultString as string) as EvaluationExecutionResults | TournamentExecutionResults
+				return {
+					error: parsed.error,
+					results: parsed.results,
+					disqualified: parsed.disqualified || [],  // Ensure we always return an array
+					strategyTimings: strategyTimings,
+					timedOutPlayers: Array.from(timedOutPlayers)
+				}
+			})
+			.catch(err => ({
+				error: err.message,
+				results: undefined,
+				disqualified: [],  // Return empty array instead of undefined
+				strategyTimings: undefined,
+				timedOutPlayers: undefined
+			})),
+		terminationPromise
+	])
 
-		// Check if any players were disqualified during execution
-		if (timedOutPlayers.size > 0) {
-			return {
-				disqualified: Array.from(timedOutPlayers),
-				error: 'Strategy execution timed out',
-				strategyTimings
-			}
-		}
-
-		const results = JSON.parse(resultString) as EvaluationExecutionResults | TournamentExecutionResults
-
-		if (type === 'Evaluation') {
-			const evaluationResults = results as EvaluationResults
-			// Add strategy timings to the results
-			evaluationResults.strategyTimings = strategyTimings.get(strategies[0].submissionId)!
-
-			return evaluationResults
-		} else if (type === 'Tournament') {
-			const tournamentResults = results as TournamentResults
-			// Add strategy timings to the results
-			tournamentResults.strategyTimings = strategyTimings
-
-			return tournamentResults
-		} else {
-			return { error: 'Invalid game type', strategyTimings }
-		}
-	} catch (err: any) {
-		console.error(err)
-		// Check if the err is a timeout
-		// Error: Script execution timed out.
-		if (err.message === 'Script execution timed out.') {
-			return {
-				disqualified: [strategies[0].submissionId],
-				error: 'Script execution timed out.',
-				strategyTimings
-			}
-		}
-		return { error: err.message, strategyTimings }
-	} finally {
-		isolate.dispose()
-	}
+	isolate.dispose()
+	return result
 }

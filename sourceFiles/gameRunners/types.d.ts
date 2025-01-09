@@ -12,29 +12,34 @@ export interface TournamentExecutionResults {
 	error?: string
 }
 
-/**
- * Represents the result of a game.
- * @description
- * A map of submission IDs to the player's final score. Score can be both positive and negative.
-*/
 export interface GameResults {
-	disqualified?: string[]
 	error?: string
+	results?: {
+		[key: string]: number
+	},
+	disqualified?: string[]
+	strategyTimings?: Map<string, number[]>
+	timedOutPlayers?: string[]
 }
 
-export interface EvaluationResults extends GameResults {
+export interface EvaluationResults {
+	error?: string
 	results?: {
 		candidate: number
 		average: number
 	},
-	strategyTimings: Map<number, number>
+	disqualified?: string
+	strategyTimings?: number[]
 }
 
-export interface TournamentResults extends GameResults {
+export interface TournamentResults {
+	error?: string
 	results?: {
 		[key: string]: number
 	},
-	strategyTimings: Map<string, Map<number, number>>
+	disqualified?: string[]
+	strategyTimings?: Map<string, number[]>
+	timedOutPlayers?: string[]
 }
 
 export interface submission {
