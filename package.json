@@ -24,7 +24,7 @@
 		"ts:test:devEnv": "node --loader ts-node/esm node_modules/mocha/bin/mocha --require ts-node/register --reporter dot --recursive \"src/test/development/**/*.spec.ts\"",
 		"//4": "———————————————————————————————————————————————————Test—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————",
 		"test": "npm run test:integration && npm run test:unit && npm run test:devEnv",
-		"test:integration": "mocha --reporter spec --recursive \"dist/test/integration/**/*.spec.js\"",
+		"test:integration": "mocha --require source-map-support/register --reporter spec --recursive \"dist/test/integration/**/*.spec.js\"",
 		"test:unit": "mocha --require source-map-support/register --reporter spec --recursive \"dist/test/unit/**/*.spec.js\"",
 		"test:devEnv": "mocha --require source-map-support/register --reporter dot --recursive \"dist/test/development/**/*.spec.js\"",
 		"//5": "———————————————————————————————————————————————————Coverage—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————",
