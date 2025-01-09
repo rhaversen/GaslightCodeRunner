@@ -3,12 +3,12 @@
 import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
-import type { EvaluationResults } from './types.d.ts'
+import type { EvaluationExecutionResults } from './types.d.ts'
 import { insertRandomly } from './utils.ts'
 import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
-	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): EvaluationResults {
+	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): EvaluationExecutionResults {
 		console.info(`Running evaluation with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }

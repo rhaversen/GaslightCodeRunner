@@ -3,11 +3,11 @@
 import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
-import type { TournamentResults } from './types.d.ts'
+import type { TournamentExecutionResults } from './types.d.ts'
 import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
-	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): TournamentResults {
+	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): TournamentExecutionResults {
 		console.info(`Running tournament with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }
@@ -86,7 +86,7 @@ export class Main {
 		}
 
 		// Prepare the final results
-		const finalResults: TournamentResults = {
+		const finalResults: TournamentExecutionResults = {
 			results: {},
 		}
 		finalResults.results = {}
