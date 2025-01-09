@@ -9,7 +9,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 
 // Own modules
-import { runEvaluation } from '../../../app/services/gamerunner/CodeRunnerService.js'
+import { runEvaluation, runTournament, ErrorCategory } from '../../../app/services/gamerunner/CodeRunnerService.js'
 import {
 	gameFiles,
 	slowStrategyFiles,
@@ -18,6 +18,7 @@ import {
 	nonHaltingLoadingStrategyFiles,
 	nonHaltingStrategyFiles,
 } from '../../../app/utils/sourceFiles.js'
+import { EvaluationResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
 // Environment variables
 
@@ -32,76 +33,129 @@ import '../../testSetup.js'
 describe('CodeRunnerService Timeouts', function () {
 	this.timeout(twoMinuteTimeout)
 
-	it('should return an error when the candidate takes too long during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			slowStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
+	describe('Evaluation Timeouts - Candidate takes too long', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.error?.toLowerCase()).to.not.include('script')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('slow')
-		expect(result.error?.toLowerCase()).to.include('strategy execution timed out')
+		before(async function () {
+			result = await runEvaluation(gameFiles, slowStrategyFiles, [dumbStrategyFiles], 10)
+		})
+
+		it('should return an error', function () {
+			expect(result.error).to.include(ErrorCategory.STRATEGY_EXECUTION_TIMEOUT)
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.be.undefined
+		})
+
+		it('should return strategy timings', function () {
+			expect(result.strategyTimings).to.not.be.undefined
+			expect(result.strategyTimings).to.have.lengthOf(1)
+		})
+
+		it('should disqualify the candidate', function () {
+			expect(result.disqualified).to.equal(slowStrategyFiles.submissionId)
+		})
 	})
 
-	it('should return an error when the candidate never halts during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			nonHaltingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
+	describe('Evaluation Timeouts - Candidate never halts', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.error?.toLowerCase()).to.include('script')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal(nonHaltingStrategyFiles.submissionId)
-		expect(result.error?.toLowerCase()).to.include('timed out')
+		before(async function () {
+			result = await runEvaluation(gameFiles, nonHaltingStrategyFiles, [dumbStrategyFiles], 10)
+		})
+
+		it('should return an error', function () {
+			expect(result.error).to.include(ErrorCategory.SCRIPT_TIMEOUT)
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.be.undefined
+		})
+
+		it('should return empty strategy timings', function () {
+			expect(result.strategyTimings).to.be.an('array').that.is.empty
+		})
+
+		it('should not disqualify the candidate', function () {
+			expect(result.disqualified).to.be.empty
+		})
 	})
 
-	it('should return an error when the candidate takes too long to load during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			slowLoadingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
+	describe('Evaluation Timeouts - Candidate takes too long to load', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.error?.toLowerCase()).to.not.include('script')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal(slowLoadingStrategyFiles.submissionId)
-		expect(result.error?.toLowerCase()).to.include('strategy execution timed out')
+		before(async function () {
+			result = await runEvaluation(gameFiles, slowLoadingStrategyFiles, [dumbStrategyFiles], 10)
+		})
+
+		it('should return an error', function () {
+			expect(result.error).to.include(ErrorCategory.STRATEGY_LOADING_TIMEOUT)
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.be.undefined
+		})
+
+		it('should return empty strategy timings', function () {
+			expect(result.strategyTimings).to.be.an('array').that.is.empty
+		})
+
+		it('should disqualify the candidate', function () {
+			expect(result.disqualified).to.equal(slowLoadingStrategyFiles.submissionId)
+		})
 	})
 
-	it('should return an error when the candidate never halts during loading', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			nonHaltingLoadingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
+	describe('Evaluation Timeouts - Candidate never halts during loading', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.error?.toLowerCase()).to.include('script')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal(nonHaltingLoadingStrategyFiles.submissionId)
-		expect(result.error?.toLowerCase()).to.include('timed out')
+		before(async function () {
+			result = await runEvaluation(gameFiles, nonHaltingLoadingStrategyFiles, [dumbStrategyFiles], 10)
+		})
+
+		it('should return an error', function () {
+			expect(result.error).to.include(ErrorCategory.SCRIPT_TIMEOUT)
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.be.undefined
+		})
+
+		it('should return empty strategy timings', function () {
+			expect(result.strategyTimings).to.be.an('array').that.is.empty
+		})
+
+		it('should not disqualify the candidate', function () {
+			expect(result.disqualified).to.be.empty
+		})
 	})
 
+/* 	describe('Tournament Timeouts - Strategy takes too long', function () {
+		let result: TournamentResults
+
+		before(async function () {
+			result = await runTournament(gameFiles, [slowStrategyFiles, dumbStrategyFiles], 10)
+		})
+
+		it('should return an error', function () {
+			expect(result.error).to.include(ErrorCategory.STRATEGY_EXECUTION_TIMEOUT)
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.be.undefined
+		})
+
+		it('should return strategy timings', function () {
+			expect(result.strategyTimings).to.not.be.undefined
+			expect(result.strategyTimings?.size).to.equal(2)
+		})
+
+		it('should not disqualify any strategies', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should include the slow strategy in timed out players', function () {
+			expect(result.timedOutPlayers).to.include(slowStrategyFiles.submissionId)
+		})
+	}) */
 })

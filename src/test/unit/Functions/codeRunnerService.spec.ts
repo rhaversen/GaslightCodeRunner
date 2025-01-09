@@ -6,7 +6,7 @@
 
 // Third-party libraries
 import { expect } from 'chai'
-import { describe, it } from 'mocha'
+import { describe, it, before } from 'mocha'
 
 // Own modules
 import { runEvaluation, runTournament } from '../../../app/services/gamerunner/CodeRunnerService.js'
@@ -29,138 +29,263 @@ const twoMinuteTimeout = 1200000
 
 // Setup test environment
 import '../../testSetup.js'
+import { EvaluationResults, submission, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
 describe('CodeRunnerService', function () {
 	this.timeout(twoMinuteTimeout)
-	it('should run a an evaluation with 1 candidate and 1 other', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			dumbStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
+	describe('Evaluation - 1 candidate and 1 other', function () {
+		let result: EvaluationResults
+
+		before(async function () {
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, [dumbStrategyFiles], 10)
+		})
+
+		it('should not be undefined', function () {
+			expect(result).to.not.be.undefined
+		})
+
+		it('should have results', function () {
+			expect(result).to.have.property('results')
+		})
+
+		it('should have no disqualified players', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no error', function () {
+			expect(result.error).to.be.undefined
+		})
 	})
 
+	describe('Tournament - 1 strategy', function () {
+		let result: TournamentResults
 
-	it('should run a tournament with 1 strategy', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[dumbStrategyFiles],
-			10
-		)
+		before(async function () {
+			result = await runTournament(gameFiles, [dumbStrategyFiles], 10)
+		})
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
+		it('should not be undefined', function () {
+			expect(result).to.not.be.undefined
+		})
+
+		it('should have results', function () {
+			expect(result).to.have.property('results')
+		})
+
+		it('should have no disqualified players', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no error', function () {
+			expect(result.error).to.be.undefined
+		})
 	})
 
-	it('should run a tournament with 2 strategies', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[dumbStrategyFiles, dumbStrategyFiles],
-			10
-		)
+	describe('Tournament - 2 strategies', function () {
+		let result: TournamentResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
+		before(async function () {
+			result = await runTournament(gameFiles, [dumbStrategyFiles, dumbStrategyFiles], 10)
+		})
+
+		it('should not be undefined', function () {
+			expect(result).to.not.be.undefined
+		})
+
+		it('should have results', function () {
+			expect(result).to.have.property('results')
+		})
+
+		it('should have no disqualified players', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no error', function () {
+			expect(result.error).to.be.undefined
+		})
 	})
 
-	it('should run an evaluation with 10 dumb strategies', async function () {
-		const strategies = Array(9).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
+	describe('Evaluation - 10 dumb strategies', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		expect(result.results).to.have.property('candidate')
-		expect(result.results).to.have.property('average')
+		before(async function () {
+			const strategies = Array(9).fill(null).map((_, index) => ({
+				files: { ...dumbStrategyFiles.files },
+				submissionId: `dumbStrategy_${index + 1}`
+			}))
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
+		})
+
+		it('should not be undefined', function () {
+			expect(result).to.not.be.undefined
+		})
+
+		it('should have results', function () {
+			expect(result).to.have.property('results')
+		})
+
+		it('should have no disqualified players', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should have candidate results', function () {
+			expect(result.results).to.have.property('candidate')
+		})
+
+		it('should have average results', function () {
+			expect(result.results).to.have.property('average')
+		})
 	})
 
-	it('should run an evaluation with 1000 dumb strategies', async function () {
-		const strategies = Array(999).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
+	describe('Evaluation - 1000 dumb strategies', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		expect(result.results).to.have.property('candidate')
-		expect(result.results).to.have.property('average')
+		before(async function () {
+			const strategies = Array(999).fill(null).map((_, index) => ({
+				files: { ...dumbStrategyFiles.files },
+				submissionId: `dumbStrategy_${index + 1}`
+			}))
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
+		})
+
+		it('should not be undefined', function () {
+			expect(result).to.not.be.undefined
+		})
+
+		it('should have results', function () {
+			expect(result).to.have.property('results')
+		})
+
+		it('should have no disqualified players', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should have candidate results', function () {
+			expect(result.results).to.have.property('candidate')
+		})
+
+		it('should have average results', function () {
+			expect(result.results).to.have.property('average')
+		})
 	})
 
-	it('should run a tournament with 10 dumb strategies', async function () {
-		const strategies = Array(10).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const result = await runTournament(gameFiles, strategies, 10)
+	describe('Tournament - 10 dumb strategies', function () {
+		let result: TournamentResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		// It should have a result for each strategy
-		expect(Object.keys(result.results!)).to.have.lengthOf(10)
+		before(async function () {
+			const strategies = Array(10).fill(null).map((_, index) => ({
+				files: { ...dumbStrategyFiles.files },
+				submissionId: `dumbStrategy_${index + 1}`
+			}))
+			result = await runTournament(gameFiles, strategies, 10)
+		})
+
+		it('should not be undefined', function () {
+			expect(result).to.not.be.undefined
+		})
+
+		it('should have results', function () {
+			expect(result).to.have.property('results')
+		})
+
+		it('should have no disqualified players', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should have a result for each strategy', function () {
+			expect(Object.keys(result.results!)).to.have.lengthOf(10)
+		})
 	})
 
-	it('should run a tournament with 1000 dumb strategies', async function () {
-		const strategies = Array(1000).fill(null).map((_, index) => ({
-			files: { ...dumbStrategyFiles.files },
-			submissionId: `dumbStrategy_${index + 1}`
-		}))
-		const result = await runTournament(gameFiles, strategies, 10)
+	describe('Tournament - 1000 dumb strategies', function () {
+		let result: TournamentResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		// It should have a result for each strategy
-		expect(result.results).to.not.be.undefined
-		expect(Object.keys(result.results!)).to.have.lengthOf(1000)
+		before(async function () {
+			const strategies = Array(1000).fill(null).map((_, index) => ({
+				files: { ...dumbStrategyFiles.files },
+				submissionId: `dumbStrategy_${index + 1}`
+			}))
+			result = await runTournament(gameFiles, strategies, 10)
+		})
+
+		it('should not be undefined', function () {
+			expect(result).to.not.be.undefined
+		})
+
+		it('should have results', function () {
+			expect(result).to.have.property('results')
+		})
+
+		it('should have no disqualified players', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should have a result for each strategy', function () {
+			expect(result.results).to.not.be.undefined
+			expect(Object.keys(result.results!)).to.have.lengthOf(1000)
+		})
 	})
 
-	it('should run a tournament with all strategies', async function () {
-		const strategies = [
-			dumbStrategyFiles,
-			honestStrategyFiles,
-			revealingStrategyFiles,
-			detEllerDeroverStrategyFiles,
-			chatGptStrategyFiles,
-			lyingStrategyFiles
-		]
-		const result = await runTournament(
-			gameFiles,
-			strategies,
-			10
-		)
+	describe('Tournament - All strategies', function () {
+		let result: TournamentResults
+		let strategies: submission[]
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.not.have.property('error')
-		// It should have a result for each strategy
-		expect(Object.keys(result.results!)).to.have.lengthOf(strategies.length)
-		// It should have a result for each strategy
-		expect(result.results).to.not.be.undefined
-		expect(Object.keys(result.results!)).to.have.lengthOf(strategies.length)
-		expect(result.results).to.include.all.keys(strategies.map((strategy) => strategy.submissionId))
-		// The scores should be unique
-		const scores = Object.values(result.results!)
-		expect(scores).to.have.lengthOf(new Set(scores).size)
+		before(async function () {
+			strategies = [
+				dumbStrategyFiles,
+				honestStrategyFiles,
+				revealingStrategyFiles,
+				detEllerDeroverStrategyFiles,
+				chatGptStrategyFiles,
+				lyingStrategyFiles
+			]
+			result = await runTournament(gameFiles, strategies, 10)
+		})
+
+		it('should not be undefined', function () {
+			expect(result).to.not.be.undefined
+		})
+
+		it('should have results', function () {
+			expect(result).to.have.property('results')
+		})
+
+		it('should have no disqualified players', function () {
+			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should have a result for each strategy', function () {
+			expect(Object.keys(result.results!)).to.have.lengthOf(6)
+		})
+
+		it('should include all strategy submission IDs', function () {
+			expect(result.results).to.include.all.keys(strategies.map((strategy) => strategy.submissionId))
+		})
+
+		it('should have unique scores for each strategy', function () {
+			const scores = Object.values(result.results!)
+			expect(scores).to.have.lengthOf(new Set(scores).size)
+		})
 	})
 })

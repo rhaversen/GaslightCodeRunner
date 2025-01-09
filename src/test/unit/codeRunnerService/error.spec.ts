@@ -6,7 +6,7 @@
 
 // Third-party libraries
 import { expect } from 'chai'
-import { describe, it } from 'mocha'
+import { describe, it, before } from 'mocha'
 
 // Own modules
 import { runEvaluation, runTournament } from '../../../app/services/gamerunner/CodeRunnerService.js'
@@ -16,6 +16,7 @@ import {
 	dumbStrategyFiles,
 	errorThrowingStrategyFiles,
 } from '../../../app/utils/sourceFiles.js'
+import { EvaluationResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
 // Environment variables
 
@@ -30,168 +31,179 @@ import '../../testSetup.js'
 describe('CodeRunnerService Errors', function () {
 	this.timeout(twoMinuteTimeout)
 
-	it('should disqualify a strategy that throws an error during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			cheatingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
+	describe('Evaluation Errors - Strategy throws an error', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('cheating')
+		before(async function () {
+			result = await runEvaluation(gameFiles, cheatingStrategyFiles, [dumbStrategyFiles], 10)
+		})
+
+		it('should disqualify the strategy', function () {
+			expect(result.disqualified).to.equal(cheatingStrategyFiles.submissionId)
+		})
+
+		it('should include the error message', function () {
+			expect(result.error).to.be.a('string')
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.be.undefined
+		})
 	})
 
-	it('should include the message when disqualifying a strategy during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			cheatingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
+	describe('Evaluation Errors - Strategy throws an error', function () {
+		let result: EvaluationResults
 
-		expect(result.error).to.be.a('string')
+		before(async function () {
+			result = await runEvaluation(gameFiles, errorThrowingStrategyFiles, [dumbStrategyFiles], 10)
+		})
+
+		it('should disqualify the strategy', function () {
+			expect(result.disqualified).to.equal(errorThrowingStrategyFiles.submissionId)
+		})
+
+		it('should include the error message', function () {
+			expect(result.error).to.be.a('string')
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.be.undefined
+		})
 	})
 
-	it('should disqualify a strategy that throws an error during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			errorThrowingStrategyFiles,
-			[dumbStrategyFiles],
-			10
-		)
+	describe('Evaluation Errors - Other strategies disqualified', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.have.property('disqualified')
-		expect(result).to.have.property('error')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('errorThrowing')
+		before(async function () {
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, [errorThrowingStrategyFiles], 10)
+		})
+
+		it('should not have an error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should return results', function () {
+			expect(result.results).to.not.be.undefined
+		})
+
+		it('should not disqualify the candidate', function () {
+			expect(result.disqualified).to.be.empty
+		})
 	})
 
-	it('should not throw an error when other strategies are disqualified during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			dumbStrategyFiles,
-			[errorThrowingStrategyFiles],
-			10
-		)
+	describe('Evaluation Errors - Other strategies cheat', function () {
+		let result: EvaluationResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('error')
-		expect(result).to.not.have.property('disqualified')
+		before(async function () {
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, [cheatingStrategyFiles], 10)
+		})
+
+		it('should not have an error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should return results', function () {
+			expect(result.results).to.not.be.undefined
+		})
+
+		it('should not disqualify the candidate', function () {
+			expect(result.disqualified).to.be.empty
+		})
 	})
 
-	it('should not throw an error when other strategies cheat during evaluation', async function () {
-		const result = await runEvaluation(
-			gameFiles,
-			dumbStrategyFiles,
-			[cheatingStrategyFiles],
-			10
-		)
+	describe('Tournament Errors - No strategies', function () {
+		let result: TournamentResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('results')
-		expect(result).to.not.have.property('error')
-		expect(result).to.not.have.property('disqualified')
+		before(async function () {
+			result = await runTournament(gameFiles, [], 10)
+		})
+
+		it('should have an error', function () {
+			expect(result.error).to.be.a('string')
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.be.undefined
+		})
+
+		it('should not disqualify any strategies', function () {
+			expect(result.disqualified).to.be.empty
+		})
 	})
 
-	it('should have an error when running a tournament with no strategies', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[],
-			10
-		)
+	describe('Tournament Errors - Strategy throws an error', function () {
+		let result: TournamentResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.not.have.property('results')
-		expect(result).to.not.have.property('disqualified')
-		expect(result).to.have.property('error')
+		before(async function () {
+			result = await runTournament(gameFiles, [cheatingStrategyFiles, dumbStrategyFiles], 10)
+		})
+
+		it('should disqualify the strategy', function () {
+			expect(result.disqualified).to.include(cheatingStrategyFiles.submissionId)
+		})
+
+		it('should not have an error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should not disqualify other strategies', function () {
+			expect(result.disqualified).to.not.include(dumbStrategyFiles.submissionId)
+		})
 	})
 
+	describe('Tournament Errors - Multiple strategies cheat', function () {
+		let result: TournamentResults
 
-	it('should disqualify a strategy that throws an error during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[cheatingStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('disqualified')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('cheating')
-	})
-
-	it('should not have an error when disqualifying a strategy during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[cheatingStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result.error).to.be.undefined
-	})
-
-	it('should not disqualify any other strategies than the cheating strategy during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[cheatingStrategyFiles, dumbStrategyFiles],
-			10
-		)
-
-		expect(result.disqualified).to.not.include('dumb')
-	})
-
-	it('should disqualify all strategies that cheat during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[
+		before(async function () {
+			result = await runTournament(gameFiles, [
 				{ files: cheatingStrategyFiles.files, submissionId: 'cheating1' },
 				{ files: cheatingStrategyFiles.files, submissionId: 'cheating2' },
 				{ files: dumbStrategyFiles.files, submissionId: 'dumb' },
-			],
-			10
-		)
+			], 10)
+		})
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('disqualified')
-		expect(result.disqualified).to.have.lengthOf(2)
-		expect(result.disqualified).to.include.members(['cheating1', 'cheating2'])
+		it('should disqualify all cheating strategies', function () {
+			expect(result.disqualified).to.include.members(['cheating1', 'cheating2'])
+		})
+
+		it('should not disqualify other strategies', function () {
+			expect(result.disqualified).to.not.include('dumb')
+		})
 	})
 
-	it('should disqualify a strategy that throws an error during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[errorThrowingStrategyFiles, dumbStrategyFiles],
-			10
-		)
+	describe('Tournament Errors - Strategy throws an error', function () {
+		let result: TournamentResults
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('disqualified')
-		expect(result.disqualified).to.have.lengthOf(1)
-		expect(result.disqualified![0]).to.equal('errorThrowing')
+		before(async function () {
+			result = await runTournament(gameFiles, [errorThrowingStrategyFiles, dumbStrategyFiles], 10)
+		})
+
+		it('should disqualify the strategy', function () {
+			expect(result.disqualified).to.include(errorThrowingStrategyFiles.submissionId)
+		})
+
+		it('should not have an error', function () {
+			expect(result.error).to.be.undefined
+		})
 	})
 
-	it('should disqualify all strategies that throw an error during a tournament', async function () {
-		const result = await runTournament(
-			gameFiles,
-			[
+	describe('Tournament Errors - Multiple strategies throw errors', function () {
+		let result: TournamentResults
+
+		before(async function () {
+			result = await runTournament(gameFiles, [
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'errorThrowing1' },
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'errorThrowing2' },
 				{ files: dumbStrategyFiles.files, submissionId: 'dumb' },
-			],
-			10
-		)
+			], 10)
+		})
 
-		expect(result).to.not.be.undefined
-		expect(result).to.have.property('disqualified')
-		expect(result.disqualified).to.have.lengthOf(2)
-		expect(result.disqualified).to.include.members(['errorThrowing1', 'errorThrowing2'])
+		it('should disqualify all error-throwing strategies', function () {
+			expect(result.disqualified).to.include.members(['errorThrowing1', 'errorThrowing2'])
+		})
+
+		it('should not disqualify other strategies', function () {
+			expect(result.disqualified).to.not.include('dumb')
+		})
 	})
 })
