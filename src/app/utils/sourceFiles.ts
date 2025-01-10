@@ -39,6 +39,20 @@ const slowLoadingStrategySource = readFileSync(resolve(__dirname, '../../../sour
 const nonHaltingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/nonHaltingStrategy.ts'), 'utf-8')
 const nonHaltingLoadingStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/nonHaltingLoadingStrategy.ts'), 'utf-8')
 
+// Security test strategies
+const exitStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/exitStrategy.ts'), 'utf-8')
+const requireStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/requireStrategy.ts'), 'utf-8')
+const fsAccessStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/fsAccessStrategy.ts'), 'utf-8')
+const networkAccessStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/networkAccessStrategy.ts'), 'utf-8')
+const evalStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/evalStrategy.ts'), 'utf-8')
+const functionConstructorStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/functionConstructorStrategy.ts'), 'utf-8')
+const timerHijackStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/timerHijackStrategy.ts'), 'utf-8')
+const globalModificationStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/globalModificationStrategy.ts'), 'utf-8')
+const largeStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/largeStrategy.ts'), 'utf-8')
+const memoryHogStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/memoryHogStrategy.ts'), 'utf-8')
+const syntaxErrorStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/syntaxErrorStrategy.ts'), 'utf-8')
+const emptyStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/emptyStrategy.ts'), 'utf-8')
+
 const sourceFiles = {
 	commonTypes: { 'commonTypes.ts': commonTypesSource },
 	gameRunners: {
@@ -70,6 +84,18 @@ const sourceFiles = {
 		slowLoadingStrategy: { 'main.ts': slowLoadingStrategySource },
 		nonHaltingStrategy: { 'main.ts': nonHaltingStrategySource },
 		nonHaltingLoadingStrategy: { 'main.ts': nonHaltingLoadingStrategySource },
+		processExitStrategy: { 'main.ts': exitStrategySource },
+		requireStrategy: { 'main.ts': requireStrategySource },
+		fsAccessStrategy: { 'main.ts': fsAccessStrategySource },
+		networkAccessStrategy: { 'main.ts': networkAccessStrategySource },
+		evalStrategy: { 'main.ts': evalStrategySource },
+		functionConstructorStrategy: { 'main.ts': functionConstructorStrategySource },
+		timerHijackStrategy: { 'main.ts': timerHijackStrategySource },
+		globalModificationStrategy: { 'main.ts': globalModificationStrategySource },
+		largeStrategy: { 'main.ts': largeStrategySource },
+		memoryHogStrategy: { 'main.ts': memoryHogStrategySource },
+		syntaxErrorStrategy: { 'main.ts': syntaxErrorStrategySource },
+		emptyStrategy: { 'main.ts': emptyStrategySource },
 	}
 }
 
@@ -165,6 +191,62 @@ export const nonHaltingLoadingStrategyFiles = {
 	files: {
 		...sourceFiles.strategies.nonHaltingLoadingStrategy,
 	}
+}
+
+// Security test strategies
+export const processExitStrategyFiles = {
+	submissionId: 'processExit',
+	files: { ...sourceFiles.strategies.processExitStrategy }
+}
+
+export const requireStrategyFiles = {
+	submissionId: 'require',
+	files: { ...sourceFiles.strategies.requireStrategy }
+}
+
+export const networkAccessStrategyFiles = {
+	submissionId: 'networkAccess',
+	files: { ...sourceFiles.strategies.networkAccessStrategy }
+}
+
+export const evalStrategyFiles = {
+	submissionId: 'eval',
+	files: { ...sourceFiles.strategies.evalStrategy }
+}
+
+export const functionConstructorStrategyFiles = {
+	submissionId: 'functionConstructor',
+	files: { ...sourceFiles.strategies.functionConstructorStrategy }
+}
+
+export const timerHijackStrategyFiles = {
+	submissionId: 'timerHijack',
+	files: { ...sourceFiles.strategies.timerHijackStrategy }
+}
+
+export const globalModificationStrategyFiles = {
+	submissionId: 'globalModification',
+	files: { ...sourceFiles.strategies.globalModificationStrategy }
+}
+
+export const largeStrategyFiles = {
+	submissionId: 'large',
+	files: { ...sourceFiles.strategies.largeStrategy }
+}
+
+export const memoryHogStrategyFiles = {
+	submissionId: 'memoryHog',
+	files: { ...sourceFiles.strategies.memoryHogStrategy }
+}
+
+export const syntaxErrorStrategyFiles = {
+	submissionId: 'syntaxError',
+	files: { ...sourceFiles.strategies.syntaxErrorStrategy }
+}
+
+export const emptyStrategyFiles = {
+	submissionId: 'empty',
+	files: { ...sourceFiles.strategies.emptyStrategy }
 }
 
 export const tournamentGameRunnerFiles = {
