@@ -1,3 +1,4 @@
+/* eslint-disable local/enforce-comment-order */
 import { MeyerStrategyAPI } from '../../meyer/types.ts'
 export default function (api: MeyerStrategyAPI) {
 	// @ts-ignore

@@ -1,3 +1,5 @@
+/* eslint-disable typescript/no-unused-vars */
+/* eslint-disable local/enforce-comment-order */
 import { MeyerStrategyAPI } from '../../meyer/types.ts'
 
 export default function (api: MeyerStrategyAPI) {
@@ -5,7 +7,7 @@ export default function (api: MeyerStrategyAPI) {
 		// Attempt to access filesystem
 		// @ts-ignore
 		require('fs').readFileSync('/etc/passwd')
-	} catch (e) {
+	} catch (_e) {
 		console.log('Failed to access filesystem')
 	}
 
@@ -13,7 +15,7 @@ export default function (api: MeyerStrategyAPI) {
 		// Attempt to access process
 		// @ts-ignore
 		process.exit(1)
-	} catch (e) {
+	} catch (_e) {
 		console.log('Failed to exit process')
 	}
 
