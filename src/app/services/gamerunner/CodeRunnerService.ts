@@ -129,6 +129,7 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 	`)
 
 	// Create terminate function that resolves the terminationPromise with the result
+	// Allows termination from within the VM
 	const terminateFunction = new ivm.Reference((category: ErrorCategory, message?: string, submissionId?: string) => {
 		console.log('Terminating:', category, message)
 		if (submissionId) {
@@ -299,9 +300,9 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 				}
 
 				return {
-				error: err.message,
-				results: undefined,
-				disqualified: [],
+					error: err.message,
+					results: undefined,
+					disqualified: [],
 					strategyTimings: strategyTimings,
 					timedOutPlayers: Array.from(timedOutPlayers)
 				}
