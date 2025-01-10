@@ -56,6 +56,10 @@ describe('CodeRunnerService', function () {
 		it('should have no error', function () {
 			expect(result.error).to.be.undefined
 		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
 	})
 
 	describe('Tournament - 1 strategy', function () {
@@ -80,6 +84,10 @@ describe('CodeRunnerService', function () {
 		it('should have no error', function () {
 			expect(result.error).to.be.undefined
 		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
 	})
 
 	describe('Tournament - 2 strategies', function () {
@@ -103,6 +111,10 @@ describe('CodeRunnerService', function () {
 
 		it('should have no error', function () {
 			expect(result.error).to.be.undefined
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 
@@ -140,6 +152,10 @@ describe('CodeRunnerService', function () {
 		it('should have average results', function () {
 			expect(result.results).to.have.property('average')
 		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
 	})
 
 	describe('Evaluation - 1000 dumb strategies', function () {
@@ -176,6 +192,10 @@ describe('CodeRunnerService', function () {
 		it('should have average results', function () {
 			expect(result.results).to.have.property('average')
 		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
 	})
 
 	describe('Tournament - 10 dumb strategies', function () {
@@ -207,6 +227,10 @@ describe('CodeRunnerService', function () {
 
 		it('should have a result for each strategy', function () {
 			expect(Object.keys(result.results!)).to.have.lengthOf(10)
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 
@@ -240,6 +264,10 @@ describe('CodeRunnerService', function () {
 		it('should have a result for each strategy', function () {
 			expect(result.results).to.not.be.undefined
 			expect(Object.keys(result.results!)).to.have.lengthOf(1000)
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 
@@ -286,6 +314,10 @@ describe('CodeRunnerService', function () {
 		it('should have unique scores for each strategy', function () {
 			const scores = Object.values(result.results!)
 			expect(scores).to.have.lengthOf(new Set(scores).size)
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 })

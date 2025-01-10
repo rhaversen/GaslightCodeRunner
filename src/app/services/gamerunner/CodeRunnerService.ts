@@ -40,7 +40,8 @@ export async function runEvaluation(gameLogicFiles: FileMap, candidate: submissi
 			average: results.results.average
 		} : undefined,
 		disqualified: results.disqualified?.includes(candidate.submissionId) ? candidate.submissionId : '',
-		strategyTimings: results.strategyTimings?.get(candidate.submissionId) || []
+		strategyTimings: results.strategyTimings?.get(candidate.submissionId) || [],
+		timedOutPlayers: results.timedOutPlayers
 	}
 
 	return evaluationResults
@@ -131,17 +132,21 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 	const terminateFunction = new ivm.Reference((category: ErrorCategory, message?: string, submissionId?: string) => {
 		console.log('Terminating:', category, message)
 		if (submissionId) {
-			if (category === ErrorCategory.STRATEGY_ERROR) {
-				errorPlayers.add(submissionId)
-			} else if (category === ErrorCategory.STRATEGY_EXECUTION_TIMEOUT || 
-					   category === ErrorCategory.STRATEGY_LOADING_TIMEOUT) {
-				timedOutPlayers.add(submissionId)
+			switch (category) {
+				case ErrorCategory.STRATEGY_ERROR:
+					errorPlayers.add(submissionId)
+					break
+				case ErrorCategory.STRATEGY_EXECUTION_TIMEOUT:
+				case ErrorCategory.STRATEGY_LOADING_TIMEOUT:
+					timedOutPlayers.add(submissionId)
+					break
 			}
 		}
+
 		terminateResolver({
 			error: `${category}: ${message}`,
 			results: undefined,
-			disqualified: Array.from(category === ErrorCategory.STRATEGY_ERROR ? errorPlayers : timedOutPlayers),
+			disqualified: Array.from(errorPlayers),
 			strategyTimings: strategyTimings,
 			timedOutPlayers: Array.from(timedOutPlayers)
 		})
@@ -265,21 +270,42 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 		context.eval(testCode, { timeout: type === 'Evaluation' ? evaluationTimeout : undefined })
 			.then(resultString => {
 				const parsed = JSON.parse(resultString as string) as EvaluationExecutionResults | TournamentExecutionResults
+				
+				// Handle cases where all strategies are disqualified in tournament mode
+				if (type === 'Tournament' && 
+					(errorPlayers.size + timedOutPlayers.size) === strategies.length) {
+					return {
+						error: 'All strategies were disqualified',
+						results: undefined,
+						disqualified: Array.from(errorPlayers),
+						strategyTimings,
+						timedOutPlayers: Array.from(timedOutPlayers)
+					}
+				}
+
 				return {
 					error: parsed.error,
 					results: parsed.results,
-					disqualified: parsed.disqualified || [],  // Ensure we always return an array
-					strategyTimings: strategyTimings,
+					disqualified: Array.from([...errorPlayers, ...(parsed.disqualified || [])]),
+					strategyTimings,
 					timedOutPlayers: Array.from(timedOutPlayers)
 				}
 			})
-			.catch(err => ({
+			.catch(err => {
+				 // Handle script timeouts by adding the candidate to timedOutPlayers
+				if (err.message === ErrorCategory.SCRIPT_TIMEOUT && type === 'Evaluation') {
+					// For evaluation mode, add the candidate (first strategy) to timedOutPlayers
+					timedOutPlayers.add(strategies[0].submissionId)
+				}
+
+				return {
 				error: err.message,
 				results: undefined,
-				disqualified: [],  // Return empty array instead of undefined
-				strategyTimings: undefined,
-				timedOutPlayers: undefined
-			})),
+				disqualified: [],
+					strategyTimings: strategyTimings,
+					timedOutPlayers: Array.from(timedOutPlayers)
+				}
+			}),
 		terminationPromise
 	])
 

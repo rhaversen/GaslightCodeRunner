@@ -14,7 +14,7 @@ import {
 	gameFiles,
 	cheatingStrategyFiles,
 	dumbStrategyFiles,
-	errorThrowingStrategyFiles,
+	errorThrowingStrategyFiles
 } from '../../../app/utils/sourceFiles.js'
 import { EvaluationResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
@@ -49,6 +49,10 @@ describe('CodeRunnerService Errors', function () {
 		it('should not return results', function () {
 			expect(result.results).to.be.undefined
 		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
 	})
 
 	describe('Evaluation Errors - Strategy throws an error', function () {
@@ -68,6 +72,10 @@ describe('CodeRunnerService Errors', function () {
 
 		it('should not return results', function () {
 			expect(result.results).to.be.undefined
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 
@@ -89,6 +97,10 @@ describe('CodeRunnerService Errors', function () {
 		it('should not disqualify the candidate', function () {
 			expect(result.disqualified).to.be.empty
 		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
 	})
 
 	describe('Evaluation Errors - Other strategies cheat', function () {
@@ -108,6 +120,10 @@ describe('CodeRunnerService Errors', function () {
 
 		it('should not disqualify the candidate', function () {
 			expect(result.disqualified).to.be.empty
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 
@@ -129,6 +145,10 @@ describe('CodeRunnerService Errors', function () {
 		it('should not disqualify any strategies', function () {
 			expect(result.disqualified).to.be.empty
 		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
 	})
 
 	describe('Tournament Errors - Strategy throws an error', function () {
@@ -148,6 +168,10 @@ describe('CodeRunnerService Errors', function () {
 
 		it('should not disqualify other strategies', function () {
 			expect(result.disqualified).to.not.include(dumbStrategyFiles.submissionId)
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 
@@ -169,6 +193,10 @@ describe('CodeRunnerService Errors', function () {
 		it('should not disqualify other strategies', function () {
 			expect(result.disqualified).to.not.include('dumb')
 		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
 	})
 
 	describe('Tournament Errors - Strategy throws an error', function () {
@@ -184,6 +212,10 @@ describe('CodeRunnerService Errors', function () {
 
 		it('should not have an error', function () {
 			expect(result.error).to.be.undefined
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 
@@ -204,6 +236,34 @@ describe('CodeRunnerService Errors', function () {
 
 		it('should not disqualify other strategies', function () {
 			expect(result.disqualified).to.not.include('dumb')
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
+		})
+	})
+
+	describe('Tournament Errors - All strategies disqualified', function () {
+		let result: TournamentResults
+
+		before(async function () {
+			result = await runTournament(gameFiles, [
+				{ files: errorThrowingStrategyFiles.files, submissionId: 'error1' },
+				{ files: errorThrowingStrategyFiles.files, submissionId: 'error2' },
+				{ files: cheatingStrategyFiles.files, submissionId: 'cheating1' }
+			], 10)
+		})
+
+		it('should disqualify all strategies', function () {
+			expect(result.disqualified).to.include.members(['error1', 'error2', 'cheating1'])
+		})
+
+		it('should not return results', function () {
+			expect(result.results).to.deep.equal({})
+		})
+
+		it('should have no timed out players', function () {
+			expect(result.timedOutPlayers).to.be.empty
 		})
 	})
 })
