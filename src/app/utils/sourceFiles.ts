@@ -50,7 +50,6 @@ const timerHijackStrategySource = readFileSync(resolve(__dirname, '../../../sour
 const globalModificationStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/globalModificationStrategy.ts'), 'utf-8')
 const largeStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/largeStrategy.ts'), 'utf-8')
 const memoryHogStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/memoryHogStrategy.ts'), 'utf-8')
-const syntaxErrorStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/syntaxErrorStrategy.ts'), 'utf-8')
 const emptyStrategySource = readFileSync(resolve(__dirname, '../../../sourceFiles/strategies/security/emptyStrategy.ts'), 'utf-8')
 
 const sourceFiles = {
@@ -94,7 +93,6 @@ const sourceFiles = {
 		globalModificationStrategy: { 'main.ts': globalModificationStrategySource },
 		largeStrategy: { 'main.ts': largeStrategySource },
 		memoryHogStrategy: { 'main.ts': memoryHogStrategySource },
-		syntaxErrorStrategy: { 'main.ts': syntaxErrorStrategySource },
 		emptyStrategy: { 'main.ts': emptyStrategySource },
 	}
 }
@@ -237,11 +235,6 @@ export const largeStrategyFiles = {
 export const memoryHogStrategyFiles = {
 	submissionId: 'memoryHog',
 	files: { ...sourceFiles.strategies.memoryHogStrategy }
-}
-
-export const syntaxErrorStrategyFiles = {
-	submissionId: 'syntaxError',
-	files: { ...sourceFiles.strategies.syntaxErrorStrategy }
 }
 
 export const emptyStrategyFiles = {
