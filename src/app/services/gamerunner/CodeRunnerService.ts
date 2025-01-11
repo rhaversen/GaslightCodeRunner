@@ -294,7 +294,7 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 			})
 			.catch(err => {
 				 // Handle script timeouts by adding the candidate to timedOutPlayers
-				if (err.message === ErrorCategory.SCRIPT_TIMEOUT && type === 'Evaluation') {
+				if (((err.message) as string).includes(ErrorCategory.SCRIPT_TIMEOUT) && type === 'Evaluation') {
 					// For evaluation mode, add the candidate (first strategy) to timedOutPlayers
 					timedOutPlayers.add(strategies[0].submissionId)
 				}
