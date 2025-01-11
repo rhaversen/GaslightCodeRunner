@@ -271,9 +271,9 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 		context.eval(testCode, { timeout: type === 'Evaluation' ? evaluationTimeout : undefined })
 			.then(resultString => {
 				const parsed = JSON.parse(resultString as string) as EvaluationExecutionResults | TournamentExecutionResults
-				
+
 				// Handle cases where all strategies are disqualified in tournament mode
-				if (type === 'Tournament' && 
+				if (type === 'Tournament' &&
 					(errorPlayers.size + timedOutPlayers.size) === strategies.length) {
 					return {
 						error: 'All strategies were disqualified',
@@ -293,7 +293,7 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 				}
 			})
 			.catch(err => {
-				 // Handle script timeouts by adding the candidate to timedOutPlayers
+				// Handle script timeouts by adding the candidate to timedOutPlayers
 				if (((err.message) as string).includes(ErrorCategory.SCRIPT_TIMEOUT) && type === 'Evaluation') {
 					// For evaluation mode, add the candidate (first strategy) to timedOutPlayers
 					timedOutPlayers.add(strategies[0].submissionId)
