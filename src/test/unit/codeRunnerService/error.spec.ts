@@ -39,23 +39,23 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should disqualify the strategy', function () {
-			expect(result.disqualified).to.be.a('string')
+			expect(result).to.have.property('disqualified').that.is.a('string')
 		})
 
 		it('should not have an error message', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should not return results', function () {
-			expect(result.results).to.be.undefined
+			expect(result).to.have.property('results').that.is.undefined
 		})
 
 		it('should return strategy timings', function () {
-			expect(result.strategyExecutionTimings).to.be.an('array')
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array')
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.a('number')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.a('number')
 		})
 	})
 
@@ -67,27 +67,27 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should disqualify the strategy', function () {
-			expect(result.disqualified).to.be.a('string')
+			expect(result).to.have.property('disqualified').that.is.a('string')
 		})
 
-		it('should not have a error message', function () {
-			expect(result.error).to.be.undefined
+		it('should not have an error message', function () {
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should not return results', function () {
-			expect(result.results).to.be.undefined
+			expect(result).to.have.property('results').that.is.undefined
 		})
 
 		it('should return strategy timings', function () {
-			expect(result.strategyExecutionTimings).to.be.an('array')
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array')
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.a('number')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.a('number')
 		})
 	})
 
-	describe('Evaluation Errors - Other strategies disqualified', function () {
+	describe('Evaluation Errors - All other strategies throw errors', function () {
 		let result: EvaluationResults
 
 		before(async function () {
@@ -95,28 +95,29 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should not have an error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should return results', function () {
-			expect(result.results?.candidate).to.not.be.undefined
-			expect(result.results?.average).to.not.be.undefined
+			expect(result).to.have.property('results').that.is.an('object')
+			expect(result.results).to.have.property('candidate').that.is.a('number')
+			expect(result.results).to.have.property('average').that.is.null
 		})
 
 		it('should not disqualify the candidate', function () {
-			expect(result.disqualified).to.be.null
+			expect(result).to.have.property('disqualified').that.is.null
 		})
 
 		it('should return strategy timings', function () {
-			expect(result.strategyExecutionTimings).to.be.an('array')
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array')
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.a('number')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.a('number')
 		})
 	})
 
-	describe('Evaluation Errors - Other strategies cheat', function () {
+	describe('Evaluation Errors - All other strategies cheat', function () {
 		let result: EvaluationResults
 
 		before(async function () {
@@ -124,24 +125,25 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should not have an error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should return results', function () {
-			expect(result.results?.candidate).to.not.be.undefined
-			expect(result.results?.average).to.not.be.undefined
+			expect(result).to.have.property('results').that.is.an('object')
+			expect(result.results).to.have.property('candidate').that.is.a('number')
+			expect(result.results).to.have.property('average').that.is.null
 		})
 
 		it('should not disqualify the candidate', function () {
-			expect(result.disqualified).to.be.null
+			expect(result).to.have.property('disqualified').that.is.null
 		})
 
 		it('should return strategy timings', function () {
-			expect(result.strategyExecutionTimings).to.be.an('array')
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array')
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.a('number')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.a('number')
 		})
 	})
 
@@ -153,24 +155,23 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should have an error', function () {
-			expect(result.error).to.be.a('string')
+			expect(result).to.have.property('error').that.is.a('string')
 		})
 
 		it('should not return results', function () {
-			expect(result.results).to.be.undefined
+			expect(result).to.have.property('results').that.is.undefined
 		})
 
 		it('should not disqualify any strategies', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result).to.have.property('disqualified').that.is.an('object').that.is.empty
 		})
 
 		it('should not return strategy timings', function () {
-			expect(result.strategyExecutionTimings).to.be.empty
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('object').that.is.empty
 		})
 
-		it('should not return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.an('object')
-			expect(result.strategyLoadingTimings).to.deep.equal({})
+		it('should return strategy loading timings', function () {
+			expect(result).to.have.property('strategyLoadingTimings').that.is.an('object').that.is.empty
 		})
 	})
 
@@ -182,11 +183,11 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should disqualify the strategy', function () {
-			expect(result.disqualified).to.have.property(cheatingStrategyFiles.submissionId)
+			expect(result).to.have.property('disqualified').that.has.property(cheatingStrategyFiles.submissionId)
 		})
 
 		it('should not have an error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should not disqualify other strategies', function () {
@@ -198,12 +199,12 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should return results of non-cheating strategy', function () {
-			expect(result.results).to.not.be.empty
+			expect(result).to.have.property('results').that.is.an('object').that.is.not.empty
 			expect(result.results).to.have.property(dumbStrategyFiles.submissionId)
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.an('object')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.an('object')
 			expect(result.strategyLoadingTimings).to.have.property(dumbStrategyFiles.submissionId)
 			expect(result.strategyLoadingTimings).to.have.property(cheatingStrategyFiles.submissionId)
 		})
@@ -221,7 +222,7 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should disqualify all cheating strategies', function () {
-			expect(Object.keys(result.disqualified)).to.include.members(['cheating1', 'cheating2'])
+			expect(result).to.have.property('disqualified').that.includes.keys(['cheating1', 'cheating2'])
 		})
 
 		it('should not disqualify other strategies', function () {
@@ -229,7 +230,7 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should not have an error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should return strategy timings of non-cheating strategy', function () {
@@ -237,7 +238,7 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.an('object')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.an('object')
 			expect(result.strategyLoadingTimings).to.have.property('dumb')
 			expect(result.strategyLoadingTimings).to.have.property('cheating1')
 			expect(result.strategyLoadingTimings).to.have.property('cheating2')
@@ -252,15 +253,15 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should disqualify the strategy', function () {
-			expect(result.disqualified).to.have.property(errorThrowingStrategyFiles.submissionId)
+			expect(result).to.have.property('disqualified').that.has.property(errorThrowingStrategyFiles.submissionId)
 		})
 
 		it('should not have an error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should return results', function () {
-			expect(result.results).to.not.be.empty
+			expect(result).to.have.property('results').that.is.an('object').that.is.not.empty
 			expect(result.results).to.have.property(dumbStrategyFiles.submissionId)
 		})
 
@@ -269,7 +270,7 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.an('object')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.an('object')
 			expect(result.strategyLoadingTimings).to.have.property(dumbStrategyFiles.submissionId)
 			expect(result.strategyLoadingTimings).to.have.property(errorThrowingStrategyFiles.submissionId)
 		})
@@ -287,16 +288,15 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should disqualify all error-throwing strategies', function () {
-			expect(result.disqualified).to.have.property('errorThrowing1')
-			expect(result.disqualified).to.have.property('errorThrowing2')
+			expect(result).to.have.property('disqualified').that.includes.keys(['errorThrowing1', 'errorThrowing2'])
 		})
 
 		it('should not have an error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should return results of non-error-throwing strategy', function () {
-			expect(result.results).to.not.be.empty
+			expect(result).to.have.property('results').that.is.an('object').that.is.not.empty
 			expect(result.results).to.have.property('dumb')
 		})
 
@@ -305,7 +305,7 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.an('object')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.an('object')
 			expect(result.strategyLoadingTimings).to.have.property('dumb')
 			expect(result.strategyLoadingTimings).to.have.property('errorThrowing1')
 			expect(result.strategyLoadingTimings).to.have.property('errorThrowing2')
@@ -324,23 +324,23 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should disqualify all cheating strategies', function () {
-			expect(result.disqualified).to.have.keys(['cheating1', 'cheating2', 'cheating3'])
+			expect(result).to.have.property('disqualified').that.includes.keys(['cheating1', 'cheating2', 'cheating3'])
 		})
 
 		it('should not return results', function () {
-			expect(result.results).to.be.undefined
+			expect(result).to.have.property('results').that.is.undefined
 		})
 
 		it('should have an error', function () {
-			expect(result.error).to.equal(ErrorCategory.ALL_PLAYERS_DISQUALIFIED)
+			expect(result).to.have.property('error').that.equals(ErrorCategory.ALL_PLAYERS_DISQUALIFIED)
 		})
 
 		it('should not return strategy timings', function () {
-			expect(result.strategyExecutionTimings).to.deep.equal({})
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('object').that.is.empty
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.an('object')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.an('object')
 			expect(result.strategyLoadingTimings).to.have.property('cheating1')
 			expect(result.strategyLoadingTimings).to.have.property('cheating2')
 			expect(result.strategyLoadingTimings).to.have.property('cheating3')
@@ -359,23 +359,23 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should disqualify all strategies', function () {
-			expect(Object.keys(result.disqualified)).to.include.members(['error1', 'error2', 'error3'])
+			expect(result).to.have.property('disqualified').that.includes.keys(['error1', 'error2', 'error3'])
 		})
 
 		it('should have an error', function () {
-			expect(result.error).to.equal(ErrorCategory.ALL_PLAYERS_DISQUALIFIED)
+			expect(result).to.have.property('error').that.equals(ErrorCategory.ALL_PLAYERS_DISQUALIFIED)
 		})
 
 		it('should not return results', function () {
-			expect(result.results).to.be.undefined
+			expect(result).to.have.property('results').that.is.undefined
 		})
 
 		it('should not return strategy timings', function () {
-			expect(result.strategyExecutionTimings).to.deep.equal({})
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('object').that.is.empty
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.an('object')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.an('object')
 			expect(result.strategyLoadingTimings).to.have.property('error1')
 			expect(result.strategyLoadingTimings).to.have.property('error2')
 			expect(result.strategyLoadingTimings).to.have.property('error3')
@@ -394,23 +394,23 @@ describe('CodeRunnerService Errors', function () {
 		})
 
 		it('should return an error', function () {
-			expect(result.error).to.equal(ErrorCategory.ALL_PLAYERS_DISQUALIFIED)
+			expect(result).to.have.property('error').that.equals(ErrorCategory.ALL_PLAYERS_DISQUALIFIED)
 		})
 
 		it('should disqualify all strategies', function () {
-			expect(result.disqualified).to.have.keys(['error1', 'error2', 'cheating1'])
+			expect(result).to.have.property('disqualified').that.includes.keys(['error1', 'error2', 'cheating1'])
 		})
 
 		it('should not return results', function () {
-			expect(result.results).to.be.undefined
+			expect(result).to.have.property('results').that.is.undefined
 		})
 
 		it('should not return strategy timings', function () {
-			expect(result.strategyExecutionTimings).to.deep.equal({})
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('object').that.is.empty
 		})
 
 		it('should return strategy loading timings', function () {
-			expect(result.strategyLoadingTimings).to.be.an('object')
+			expect(result).to.have.property('strategyLoadingTimings').that.is.an('object')
 			expect(result.strategyLoadingTimings).to.have.property('error1')
 			expect(result.strategyLoadingTimings).to.have.property('error2')
 			expect(result.strategyLoadingTimings).to.have.property('cheating1')

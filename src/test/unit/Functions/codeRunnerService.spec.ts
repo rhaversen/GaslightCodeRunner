@@ -46,15 +46,15 @@ describe('CodeRunnerService', function () {
 		})
 
 		it('should have results', function () {
-			expect(result).to.have.property('results')
+			expect(result).to.have.property('results').that.is.an('object')
 		})
 
 		it('should have no disqualified players', function () {
-			expect(result.disqualified).to.be.null
+			expect(result).to.have.property('disqualified').that.is.null
 		})
 
 		it('should have no error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 	})
 
@@ -70,15 +70,15 @@ describe('CodeRunnerService', function () {
 		})
 
 		it('should have results', function () {
-			expect(result).to.have.property('results')
+			expect(result).to.have.property('results').that.is.an('object')
 		})
 
 		it('should have no disqualified players', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result).to.have.property('disqualified').that.is.an('object').that.is.empty
 		})
 
 		it('should have no error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 	})
 
@@ -94,15 +94,15 @@ describe('CodeRunnerService', function () {
 		})
 
 		it('should have results', function () {
-			expect(result).to.have.property('results')
+			expect(result).to.have.property('results').that.is.an('object')
 		})
 
 		it('should have no disqualified players', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result).to.have.property('disqualified').that.is.an('object').that.is.empty
 		})
 
 		it('should have no error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 	})
 
@@ -122,23 +122,23 @@ describe('CodeRunnerService', function () {
 		})
 
 		it('should have results', function () {
-			expect(result).to.have.property('results')
+			expect(result).to.have.property('results').that.is.an('object')
 		})
 
 		it('should have no disqualified players', function () {
-			expect(result.disqualified).to.be.null
+			expect(result).to.have.property('disqualified').that.is.null
 		})
 
 		it('should have no error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should have candidate results', function () {
-			expect(result.results).to.have.property('candidate')
+			expect(result.results).to.have.property('candidate').that.is.a('number')
 		})
 
 		it('should have average results', function () {
-			expect(result.results).to.have.property('average')
+			expect(result.results).to.have.property('average').that.is.a('number')
 		})
 	})
 
@@ -158,23 +158,23 @@ describe('CodeRunnerService', function () {
 		})
 
 		it('should have results', function () {
-			expect(result).to.have.property('results')
+			expect(result).to.have.property('results').that.is.an('object')
 		})
 
 		it('should have no disqualified players', function () {
-			expect(result.disqualified).to.be.null
+			expect(result).to.have.property('disqualified').that.is.null
 		})
 
 		it('should have no error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should have candidate results', function () {
-			expect(result.results).to.have.property('candidate')
+			expect(result.results).to.have.property('candidate').that.is.a('number')
 		})
 
 		it('should have average results', function () {
-			expect(result.results).to.have.property('average')
+			expect(result.results).to.have.property('average').that.is.a('number')
 		})
 	})
 
@@ -194,19 +194,19 @@ describe('CodeRunnerService', function () {
 		})
 
 		it('should have results', function () {
-			expect(result).to.have.property('results')
+			expect(result).to.have.property('results').that.is.an('object')
 		})
 
 		it('should have no disqualified players', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result).to.have.property('disqualified').that.is.an('object').that.is.empty
 		})
 
 		it('should have no error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should have a result for each strategy', function () {
-			expect(Object.keys(result.results!)).to.have.lengthOf(10)
+			expect(result.results).to.be.an('object').that.has.keys(Array.from({ length: 10 }, (_, i) => `dumbStrategy_${i + 1}`))
 		})
 	})
 
@@ -226,20 +226,19 @@ describe('CodeRunnerService', function () {
 		})
 
 		it('should have results', function () {
-			expect(result.results).to.not.be.undefined
+			expect(result).to.have.property('results').that.is.an('object')
 		})
 
 		it('should have no disqualified players', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result).to.have.property('disqualified').that.is.an('object').that.is.empty
 		})
 
 		it('should have no error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should have a result for each strategy', function () {
-			expect(result.results).to.not.be.undefined
-			expect(Object.keys(result.results!)).to.have.lengthOf(1000)
+			expect(result.results).to.be.an('object').that.has.keys(Array.from({ length: 1000 }, (_, i) => `dumbStrategy_${i + 1}`))
 		})
 	})
 
@@ -264,19 +263,19 @@ describe('CodeRunnerService', function () {
 		})
 
 		it('should have results', function () {
-			expect(result).to.have.property('results')
+			expect(result).to.have.property('results').that.is.an('object')
 		})
 
 		it('should have no disqualified players', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result).to.have.property('disqualified').that.is.an('object').that.is.empty
 		})
 
 		it('should have no error', function () {
-			expect(result.error).to.be.undefined
+			expect(result).to.have.property('error').that.is.undefined
 		})
 
 		it('should have a result for each strategy', function () {
-			expect(Object.keys(result.results!)).to.have.lengthOf(6)
+			expect(result.results).to.be.an('object').that.has.keys(strategies.map((strategy) => strategy.submissionId))
 		})
 
 		it('should include all strategy submission IDs', function () {
