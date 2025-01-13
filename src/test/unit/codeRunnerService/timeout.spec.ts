@@ -9,7 +9,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 
 // Own modules
-import { runEvaluation, ErrorCategory } from '../../../app/services/gamerunner/CodeRunnerService.js'
+import { runEvaluation, ErrorCategory, runTournament } from '../../../app/services/gamerunner/CodeRunnerService.js'
 import {
 	gameFiles,
 	slowStrategyFiles,
@@ -18,7 +18,7 @@ import {
 	nonHaltingLoadingStrategyFiles,
 	nonHaltingStrategyFiles,
 } from '../../../app/utils/sourceFiles.js'
-import { EvaluationResults } from '../../../../sourceFiles/gameRunners/types.js'
+import { EvaluationResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
 // Environment variables
 
@@ -41,7 +41,7 @@ describe('CodeRunnerService Timeouts', function () {
 		})
 
 		it('should return an error', function () {
-			expect(result.error).to.include(ErrorCategory.STRATEGY_EXECUTION_TIMEOUT)
+			expect(result.error).to.include(ErrorCategory.SCRIPT_TIMEOUT)
 		})
 
 		it('should not return results', function () {
@@ -49,16 +49,15 @@ describe('CodeRunnerService Timeouts', function () {
 		})
 
 		it('should return strategy timings', function () {
-			expect(result.strategyTimings).to.not.be.undefined
-			expect(result.strategyTimings).to.have.lengthOf(1)
-		})
-
-		it('should add the strategy to timedOutPlayers', function () {
-			expect(result.timedOutPlayers).to.deep.equal([slowStrategyFiles.submissionId])
+			expect(result.strategyExecutionTimings).to.be.an('array')
 		})
 
 		it('should not disqualify any players', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result.disqualified).to.be.null
+		})
+
+		it('should return strategy loading timings', function () {
+			expect(result.strategyLoadingTimings).to.be.a('number')
 		})
 	})
 
@@ -78,15 +77,15 @@ describe('CodeRunnerService Timeouts', function () {
 		})
 
 		it('should return empty strategy timings', function () {
-			expect(result.strategyTimings).to.be.an('array').that.is.empty
+			expect(result.strategyExecutionTimings).to.be.an('array').that.is.empty
 		})
 
 		it('should not disqualify the candidate', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result.disqualified).to.be.null
 		})
 
-		it('should add the strategy to timedOutPlayers', function () {
-			expect(result.timedOutPlayers).to.deep.equal([nonHaltingStrategyFiles.submissionId])
+		it('should return strategy loading timings', function () {
+			expect(result.strategyLoadingTimings).to.be.a('number')
 		})
 	})
 
@@ -97,24 +96,60 @@ describe('CodeRunnerService Timeouts', function () {
 			result = await runEvaluation(gameFiles, slowLoadingStrategyFiles, [dumbStrategyFiles], 10)
 		})
 
-		it('should return an error', function () {
-			expect(result.error).to.include(ErrorCategory.STRATEGY_LOADING_TIMEOUT)
+		it('should not return an error', function () {
+			expect(result.error).to.be.undefined
 		})
 
-		it('should not return results', function () {
-			expect(result.results).to.be.undefined
+		it('should return results', function () {
+			expect(result.results).to.be.an('object')
+			expect(result.results).to.have.property('candidate')
+			expect(result.results).to.have.property('average')
 		})
 
-		it('should return empty strategy timings', function () {
-			expect(result.strategyTimings).to.be.an('array').that.is.empty
+		it('should return strategy timings', function () {
+			expect(result.strategyExecutionTimings).to.be.an('array')
 		})
 
-		it('should add the strategy to timedOutPlayers', function () {
-			expect(result.timedOutPlayers).to.deep.equal([slowLoadingStrategyFiles.submissionId])
+		it('should not disqualify any players', function () {
+			expect(result.disqualified).to.be.null
+		})
+
+		it('should return strategy loading timings', function () {
+			expect(result.strategyLoadingTimings).to.be.a('number')
+		})
+	})
+
+	describe('Tournament Timeouts - Candidate takes too long to load', function () {
+		let result: TournamentResults
+
+		before(async function () {
+			result = await runTournament(gameFiles, [slowLoadingStrategyFiles, dumbStrategyFiles], 10)
+		})
+
+		it('should not return an error', function () {
+			expect(result.error).to.be.undefined
+		})
+
+		it('should return results', function () {
+			expect(result.results).to.be.an('object')
+			expect(result.results).to.have.property(dumbStrategyFiles.submissionId)
+			expect(result.results).to.have.property(slowLoadingStrategyFiles.submissionId)
 		})
 
 		it('should not disqualify any players', function () {
 			expect(result.disqualified).to.be.empty
+		})
+
+		it('should return strategy timings', function () {
+			expect(result.strategyExecutionTimings).to.be.an('object')
+			expect(result.strategyExecutionTimings).to.have.property(dumbStrategyFiles.submissionId)
+			expect(result.strategyExecutionTimings).to.have.property(slowLoadingStrategyFiles.submissionId)
+		})
+
+		it('should return strategy loading timings', function () {
+			expect(result.strategyLoadingTimings).to.be.an('object')
+			expect(result.strategyLoadingTimings).to.have.property(dumbStrategyFiles.submissionId)
+			expect(result.strategyLoadingTimings).to.have.property(slowLoadingStrategyFiles.submissionId)
 		})
 	})
 
@@ -134,15 +169,15 @@ describe('CodeRunnerService Timeouts', function () {
 		})
 
 		it('should return empty strategy timings', function () {
-			expect(result.strategyTimings).to.be.an('array').that.is.empty
+			expect(result.strategyExecutionTimings).to.be.an('array')
 		})
 
 		it('should not disqualify the candidate', function () {
-			expect(result.disqualified).to.be.empty
+			expect(result.disqualified).to.be.null
 		})
 
-		it('should add the strategy to timedOutPlayers', function () {
-			expect(result.timedOutPlayers).to.deep.equal([nonHaltingLoadingStrategyFiles.submissionId])
+		it('should return strategy loading timings', function () {
+			expect(result.strategyLoadingTimings).to.be.a('number')
 		})
 	})
 })

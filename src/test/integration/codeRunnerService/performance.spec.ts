@@ -38,19 +38,16 @@ describe('CodeRunnerService Performance', function () {
 			const result = await runTournament(gameFiles, strategies, 10)
 			// Map<string, Map<number, number>>();
 			// Map<submissionId, Map<epoch, time>>
-			const timings = result.strategyTimings
-			console.log('timings', timings)
+			const timings = result.strategyExecutionTimings
 
 			// Now we see how timings evolve over epochs for each strategy
 			const strategyEpochs = new Map<string, number[]>()
 			if (timings) {
-				for (const [submissionId, epochTimings] of timings) {
+				for (const [submissionId, epochTimings] of Object.entries(timings)) {
 					const epochTimes = Array.from(epochTimings.values())
 					strategyEpochs.set(submissionId, epochTimes)
 				}
 			}
-
-			console.log('strategyEpochs', strategyEpochs.get('dumbStrategy_1'))
 		})
 	})
 })
