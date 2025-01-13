@@ -2,7 +2,6 @@
 
 import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
-import { PlayerError } from '../errors.ts'
 import type { EvaluationExecutionResults } from './types.d.ts'
 import { insertRandomly } from './utils.ts'
 import { RunningAverage } from './RunningAverage.ts'
@@ -78,14 +77,12 @@ export class Main {
 				candidateAverage.update(candidateScore)
 				othersAverage.update(averageOtherScore)
 			} catch (error) {
-				// Check if the player was disqualified
-				// We cannot check instanceof, as the different evaluation contexts will lead to a broken prototype chain 
-				if (error && typeof error === 'object' && error.name === 'PlayerError') {
+				// Check if the error is a disqualification
+				if (error && typeof error === 'object' && error.submissionId !== undefined) {
 					// Report the disqualification
-					const playerError = error as PlayerError
-					console.warn(`Player ${playerError.submissionId} disqualified: ${playerError.message}`)
-					if (playerError.submissionId === candidate.submissionId) {
-						return { error: playerError.message, disqualified: [playerError.submissionId] }
+					console.warn(`Player ${error.submissionId} disqualified: ${error.message}`)
+					if (error.submissionId === candidate.submissionId) {
+						return { error: error.message, disqualified: [error.submissionId] }
 					}
 
 					// Remove disqualified player

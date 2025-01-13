@@ -182,14 +182,18 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 					// Only measure time on every 1000th epoch
 					if (this.epoch % 1000 === 0) {
 						const start = performance.now();
-						let result;
+
 						try {
-							result = strategy(api);
-						} catch (error) {
+							// Call the strategy
+							strategy(api);
+						} catch (err) {
 							if (${index === 0} && ${type === 'Evaluation'}) {
 								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_ERROR}', error.message, '${strategies[index].submissionId}']);
 							}
-							throw error;
+
+							// Add the submissionId to the error
+							err.submissionId = '${strategies[index].submissionId}';
+							throw err;
 						}
 						const end = performance.now();
 
@@ -203,16 +207,17 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_EXECUTION_TIMEOUT}', 'Strategy took ' + duration + ' ms to execute. Max allowed time is ${strategyTimeout}ms', '${strategies[index].submissionId}']);
 							}
 						}
-						return result;
 					} else {
+						// Non-measured calls
 						try {
-							const result = strategy(api);
-							return result;
-						} catch (error) {
+							strategy(api);
+						} catch (err) {
 							if (${index === 0} && ${type === 'Evaluation'}) {
 								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_ERROR}', error.message, '${strategies[index].submissionId}']);
 							}
-							throw error;
+							// Add the submissionId to the error
+							err.submissionId = '${strategies[index].submissionId}';
+							throw err;
 						}
 					}
 				};
