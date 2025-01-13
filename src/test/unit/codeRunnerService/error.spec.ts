@@ -147,6 +147,80 @@ describe('CodeRunnerService Errors', function () {
 		})
 	})
 
+	describe('Evaluation Errors - Some other strategies throw errors', function () {
+		let result: EvaluationResults
+
+		before(async function () {
+			result = await runEvaluation(gameFiles,
+				{ files: dumbStrategyFiles.files, submissionId: 'dumb' },
+				[
+					{ files: errorThrowingStrategyFiles.files, submissionId: 'error1' },
+					{ files: dumbStrategyFiles.files, submissionId: 'dumb2' },
+					{ files: dumbStrategyFiles.files, submissionId: 'dumb3' }
+				],
+				10)
+		})
+
+		it('should not have an error', function () {
+			expect(result).to.have.property('error').that.is.undefined
+		})
+
+		it('should return results', function () {
+			expect(result).to.have.property('results').that.is.an('object')
+			expect(result.results).to.have.property('candidate').that.is.a('number')
+			expect(result.results).to.have.property('average').that.is.a('number')
+		})
+
+		it('should not disqualify the candidate', function () {
+			expect(result).to.have.property('disqualified').that.is.null
+		})
+
+		it('should return strategy timings', function () {
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array')
+		})
+
+		it('should return strategy loading timings', function () {
+			expect(result).to.have.property('strategyLoadingTimings').that.is.a('number')
+		})
+	})
+
+	describe('Evaluation Errors - Some other strategies cheat', function () {
+		let result: EvaluationResults
+
+		before(async function () {
+			result = await runEvaluation(gameFiles,
+				{ files: dumbStrategyFiles.files, submissionId: 'dumb' },
+				[
+					{ files: cheatingStrategyFiles.files, submissionId: 'cheating1' },
+					{ files: dumbStrategyFiles.files, submissionId: 'dumb2' },
+					{ files: dumbStrategyFiles.files, submissionId: 'dumb3' }
+				],
+				10)
+		})
+
+		it('should not have an error', function () {
+			expect(result).to.have.property('error').that.is.undefined
+		})
+
+		it('should return results', function () {
+			expect(result).to.have.property('results').that.is.an('object')
+			expect(result.results).to.have.property('candidate').that.is.a('number')
+			expect(result.results).to.have.property('average').that.is.a('number')
+		})
+
+		it('should not disqualify the candidate', function () {
+			expect(result).to.have.property('disqualified').that.is.null
+		})
+
+		it('should return strategy timings', function () {
+			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array')
+		})
+
+		it('should return strategy loading timings', function () {
+			expect(result).to.have.property('strategyLoadingTimings').that.is.a('number')
+		})
+	})
+
 	describe('Tournament Errors - No strategies', function () {
 		let result: TournamentResults
 
