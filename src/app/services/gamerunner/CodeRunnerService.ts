@@ -30,11 +30,8 @@ const {
 
 // Destructuring and global variables
 export enum ErrorCategory {
-	STRATEGY_EXECUTION_TIMEOUT = 'STRATEGY_EXECUTION_TIMEOUT',
-	STRATEGY_LOADING_TIMEOUT = 'STRATEGY_LOADING_TIMEOUT',
-	STRATEGY_ERROR = 'STRATEGY_ERROR',
 	SCRIPT_TIMEOUT = 'Script execution timed out', // This is defined by ivm, do not change
-	GAME_EXECUTION_ERROR = 'Game execution failed' // This is defined by the game runner, do not change
+	ALL_PLAYERS_DISQUALIFIED = 'All strategies were disqualified',
 }
 
 export async function runEvaluation(
@@ -266,10 +263,10 @@ async function runGame(
 			// Handle scenario where all are disqualified in a tournament
 			if (
 				type === 'Tournament' &&
-				(Array.isArray(parsed.disqualified) && parsed.disqualified.length === strategies.length)
+				(parsed.disqualified && Object.keys(parsed.disqualified).length === strategies.length)
 			) {
 				return {
-					error: 'All strategies were disqualified',
+					error: ErrorCategory.ALL_PLAYERS_DISQUALIFIED,
 					results: undefined,
 					disqualified: parsed.disqualified,
 					strategyExecutionTimings,
