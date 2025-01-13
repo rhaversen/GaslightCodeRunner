@@ -1,44 +1,38 @@
 /* eslint-disable local/enforce-comment-order */
 
-export interface EvaluationExecutionResults {
-	results?: { candidate: number, average: number }
-	disqualified?: string[]
-	error?: string
+// From the VM
+export interface VMResults {
+	error?: string // Game error
+	results?: Record<string, number> // Results
+	disqualified?: Record<string, string> // SubmissionId -> error
 }
 
-export interface TournamentExecutionResults {
-	results?: { [key: string]: number }
-	disqualified?: string[]
-	error?: string
-}
-
+// From RunGame
 export interface GameResults {
 	error?: string
-	results?: {
-		[key: string]: number
-	},
-	disqualified: string[]
+	results?: Record<string, number> // submissionId -> score
+	disqualified: Record<string, string> // submissionId -> error
 	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
 	strategyLoadingTimings: Record<string, number> // submissionId -> timings
 }
 
+// From RunEvaluation
 export interface EvaluationResults {
 	error?: string
 	results?: {
-		candidate: number
-		average: number
+		candidate: number // Candidate's average
+		average: number // Total average of other players
 	},
-	disqualified: string
+	disqualified: string | null // Error or null
 	strategyExecutionTimings: number[] // Timings
 	strategyLoadingTimings: number // Timings
 }
 
+// From RunTournament
 export interface TournamentResults {
 	error?: string
-	results?: {
-		[key: string]: number
-	},
-	disqualified: string[]
+	results?: Record<string, number> // submissionId -> score
+	disqualified: Record<string, string> // submissionId -> error
 	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
 	strategyLoadingTimings: Record<string, number> // submissionId -> timings
 }

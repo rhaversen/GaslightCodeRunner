@@ -2,17 +2,17 @@
 
 import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
-import type { TournamentExecutionResults } from './types.d.ts'
+import type { VMResults } from './types.d.ts'
 import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
-	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): TournamentExecutionResults {
+	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
 		console.info(`Running tournament with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }
 
 		// Track disqualified players
-		const disqualified: string[] = []
+		const disqualified: Record<string, string> = {}
 
 		// Create player selector instance for all players
 		const playerSelector = new PlayerSelector(players)
@@ -71,7 +71,9 @@ export class Main {
 
 					// Remove disqualified player
 					playerSelector.removePlayer(error.submissionId)
-					disqualified.push(error.submissionId)
+
+					// Store disqualified player
+					disqualified[error.submissionId] = error.message
 
 					// Decrement epoch to ensure we run the same number of epochs
 					epoch--
@@ -83,7 +85,7 @@ export class Main {
 		}
 
 		// Prepare the final results
-		const finalResults: TournamentExecutionResults = {
+		const finalResults: VMResults = {
 			results: {},
 		}
 		finalResults.results = {}
@@ -92,7 +94,7 @@ export class Main {
 			finalResults.results[submissionId] = runningAvg.getAverage()
 		}
 
-		if (disqualified.length > 0) {
+		if (Object.keys(disqualified).length > 0) {
 			finalResults.disqualified = disqualified
 		}
 

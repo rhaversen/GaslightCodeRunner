@@ -5,9 +5,18 @@ import { performance } from 'perf_hooks'
 import ivm from 'isolated-vm'
 
 // Own modules
-import type { EvaluationExecutionResults, EvaluationResults, GameResults, submission, TournamentExecutionResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.d.ts'
+import type {
+	EvaluationResults,
+	GameResults,
+	submission,
+	VMResults,
+	TournamentResults
+} from '../../../../sourceFiles/gameRunners/types.d.ts'
 import { bundleFiles, FileMap } from './bundler.js'
-import { tournamentGameRunnerFiles, evaluatingGameRunnerFiles, } from '../../utils/sourceFiles.js'
+import {
+	tournamentGameRunnerFiles,
+	evaluatingGameRunnerFiles,
+} from '../../utils/sourceFiles.js'
 import config from '../../utils/setupConfig.js'
 
 // Environment variables
@@ -20,7 +29,6 @@ const {
 } = config
 
 // Destructuring and global variables
-
 export enum ErrorCategory {
 	STRATEGY_EXECUTION_TIMEOUT = 'STRATEGY_EXECUTION_TIMEOUT',
 	STRATEGY_LOADING_TIMEOUT = 'STRATEGY_LOADING_TIMEOUT',
@@ -29,16 +37,23 @@ export enum ErrorCategory {
 	GAME_EXECUTION_ERROR = 'Game execution failed' // This is defined by the game runner, do not change
 }
 
-export async function runEvaluation(gameLogicFiles: FileMap, candidate: submission, others: submission[], epochBatchSize: number): Promise<EvaluationResults> {
+export async function runEvaluation(
+	gameLogicFiles: FileMap,
+	candidate: submission,
+	others: submission[],
+	epochBatchSize: number
+): Promise<EvaluationResults> {
 	const results = await runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize)
 
 	const evaluationResults: EvaluationResults = {
 		error: results.error,
-		results: results.results ? {
-			candidate: results.results.candidate,
-			average: results.results.average
-		} : undefined,
-		disqualified: results.disqualified?.includes(candidate.submissionId) ? candidate.submissionId : '',
+		results: results.results
+			? {
+				candidate: results.results.candidate,
+				average: results.results.average,
+			}
+			: undefined,
+		disqualified: results.disqualified[candidate.submissionId] || null,
 		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] || [],
 		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] || -1
 	}
@@ -46,7 +61,11 @@ export async function runEvaluation(gameLogicFiles: FileMap, candidate: submissi
 	return evaluationResults
 }
 
-export async function runTournament(gameLogicFiles: FileMap, strategies: submission[], epochBatchSize: number): Promise<TournamentResults> {
+export async function runTournament(
+	gameLogicFiles: FileMap,
+	strategies: submission[],
+	epochBatchSize: number
+): Promise<TournamentResults> {
 	const results = await runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize)
 
 	const tournamentResults: TournamentResults = {
@@ -60,23 +79,31 @@ export async function runTournament(gameLogicFiles: FileMap, strategies: submiss
 	return tournamentResults
 }
 
-async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 'Evaluation' | 'Tournament', epochBatchSize: number): Promise<GameResults> {
+async function runGame(
+	gameLogicFiles: FileMap,
+	strategies: submission[],
+	type: 'Evaluation' | 'Tournament',
+	epochBatchSize: number
+): Promise<GameResults> {
 	const isolate = new ivm.Isolate({ memoryLimit: 1024 })
 	const context = await isolate.createContext()
 
-	// Create log function
+	// Create log function for inside the VM
 	const log = new ivm.Reference((...args: any[]) => {
-		console.log('VM:', ...args.map(arg => {
-			try {
-				return typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-			} catch {
-				return String(arg)
-			}
-		}))
+		console.log(
+			'VM:',
+			...args.map((arg) => {
+				try {
+					return typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+				} catch {
+					return String(arg)
+				}
+			})
+		)
 	})
 	await context.global.set('log', log)
 
-	// Set up console.log override
+	// Setup a console object inside the VM
 	const consoleLogSetup = `
 		console = {
 			log: (...args) => log.apply(undefined, args),
@@ -99,7 +126,7 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 		strategyExecutionTimings[submissionId].push(time)
 	})
 	await context.global.set('strategyExecutionTimingFunction', strategyExecutionTimingFunction)
-	
+
 	// Called inside the VM to record each strategy’s load time
 	const strategyLoadingTimingFunction = new ivm.Reference((submissionId: string, time: number) => {
 		strategyLoadingTimings[submissionId] = time
@@ -115,12 +142,12 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 		const performance = {
 			now: () => perfNowRef.applySync(undefined)
 		};
-	`)
+  `)
 
 	// Bundle game logic
 	const gameLogicCode = await bundleFiles(gameLogicFiles, 'Game')
 
-	// Select game runner and bundle
+	// Select & bundle the correct runner
 	let gameRunnerCode: string
 	if (type === 'Evaluation') {
 		gameRunnerCode = await bundleFiles(evaluatingGameRunnerFiles, 'GameRunner')
@@ -128,12 +155,12 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 		gameRunnerCode = await bundleFiles(tournamentGameRunnerFiles, 'GameRunner')
 	}
 
-	// Bundle strategies
+	// Bundle each strategy
 	const strategyBundles = await Promise.all(
-		strategies.map(s => bundleFiles(s.files, 'Strategy'))
+		strategies.map((s) => bundleFiles(s.files, 'Strategy'))
 	)
 
-	// Create strategy strings with execution timing
+	// Build the code for each strategy
 	const strategiesStr = strategyBundles
 		.map((bundle, index) => `
 			(() => {
@@ -191,8 +218,8 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 			})()
 		`).join(',')
 
-	// Construct the test code
-	const submissionIds = strategies.map(s => s.submissionId)
+	// Construct the main test code that runs the game
+	const submissionIds = strategies.map((s) => s.submissionId)
 	const numEpochs = type === 'Evaluation' ? evaluationEpochs : tournamentEpochs
 	const testCode = `
 (() => {
@@ -208,66 +235,66 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 		return GameRunner;
 	})();
 
-	// Evaluate player strategies in their own scopes
+	// Build array of wrapped strategies
 	const strategies = [${strategiesStr}];
 	const submissionIds = ${JSON.stringify(submissionIds)};
 
 	// Create array of Player objects as expected by GameRunner
 	const players = strategies.map((strategy, index) => ({
 		submissionId: submissionIds[index],
-		strategy: strategy
+		strategy
 	}));
 
-	// Create a factory function for Game instances
+	// Create a factory for Game instances
 	const gameFactory = () => new GameModule.default();
 
-	// Pass the factory to the GameRunner
+	// Run the game
 	const result = GameRunnerModule.default.run(gameFactory, players, ${numEpochs}, ${epochBatchSize});
-	const resultStr = JSON.stringify(result);
-	return resultStr;
+	return JSON.stringify(result);
 })();
 `
 
 	// Execute the code in the VM
-	const result = await context.eval(testCode, { timeout: type === 'Evaluation' ? evaluationTimeout : undefined })
-			.then(resultString => {
-				const parsed = JSON.parse(resultString as string) as EvaluationExecutionResults | TournamentExecutionResults
+	const result = await context
+		.eval(testCode, {
+			// For "Evaluation" runs, we impose a script-level timeout
+			timeout: type === 'Evaluation' ? evaluationTimeout : undefined
+		})
+		.then((resultString) => {
+			const parsed = JSON.parse(resultString as string) as VMResults
 
-				// Handle cases where all strategies are disqualified in tournament mode
-				if (type === 'Tournament' &&
-					(errorPlayers.size + timedOutPlayers.size) === strategies.length) {
-					return {
-						error: 'All strategies were disqualified',
-						results: undefined,
-						disqualified: parsed.disqualified,
-						strategyExecutionTimings,
-						strategyLoadingTimings
-					}
-				}
-
+			// Handle scenario where all are disqualified in a tournament
+			if (
+				type === 'Tournament' &&
+				(Array.isArray(parsed.disqualified) && parsed.disqualified.length === strategies.length)
+			) {
 				return {
-					error: parsed.error,
-					results: parsed.results,
+					error: 'All strategies were disqualified',
+					results: undefined,
 					disqualified: parsed.disqualified,
 					strategyExecutionTimings,
 					strategyLoadingTimings
 				}
-			})
-			.catch(err => {
-				// Handle script timeouts by adding the candidate to timedOutPlayers
-				if (((err.message) as string).includes(ErrorCategory.SCRIPT_TIMEOUT) && type === 'Evaluation') {
-					// For evaluation mode, add the candidate (first strategy) to timedOutPlayers
-					timedOutPlayers.add(strategies[0].submissionId)
-				}
+			}
 
-				return {
-					error: err.message,
-					results: undefined,
-					disqualified: undefined,
-					strategyExecutionTimings,
-					strategyLoadingTimings
-				}
-			})
+			// Simulation completed successfully
+			return {
+				error: parsed.error,
+				results: parsed.results,
+				disqualified: parsed.disqualified,
+				strategyExecutionTimings,
+				strategyLoadingTimings
+			}
+		})
+		.catch((err) => {
+			return {
+				error: err.message,
+				results: undefined,
+				disqualified: undefined,
+				strategyExecutionTimings,
+				strategyLoadingTimings
+			}
+		})
 
 	isolate.dispose()
 	return {

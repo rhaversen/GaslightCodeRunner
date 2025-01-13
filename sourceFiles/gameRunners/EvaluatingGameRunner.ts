@@ -2,12 +2,12 @@
 
 import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
-import type { EvaluationExecutionResults } from './types.d.ts'
+import type { VMResults } from './types.d.ts'
 import { insertRandomly } from './utils.ts'
 import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
-	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): EvaluationExecutionResults {
+	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
 		console.info(`Running evaluation with ${players.length} players`)
 
 		if (players.length === 0) return { error: 'No players provided' }
@@ -82,7 +82,7 @@ export class Main {
 					// Report the disqualification
 					console.warn(`Player ${error.submissionId} disqualified: ${error.message}`)
 					if (error.submissionId === candidate.submissionId) {
-						return { error: error.message, disqualified: [error.submissionId] }
+						return { disqualified: { [candidate.submissionId]: error.message } }
 					}
 
 					// Remove disqualified player
@@ -103,7 +103,7 @@ export class Main {
 		// Prepare the final results
 		const totalResults = {
 			candidate: candidateAverage.getAverage(),
-			average: othersAverage.getAverage(),
+			average: othersAverage.getAverage()
 		}
 		return { results: totalResults }
 	}
