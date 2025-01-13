@@ -18,8 +18,8 @@ export interface GameResults {
 		[key: string]: number
 	},
 	disqualified: string[]
-	strategyTimings: Map<string, number[]>
-	timedOutPlayers: string[]
+	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
+	strategyLoadingTimings: Record<string, number> // submissionId -> timings
 }
 
 export interface EvaluationResults {
@@ -29,8 +29,8 @@ export interface EvaluationResults {
 		average: number
 	},
 	disqualified: string
-	strategyTimings: number[]
-	timedOutPlayers: string[]
+	strategyExecutionTimings: number[] // Timings
+	strategyLoadingTimings: number // Timings
 }
 
 export interface TournamentResults {
@@ -39,8 +39,8 @@ export interface TournamentResults {
 		[key: string]: number
 	},
 	disqualified: string[]
-	strategyTimings: Map<string, number[]>
-	timedOutPlayers: string[]
+	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
+	strategyLoadingTimings: Record<string, number> // submissionId -> timings
 }
 
 export interface submission {

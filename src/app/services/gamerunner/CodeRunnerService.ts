@@ -17,7 +17,6 @@ const {
 	tournamentEpochs,
 	evaluationEpochs,
 	evaluationTimeout,
-	strategyTimeout
 } = config
 
 // Destructuring and global variables
@@ -40,8 +39,8 @@ export async function runEvaluation(gameLogicFiles: FileMap, candidate: submissi
 			average: results.results.average
 		} : undefined,
 		disqualified: results.disqualified?.includes(candidate.submissionId) ? candidate.submissionId : '',
-		strategyTimings: results.strategyTimings?.get(candidate.submissionId) || [],
-		timedOutPlayers: results.timedOutPlayers
+		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] || [],
+		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] || -1
 	}
 
 	return evaluationResults
@@ -54,8 +53,8 @@ export async function runTournament(gameLogicFiles: FileMap, strategies: submiss
 		error: results.error,
 		results: results.results,
 		disqualified: results.disqualified,
-		strategyTimings: results.strategyTimings,
-		timedOutPlayers: results.timedOutPlayers,
+		strategyExecutionTimings: results.strategyExecutionTimings,
+		strategyLoadingTimings: results.strategyLoadingTimings,
 	}
 
 	return tournamentResults
@@ -64,16 +63,6 @@ export async function runTournament(gameLogicFiles: FileMap, strategies: submiss
 async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 'Evaluation' | 'Tournament', epochBatchSize: number): Promise<GameResults> {
 	const isolate = new ivm.Isolate({ memoryLimit: 1024 })
 	const context = await isolate.createContext()
-
-	// Create resolver for termination
-	let terminateResolver: (result: GameResults) => void
-	const terminationPromise = new Promise<GameResults>(resolve => {
-		terminateResolver = resolve
-	})
-
-	// Track disqualified players
-	const timedOutPlayers = new Set<string>()
-	const errorPlayers = new Set<string>()
 
 	// Create log function
 	const log = new ivm.Reference((...args: any[]) => {
@@ -98,26 +87,26 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 	`
 	await context.eval(consoleLogSetup)
 
-	// Create strategy timing epoch time array 
-	const strategyTimings = new Map<string, number[]>()
+	// Create a map of submissionId -> array of execution times
+	const strategyExecutionTimings: Record<string, number[]> = {}
+	const strategyLoadingTimings: Record<string, number> = {}
 
-	// Create strategy timing function
-	const strategyTimingFunction = new ivm.Reference((submissionId: string, time: number) => {
-		if (!strategyTimings.has(submissionId)) {
-			strategyTimings.set(submissionId, new Array<number>())
+	// Called inside the VM to record each strategy’s run time
+	const strategyExecutionTimingFunction = new ivm.Reference((submissionId: string, time: number) => {
+		if (!strategyExecutionTimings[submissionId]) {
+			strategyExecutionTimings[submissionId] = []
 		}
-		strategyTimings.get(submissionId)!.push(time)
+		strategyExecutionTimings[submissionId].push(time)
 	})
-	await context.global.set('strategyTimingFunction', strategyTimingFunction)
-
-	// Create timeout function that adds to disqualifiedPlayers
-	const timeoutFunction = new ivm.Reference((submissionId: string) => {
-		console.log(`Submission ${submissionId} timed out`)
-		timedOutPlayers.add(submissionId)
+	await context.global.set('strategyExecutionTimingFunction', strategyExecutionTimingFunction)
+	
+	// Called inside the VM to record each strategy’s load time
+	const strategyLoadingTimingFunction = new ivm.Reference((submissionId: string, time: number) => {
+		strategyLoadingTimings[submissionId] = time
 	})
-	await context.global.set('timeoutFunction', timeoutFunction)
+	await context.global.set('strategyLoadingTimingFunction', strategyLoadingTimingFunction)
 
-	// Create a reference to performance.now()
+	// Provide performance.now() inside the VM
 	const perfNowRef = new ivm.Reference(() => performance.now())
 	await context.global.set('perfNowRef', perfNowRef)
 
@@ -127,32 +116,6 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 			now: () => perfNowRef.applySync(undefined)
 		};
 	`)
-
-	// Create terminate function that resolves the terminationPromise with the result
-	// Allows termination from within the VM
-	const terminateFunction = new ivm.Reference((category: ErrorCategory, message?: string, submissionId?: string) => {
-		console.log('Terminating:', category, message)
-		if (submissionId) {
-			switch (category) {
-				case ErrorCategory.STRATEGY_ERROR:
-					errorPlayers.add(submissionId)
-					break
-				case ErrorCategory.STRATEGY_EXECUTION_TIMEOUT:
-				case ErrorCategory.STRATEGY_LOADING_TIMEOUT:
-					timedOutPlayers.add(submissionId)
-					break
-			}
-		}
-
-		terminateResolver({
-			error: `${category}: ${message}`,
-			results: undefined,
-			disqualified: Array.from(errorPlayers),
-			strategyTimings: strategyTimings,
-			timedOutPlayers: Array.from(timedOutPlayers)
-		})
-	})
-	await context.global.set('terminateFunction', terminateFunction)
 
 	// Bundle game logic
 	const gameLogicCode = await bundleFiles(gameLogicFiles, 'Game')
@@ -174,60 +137,53 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 	const strategiesStr = strategyBundles
 		.map((bundle, index) => `
 			(() => {
-				const startTime = performance.now();
+				// Measure load time
+				const loadStart = performance.now();
+
 				${bundle}
 				const strategy = Strategy.default;
-				
+
+				const loadEnd = performance.now();
+				const loadDuration = loadEnd - loadStart;
+
+				// Record the time
+				strategyLoadingTimingFunction.applySync(undefined, [
+					'${strategies[index].submissionId}',
+					loadDuration
+				]);
+
+				// Wrap the strategy call so we can measure each call time
 				const wrappedStrategy = function(api) {
-					// Only measure time on every 1000th epoch
-					if (this.epoch % 1000 === 0) {
-						const start = performance.now();
+					// Only measure time on every 100th epoch
+					if (this.epoch % 100 === 0) {
+						const executionStart = performance.now();
 
 						try {
 							// Call the strategy
 							strategy(api);
 						} catch (err) {
-							if (${index === 0} && ${type === 'Evaluation'}) {
-								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_ERROR}', error.message, '${strategies[index].submissionId}']);
-							}
-
 							// Add the submissionId to the error
 							err.submissionId = '${strategies[index].submissionId}';
 							throw err;
 						}
-						const end = performance.now();
 
-						const duration = end - start;
-						strategyTimingFunction.apply(undefined, ['${strategies[index].submissionId}', duration, this.epoch]);
+						const executionEnd = performance.now();
+						const duration = executionEnd - executionStart;
 
-						// Check if strategy took too long
-						if (duration > ${strategyTimeout}) {
-							timeoutFunction.apply(undefined, ['${strategies[index].submissionId}']);
-							if (${index === 0} && ${type === 'Evaluation'}) {
-								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_EXECUTION_TIMEOUT}', 'Strategy took ' + duration + ' ms to execute. Max allowed time is ${strategyTimeout}ms', '${strategies[index].submissionId}']);
-							}
-						}
+						// Record the time
+						strategyExecutionTimingFunction.apply(undefined, [
+							'${strategies[index].submissionId}',
+							duration
+						]);
 					} else {
 						// Non-measured calls
 						try {
 							strategy(api);
 						} catch (err) {
-							if (${index === 0} && ${type === 'Evaluation'}) {
-								terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_ERROR}', error.message, '${strategies[index].submissionId}']);
-							}
 							// Add the submissionId to the error
 							err.submissionId = '${strategies[index].submissionId}';
 							throw err;
 						}
-					}
-				};
-
-				const endTime = performance.now();
-				const duration = endTime - startTime;
-				if (duration > ${strategyTimeout}) {
-					timeoutFunction.apply(undefined, ['${strategies[index].submissionId}']);
-					if (${index === 0} && ${type === 'Evaluation'}) {
-						terminateFunction.applySync(undefined, ['${ErrorCategory.STRATEGY_LOADING_TIMEOUT}', 'Strategy took ' + duration + ' ms to load. Max allowed time is ${strategyTimeout}ms', '${strategies[index].submissionId}']);
 					}
 				};
 
@@ -272,8 +228,8 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 })();
 `
 
-	const result = await Promise.race([
-		context.eval(testCode, { timeout: type === 'Evaluation' ? evaluationTimeout : undefined })
+	// Execute the code in the VM
+	const result = await context.eval(testCode, { timeout: type === 'Evaluation' ? evaluationTimeout : undefined })
 			.then(resultString => {
 				const parsed = JSON.parse(resultString as string) as EvaluationExecutionResults | TournamentExecutionResults
 
@@ -283,18 +239,18 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 					return {
 						error: 'All strategies were disqualified',
 						results: undefined,
-						disqualified: Array.from(errorPlayers),
-						strategyTimings,
-						timedOutPlayers: Array.from(timedOutPlayers)
+						disqualified: parsed.disqualified,
+						strategyExecutionTimings,
+						strategyLoadingTimings
 					}
 				}
 
 				return {
 					error: parsed.error,
 					results: parsed.results,
-					disqualified: Array.from([...errorPlayers, ...(parsed.disqualified || [])]),
-					strategyTimings,
-					timedOutPlayers: Array.from(timedOutPlayers)
+					disqualified: parsed.disqualified,
+					strategyExecutionTimings,
+					strategyLoadingTimings
 				}
 			})
 			.catch(err => {
@@ -307,14 +263,18 @@ async function runGame(gameLogicFiles: FileMap, strategies: submission[], type: 
 				return {
 					error: err.message,
 					results: undefined,
-					disqualified: [],
-					strategyTimings: strategyTimings,
-					timedOutPlayers: Array.from(timedOutPlayers)
+					disqualified: undefined,
+					strategyExecutionTimings,
+					strategyLoadingTimings
 				}
-			}),
-		terminationPromise
-	])
+			})
 
 	isolate.dispose()
-	return result
+	return {
+		error: result.error,
+		results: result.results,
+		disqualified: result.disqualified || {},
+		strategyExecutionTimings: result.strategyExecutionTimings,
+		strategyLoadingTimings: result.strategyLoadingTimings
+	}
 }
