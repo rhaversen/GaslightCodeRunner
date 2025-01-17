@@ -18,14 +18,17 @@ const router = Router()
 router.use(authenticateMicroservice)
 
 /**
- * @route POST api/v1/microservices/grade-submission
- * @description Grade a submission
+ * @route POST api/v1/microservices/evaluate-submission
+ * @description EValuate a submission
  * @access Private (Microservice)
  * @param {string} req.header.authorization - The secret key for the microservice.
  * @param {Object} req.body.candidateSubmission - The submission to be evaluated.
  * @param {Object[]} req.body.otherSubmissions - The other submissions to be evaluated against.
  * @returns {Object} The result of the evaluation.
  */
-router.post('/grade-submission', handleSubmissionEvaluation)
+router.post('/evaluate-submission',
+	authenticateMicroservice,
+	handleSubmissionEvaluation
+)
 
 export default router
