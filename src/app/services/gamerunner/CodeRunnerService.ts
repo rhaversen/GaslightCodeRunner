@@ -6,11 +6,7 @@ import ivm from 'isolated-vm'
 
 // Own modules
 import type {
-	EvaluationResults,
-	GameResults,
-	submission,
-	VMResults,
-	TournamentResults
+	VMResults
 } from '../../../../sourceFiles/gameRunners/types.d.ts'
 import { bundleFiles, FileMap } from './bundler.js'
 import {
@@ -34,15 +30,29 @@ export enum ErrorCategory {
 	ALL_PLAYERS_DISQUALIFIED = 'All strategies were disqualified',
 }
 
+interface submission {
+	submissionId: string
+	files: FileMap
+}
+
 export async function runEvaluation(
 	gameLogicFiles: FileMap,
 	candidate: submission,
 	others: submission[],
 	epochBatchSize: number
-): Promise<EvaluationResults> {
+): Promise<{
+	error?: string
+	results?: {
+		candidate: number // Candidate's average
+		average: number // Total average of other players
+	},
+	disqualified: string | null // Error or null
+	strategyExecutionTimings: number[] // Timings
+	strategyLoadingTimings: number // Timings
+}> {
 	const results = await runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize)
 
-	const evaluationResults: EvaluationResults = {
+	const evaluationResults = {
 		error: results.error,
 		results: results.results
 			? {
@@ -62,10 +72,16 @@ export async function runTournament(
 	gameLogicFiles: FileMap,
 	strategies: submission[],
 	epochBatchSize: number
-): Promise<TournamentResults> {
+): Promise<{
+	error?: string
+	results?: Record<string, number> // submissionId -> score
+	disqualified: Record<string, string> // submissionId -> error
+	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
+	strategyLoadingTimings: Record<string, number> // submissionId -> timings
+}> {
 	const results = await runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize)
 
-	const tournamentResults: TournamentResults = {
+	const tournamentResults = {
 		error: results.error,
 		results: results.results,
 		disqualified: results.disqualified,
@@ -81,7 +97,13 @@ async function runGame(
 	strategies: submission[],
 	type: 'Evaluation' | 'Tournament',
 	epochBatchSize: number
-): Promise<GameResults> {
+): Promise<{
+	error?: string
+	results?: Record<string, number> // submissionId -> score
+	disqualified: Record<string, string> // submissionId -> error
+	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
+	strategyLoadingTimings: Record<string, number> // submissionId -> timings
+}> {
 	const isolate = new ivm.Isolate({ memoryLimit: 1024 })
 	const context = await isolate.createContext()
 
