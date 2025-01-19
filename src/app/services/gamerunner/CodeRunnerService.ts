@@ -21,13 +21,13 @@ import config from '../../utils/setupConfig.js'
 const {
 	tournamentEpochs,
 	evaluationEpochs,
-	evaluationTimeout,
+	evaluationTimeout
 } = config
 
 // Destructuring and global variables
 export enum ErrorCategory {
 	SCRIPT_TIMEOUT = 'Script execution timed out', // This is defined by ivm, do not change
-	ALL_PLAYERS_DISQUALIFIED = 'All strategies were disqualified',
+	ALL_PLAYERS_DISQUALIFIED = 'All strategies were disqualified'
 }
 
 interface submission {
@@ -86,7 +86,7 @@ export async function runTournament(
 		results: results.results,
 		disqualified: results.disqualified,
 		strategyExecutionTimings: results.strategyExecutionTimings,
-		strategyLoadingTimings: results.strategyLoadingTimings,
+		strategyLoadingTimings: results.strategyLoadingTimings
 	}
 
 	return tournamentResults
