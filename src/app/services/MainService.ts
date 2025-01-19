@@ -6,7 +6,7 @@ import axios from 'axios'
 // Own modules
 import logger from '../utils/logger.js'
 import AppConfig from '../utils/setupConfig.js'
-import { submission } from '../../../sourceFiles/gameRunners/types.js'
+import { submission } from './gamerunner/CodeRunnerService.js'
 
 // Environment variables
 const { MICROSERVICE_AUTHORIZATION } = process.env as Record<string, string>

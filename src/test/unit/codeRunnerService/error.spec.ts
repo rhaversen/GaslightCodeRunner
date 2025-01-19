@@ -16,7 +16,6 @@ import {
 	dumbStrategyFiles,
 	errorThrowingStrategyFiles
 } from '../../../app/utils/sourceFiles.js'
-import { EvaluationResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
 // Environment variables
 
@@ -32,7 +31,7 @@ describe('CodeRunnerService Errors', function () {
 	this.timeout(twoMinuteTimeout)
 
 	describe('Evaluation Errors - Strategy cheats', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, cheatingStrategyFiles, [dumbStrategyFiles], 10)
@@ -60,7 +59,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Evaluation Errors - Strategy throws an error', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, errorThrowingStrategyFiles, [dumbStrategyFiles], 10)
@@ -88,7 +87,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Evaluation Errors - All other strategies throw errors', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, dumbStrategyFiles, [errorThrowingStrategyFiles], 10)
@@ -118,7 +117,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Evaluation Errors - All other strategies cheat', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, dumbStrategyFiles, [cheatingStrategyFiles], 10)
@@ -148,7 +147,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Evaluation Errors - Some other strategies throw errors', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles,
@@ -185,7 +184,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Evaluation Errors - Some other strategies cheat', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles,
@@ -222,7 +221,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Tournament Errors - No strategies', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [], 10)
@@ -250,7 +249,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Tournament Errors - Strategy cheats', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [cheatingStrategyFiles, dumbStrategyFiles], 10)
@@ -285,7 +284,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Tournament Errors - Multiple strategies cheat', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [
@@ -320,7 +319,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Tournament Errors - Strategy throws an error', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [errorThrowingStrategyFiles, dumbStrategyFiles], 10)
@@ -351,7 +350,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Tournament Errors - Multiple strategies throw errors', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [
@@ -387,7 +386,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Tournament Errors - All strategies cheating', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [
@@ -422,7 +421,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Tournament Errors - All strategies throw errors', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [
@@ -457,7 +456,7 @@ describe('CodeRunnerService Errors', function () {
 	})
 
 	describe('Tournament Errors - All strategies problematic', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [

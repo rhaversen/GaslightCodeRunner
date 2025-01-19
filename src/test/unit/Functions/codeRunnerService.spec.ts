@@ -9,7 +9,7 @@ import { expect } from 'chai'
 import { describe, it, before } from 'mocha'
 
 // Own modules
-import { runEvaluation, runTournament } from '../../../app/services/gamerunner/CodeRunnerService.js'
+import { runEvaluation, runTournament, submission } from '../../../app/services/gamerunner/CodeRunnerService.js'
 import {
 	gameFiles,
 	dumbStrategyFiles,
@@ -29,13 +29,12 @@ const twoMinuteTimeout = 1200000
 
 // Setup test environment
 import '../../testSetup.js'
-import { EvaluationResults, submission, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
 describe('CodeRunnerService', function () {
 	this.timeout(twoMinuteTimeout)
 
 	describe('Evaluation - 1 candidate and 1 other', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, dumbStrategyFiles, [dumbStrategyFiles], 10)
@@ -59,7 +58,7 @@ describe('CodeRunnerService', function () {
 	})
 
 	describe('Tournament - 1 strategy', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [dumbStrategyFiles], 10)
@@ -83,7 +82,7 @@ describe('CodeRunnerService', function () {
 	})
 
 	describe('Tournament - 2 strategies', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [dumbStrategyFiles, dumbStrategyFiles], 10)
@@ -107,7 +106,7 @@ describe('CodeRunnerService', function () {
 	})
 
 	describe('Evaluation - 10 dumb strategies', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			const strategies = Array(9).fill(null).map((_, index) => ({
@@ -143,7 +142,7 @@ describe('CodeRunnerService', function () {
 	})
 
 	describe('Evaluation - 1000 dumb strategies', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			const strategies = Array(999).fill(null).map((_, index) => ({
@@ -179,7 +178,7 @@ describe('CodeRunnerService', function () {
 	})
 
 	describe('Tournament - 10 dumb strategies', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			const strategies = Array(10).fill(null).map((_, index) => ({
@@ -211,7 +210,7 @@ describe('CodeRunnerService', function () {
 	})
 
 	describe('Tournament - 1000 dumb strategies', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			const strategies = Array(1000).fill(null).map((_, index) => ({
@@ -243,7 +242,7 @@ describe('CodeRunnerService', function () {
 	})
 
 	describe('Tournament - All strategies', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 		let strategies: submission[]
 
 		before(async function () {

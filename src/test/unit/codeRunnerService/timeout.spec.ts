@@ -18,7 +18,6 @@ import {
 	nonHaltingLoadingStrategyFiles,
 	nonHaltingStrategyFiles,
 } from '../../../app/utils/sourceFiles.js'
-import { EvaluationResults, TournamentResults } from '../../../../sourceFiles/gameRunners/types.js'
 
 // Environment variables
 
@@ -34,7 +33,7 @@ describe('CodeRunnerService Timeouts', function () {
 	this.timeout(twoMinuteTimeout)
 
 	describe('Evaluation Timeouts - Candidate takes too long', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, slowStrategyFiles, [dumbStrategyFiles], 10)
@@ -62,7 +61,7 @@ describe('CodeRunnerService Timeouts', function () {
 	})
 
 	describe('Evaluation Timeouts - Candidate never halts', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, nonHaltingStrategyFiles, [dumbStrategyFiles], 10)
@@ -90,7 +89,7 @@ describe('CodeRunnerService Timeouts', function () {
 	})
 
 	describe('Evaluation Timeouts - Candidate takes too long to load', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, slowLoadingStrategyFiles, [dumbStrategyFiles], 10)
@@ -120,7 +119,7 @@ describe('CodeRunnerService Timeouts', function () {
 	})
 
 	describe('Tournament Timeouts - Candidate takes too long to load', function () {
-		let result: TournamentResults
+		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async function () {
 			result = await runTournament(gameFiles, [slowLoadingStrategyFiles, dumbStrategyFiles], 10)
@@ -154,7 +153,7 @@ describe('CodeRunnerService Timeouts', function () {
 	})
 
 	describe('Evaluation Timeouts - Candidate never halts during loading', function () {
-		let result: EvaluationResults
+		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async function () {
 			result = await runEvaluation(gameFiles, nonHaltingLoadingStrategyFiles, [dumbStrategyFiles], 10)

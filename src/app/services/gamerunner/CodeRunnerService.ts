@@ -30,7 +30,7 @@ export enum ErrorCategory {
 	ALL_PLAYERS_DISQUALIFIED = 'All strategies were disqualified'
 }
 
-interface submission {
+export interface submission {
 	submissionId: string
 	files: FileMap
 }
