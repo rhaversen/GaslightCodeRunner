@@ -49,8 +49,8 @@ describe('CodeRunnerService Errors', function () {
 			expect(result).to.have.property('results').that.is.undefined
 		})
 
-		it('should return strategy timings', function () {
-			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array')
+		it('should return null strategy timings', function () {
+			expect(result).to.have.property('strategyExecutionTimings').that.is.null
 		})
 
 		it('should return strategy loading timings', function () {
@@ -77,8 +77,8 @@ describe('CodeRunnerService Errors', function () {
 			expect(result).to.have.property('results').that.is.undefined
 		})
 
-		it('should return strategy timings', function () {
-			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array')
+		it('should return null strategy timings', function () {
+			expect(result).to.have.property('strategyExecutionTimings').that.is.null
 		})
 
 		it('should return strategy loading timings', function () {

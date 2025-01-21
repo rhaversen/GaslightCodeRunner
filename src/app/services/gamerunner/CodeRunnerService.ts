@@ -47,8 +47,8 @@ export async function runEvaluation(
 		average: number // Total average of other players
 	},
 	disqualified: string | null // Error or null
-	strategyExecutionTimings: number[] // Timings
-	strategyLoadingTimings: number // Timings
+	strategyExecutionTimings: number[] | null // Timings
+	strategyLoadingTimings: number | null // Timings
 }> {
 	const results = await runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize)
 
@@ -61,8 +61,8 @@ export async function runEvaluation(
 			}
 			: undefined,
 		disqualified: results.disqualified[candidate.submissionId] || null,
-		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] || [],
-		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] || -1
+		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] || null,
+		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] || null
 	}
 
 	return evaluationResults

@@ -75,8 +75,8 @@ describe('CodeRunnerService Timeouts', function () {
 			expect(result).to.have.property('results').that.is.undefined
 		})
 
-		it('should return empty strategy timings', function () {
-			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array').that.is.empty
+		it('should return null strategy timings', function () {
+			expect(result).to.have.property('strategyExecutionTimings').that.is.null
 		})
 
 		it('should not disqualify the candidate', function () {
@@ -167,16 +167,16 @@ describe('CodeRunnerService Timeouts', function () {
 			expect(result).to.have.property('results').that.is.undefined
 		})
 
-		it('should return empty strategy timings', function () {
-			expect(result).to.have.property('strategyExecutionTimings').that.is.an('array').that.is.empty
+		it('should return null strategy timings', function () {
+			expect(result).to.have.property('strategyExecutionTimings').that.is.null
 		})
 
 		it('should not disqualify the candidate', function () {
 			expect(result).to.have.property('disqualified').that.is.null
 		})
 
-		it('should return strategy loading timings', function () {
-			expect(result).to.have.property('strategyLoadingTimings').that.is.a('number')
+		it('should return null strategy loading timings', function () {
+			expect(result).to.have.property('strategyLoadingTimings').that.is.null
 		})
 	})
 })
