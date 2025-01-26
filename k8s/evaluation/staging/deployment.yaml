@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: code-runner-deployment
+    name: evaluation-runner-deployment
     namespace: gaslight-staging
 spec:
     replicas: 1
@@ -12,15 +12,15 @@ spec:
             maxSurge: 1
     selector:
         matchLabels:
-            app: code-runner
+            app: evaluation-runner-deployment
     template:
         metadata:
             labels:
-                app: code-runner
+                app: evaluation-runner-deployment
         spec:
             automountServiceAccountToken: false
             containers:
-                -   name: code-runner
+                -   name: evaluation-runner-deployment
                     resources:
                         limits:
                             cpu: "400m"
@@ -48,4 +48,4 @@ spec:
                         -   containerPort: 5000
                     envFrom:
                         -   secretRef:
-                                name: code-runner-secrets
+                                name: evaluation-runner-secrets
