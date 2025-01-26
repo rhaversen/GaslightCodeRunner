@@ -18,17 +18,23 @@ const {
 
 // Destructuring and global variables
 
-export async function createTournamen(results: { [key: string]: number }, disqualified: string[], error: string): Promise<boolean> {
+interface Grading {
+    submission: string;
+    score: number;
+}
+
+export async function createTournamen(gradings: Grading[], disqualified: string[], error: string): Promise<boolean> {
 	try {
-		await axios.post(`http://${mainServiceHost}/api/v1/microservices/tournament`, {
-			results,
+		await axios.post(`${mainServiceHost}/api/v1/microservices/tournament`, {
+			gradings,
+			disqualified
 		}, {
 			headers: {
-				authorization: MICROSERVICE_AUTHORIZATION
+				Authorization: `Bearer ${MICROSERVICE_AUTHORIZATION}`
 			}
 		})
 
-		logger.info('Tournament created for submissions', { results, disqualified, error })
+		logger.info('Tournament created for submissions', { gradings, disqualified, error })
 
 		return true
 	} catch (error) {
@@ -44,9 +50,9 @@ export async function createTournamen(results: { [key: string]: number }, disqua
 
 export async function getActiveSubmissions(): Promise<Array<submission> | undefined> {
 	try {
-		const response = await axios.get(`http://${mainServiceHost}/api/v1/microservices/submissions&active=true`, {
+		const response = await axios.get<submission[]>(`${mainServiceHost}/api/v1/microservices/submissions`, {
 			headers: {
-				authorization: MICROSERVICE_AUTHORIZATION
+				Authorization: `Bearer ${MICROSERVICE_AUTHORIZATION}`
 			}
 		})
 
