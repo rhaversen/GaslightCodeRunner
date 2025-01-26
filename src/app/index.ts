@@ -18,9 +18,12 @@ import globalErrorHandler from './middleware/globalErrorHandler.js'
 import logger from './utils/logger.js'
 import config from './utils/setupConfig.js'
 import submissionRoutes from './routes/submissions.js'
+import { runTournament } from './services/gamerunner/CodeRunnerService.js'
+import { getActiveSubmissions, createTournamen } from './services/MainService.js'
+import { tournamentGameRunnerFiles } from './utils/sourceFiles.js'
 
 // Environment variables
-const { NODE_ENV } = process.env as Record<string, string>
+const { NODE_ENV, RUNNER_MODE } = process.env as Record<string, string>
 
 // Config variables
 const {
@@ -51,10 +54,44 @@ Sentry.setupExpressErrorHandler(app)
 // Global error handler middleware
 app.use(globalErrorHandler)
 
-// Listen
-server.listen(expressPort, () => {
-	logger.info(`Express is listening at http://localhost:${expressPort}`)
-})
+if (RUNNER_MODE === 'evaluation') {
+	// Start server only in evaluation mode
+	server.listen(expressPort, () => {
+		logger.info(`Express is listening at http://localhost:${expressPort}`)
+	})
+} else if (RUNNER_MODE === 'tournament') {
+	// Run tournament and exit
+	logger.info('Starting tournament mode')
+	try {
+		const submissions = await getActiveSubmissions()
+		if (!submissions || submissions.length === 0) {
+			logger.info('No active submissions found')
+			process.exit(0)
+		}
+
+		const results = await runTournament(tournamentGameRunnerFiles, submissions, 10)
+		if (results.error) {
+			logger.error('Tournament error:', results.error)
+			process.exit(1)
+		}
+
+		const gradings = Object.entries(results.results || {}).map(([submissionId, score]) => ({
+			submission: submissionId,
+			score
+		}))
+
+		const disqualified = Object.keys(results.disqualified)
+		await createTournamen(gradings, disqualified)
+		
+		process.exit(0)
+	} catch (error) {
+		logger.error('Tournament process failed:', error)
+		process.exit(1)
+	}
+} else {
+	logger.error('Invalid RUNNER_MODE specified')
+	process.exit(1)
+}
 
 // Handle unhandled rejections outside middleware
 process.on('unhandledRejection', (reason, promise): void => {

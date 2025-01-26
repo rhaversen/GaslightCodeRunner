@@ -18,16 +18,20 @@ const envSecrets = [
 	'SENTRY_DSN',
 	// Microservices
 	'MICROSERVICE_AUTHORIZATION',
+	// Code runner mode
+	'RUNNER_MODE'
 ]
 
 const envSecretsDev = [
 	'NODE_ENV',
-	'MICROSERVICE_AUTHORIZATION'
+	'MICROSERVICE_AUTHORIZATION',
+	'RUNNER_MODE'
 ]
 
 const envSecretsTest = [
 	'NODE_ENV',
-	'MICROSERVICE_AUTHORIZATION'
+	'MICROSERVICE_AUTHORIZATION',
+	'RUNNER_MODE'
 ]
 
 // Verify that all environment secrets are set
