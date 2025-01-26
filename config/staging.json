@@ -1,0 +1,21 @@
+{
+	"expressPort": 5000,
+	"cors": {
+		"origin": "backend-service",
+		"credentials": true
+	},
+	"microservices": {
+		"mainService": {
+			"host": "backend-service"
+		}
+	},
+	"codeRunner": {
+		"tournament": {
+			"numEpochs": 10000000
+		},
+		"evaluation": {
+			"numEpochs": 100000,
+			"timeout": 10000
+		}
+	}
+}
