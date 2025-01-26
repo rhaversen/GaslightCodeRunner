@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: code-runner-service
-    namespace: gaslight-staging
+    name: evaluation-runner-service
+    namespace: gaslight-production
 spec:
     type: ClusterIP
     selector:
-        app: code-runner
+        app: evaluation-runner-deployment
     ports:
         -   protocol: TCP
             port: 80

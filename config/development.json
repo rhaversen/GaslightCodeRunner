@@ -1,0 +1,21 @@
+{
+	"expressPort": 5001,
+	"cors": {
+		"origin": "http://localhost:5000",
+		"credentials": true
+	},
+	"microservices": {
+		"mainService": {
+			"host": "http://localhost:5000"
+		}
+	},
+	"codeRunner": {
+		"tournament": {
+			"numEpochs": 1000000
+		},
+		"evaluation": {
+			"numEpochs": 100000,
+			"timeout": 10000
+		}
+	}
+}

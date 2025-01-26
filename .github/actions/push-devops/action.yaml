@@ -21,14 +21,22 @@ runs:
                 git config --global user.email "actions@github.com"
             shell: bash
 
-        -   name: Replace image tag in deployment.yaml
+        -   name: Replace image tags in deployment files
             run: |
-                sed -i "s/\${GITHUB_SHA}/${{ github.sha }}/g" k8s/${{ inputs.environment }}/deployment.yaml
+                # Update evaluation deployment
+                if [ -f "k8s/evaluation/${{ inputs.environment }}/deployment.yaml" ]; then
+                    sed -i "s/\${GITHUB_SHA}/${{ github.sha }}/g" k8s/evaluation/${{ inputs.environment }}/deployment.yaml
+                fi
+                
+                # Update tournament deployment
+                if [ -f "k8s/tournament/${{ inputs.environment }}/deployment.yaml" ]; then
+                    sed -i "s/\${GITHUB_SHA}/${{ github.sha }}/g" k8s/tournament/${{ inputs.environment }}/deployment.yaml
+                fi
             shell: bash
 
         -   name: Commit changes
             run: |
-                git add k8s/${{ inputs.environment }}/*
+                git add k8s/evaluation/${{ inputs.environment }}/* k8s/tournament/${{ inputs.environment }}/*
                 git commit -m "${{ github.sha }}"
             shell: bash
 
@@ -41,13 +49,19 @@ runs:
 
         -   name: Copy files to GaslightCodeRunner-DevOps
             run: |
-                cp -r k8s/${{ inputs.environment }}/* GaslightCodeRunner-DevOps/k8s/${{ inputs.environment }}/
+                # Copy evaluation files
+                mkdir -p GaslightCodeRunner-DevOps/k8s/evaluation/${{ inputs.environment }}
+                cp -r k8s/evaluation/${{ inputs.environment }}/* GaslightCodeRunner-DevOps/k8s/evaluation/${{ inputs.environment }}/
+                
+                # Copy tournament files
+                mkdir -p GaslightCodeRunner-DevOps/k8s/tournament/${{ inputs.environment }}
+                cp -r k8s/tournament/${{ inputs.environment }}/* GaslightCodeRunner-DevOps/k8s/tournament/${{ inputs.environment }}/
             shell: bash
 
         -   name: Push changes to GaslightCodeRunner-DevOps
             run: |
                 cd GaslightCodeRunner-DevOps
-                git add k8s/${{ inputs.environment }}/*
+                git add k8s/evaluation/${{ inputs.environment }}/* k8s/tournament/${{ inputs.environment }}/*
                 git commit -m "${{ inputs.environment }}: ${{ github.sha }}"
                 git push origin HEAD
             shell: bash
