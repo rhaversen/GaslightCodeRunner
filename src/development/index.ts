@@ -7,6 +7,7 @@
 process.env.NODE_ENV = 'development'
 process.env.SESSION_SECRET = 'TEST_SESSION_SECRET'
 process.env.MICROSERVICE_AUTHORIZATION = 'TEST_MICROSERVICE_AUTHORIZATION'
+process.env.RUNNER_MODE = 'evaluation'
 
 async function startServer (): Promise<void> {
 	try {
