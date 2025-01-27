@@ -86,8 +86,7 @@ if (RUNNER_MODE === 'evaluation') {
 			score
 		}))
 
-		const disqualified = Object.keys(results.disqualified)
-		await createTournament(gradings, disqualified)
+		await createTournament(gradings, results.disqualified || {})
 		
 		process.exit(0)
 	} catch (error) {
