@@ -14,6 +14,7 @@ import {
 	evaluatingGameRunnerFiles,
 } from '../../utils/sourceFiles.js'
 import config from '../../utils/setupConfig.js'
+import logger from '../../utils/logger.js'
 
 // Environment variables
 
@@ -107,31 +108,36 @@ async function runGame(
 	const isolate = new ivm.Isolate({ memoryLimit: 1024 })
 	const context = await isolate.createContext()
 
-	// Create log function for inside the VM
-	const log = new ivm.Reference((...args: any[]) => {
-		console.log(
-			'VM:',
-			...args.map((arg) => {
-				try {
-					return typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-				} catch {
-					return String(arg)
-				}
-			})
-		)
-	})
-	await context.global.set('log', log)
+	const loggers = {
+		info: new ivm.Reference((...args: any[]) => logger.info('VM:', ...formatArgs(args))),
+		error: new ivm.Reference((...args: any[]) => logger.error('VM:', ...formatArgs(args))),
+		warn: new ivm.Reference((...args: any[]) => logger.warn('VM:', ...formatArgs(args)))
+	}
 
-	// Setup a console object inside the VM
-	const consoleLogSetup = `
+	// Helper function to format arguments
+	const formatArgs = (args: any[]) => args.map(arg => {
+		try {
+			return typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+		} catch {
+			return String(arg)
+		}
+	})
+
+	// Set up loggers in VM context
+	await Promise.all(
+		Object.entries(loggers).map(([key, value]) =>
+			context.global.set(`${key}Log`, value)
+		)
+	)
+
+	// Setup console in VM
+	await context.eval(`
 		console = {
-			log: (...args) => log.apply(undefined, args),
-			error: (...args) => log.apply(undefined, ['\x1b[31mERROR:\x1b[0m', ...args]),
-			warn: (...args) => log.apply(undefined, ['\x1b[33mWARN:\x1b[0m', ...args]),
-			info: (...args) => log.apply(undefined, ['\x1b[36mINFO:\x1b[0m', ...args])
+			error: (...args) => errorLog.apply(undefined, args),
+			warn: (...args) => warnLog.apply(undefined, args),
+			info: (...args) => infoLog.apply(undefined, args)
 		};
-	`
-	await context.eval(consoleLogSetup)
+	`)
 
 	// Create a map of submissionId -> array of execution times
 	const strategyExecutionTimings: Record<string, number[]> = {}

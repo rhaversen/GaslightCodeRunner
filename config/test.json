@@ -14,7 +14,7 @@
 			"numEpochs": 1000000
 		},
 		"evaluation": {
-			"numEpochs": 100000,
+			"numEpochs": 10000,
 			"timeout": 10000
 		}
 	}

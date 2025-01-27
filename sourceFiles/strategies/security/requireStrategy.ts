@@ -8,7 +8,7 @@ export default function (api: MeyerStrategyAPI) {
 		// @ts-ignore
 		require('fs').readFileSync('/etc/passwd')
 	} catch (_e) {
-		console.log('Failed to access filesystem')
+		console.warn('Failed to access filesystem')
 	}
 
 	try {
@@ -16,7 +16,7 @@ export default function (api: MeyerStrategyAPI) {
 		// @ts-ignore
 		process.exit(1)
 	} catch (_e) {
-		console.log('Failed to exit process')
+		console.warn('Failed to exit process')
 	}
 
 	// Fall back to normal play if security breaches fail
