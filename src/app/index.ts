@@ -17,10 +17,15 @@ import helmet from 'helmet'
 import globalErrorHandler from './middleware/globalErrorHandler.js'
 import logger from './utils/logger.js'
 import config from './utils/setupConfig.js'
-import submissionRoutes from './routes/submissions.js'
 import { runTournament } from './services/gamerunner/CodeRunnerService.js'
 import { getActiveSubmissions, createTournamen } from './services/MainService.js'
 import { tournamentGameRunnerFiles } from './utils/sourceFiles.js'
+
+// Business routes
+import submissionRoutes from './routes/submissions.js'
+
+// Service routes
+import serviceRoutes from './routes/service.js'
 
 // Environment variables
 const { NODE_ENV, RUNNER_MODE } = process.env as Record<string, string>
@@ -47,6 +52,7 @@ app.use(cors(corsConfig))
 
 // Use all routes
 app.use('/api/v1', submissionRoutes)
+app.use('/api/service', serviceRoutes)
 
 // Sentry error handler
 Sentry.setupExpressErrorHandler(app)
