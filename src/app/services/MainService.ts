@@ -23,7 +23,7 @@ interface Grading {
     score: number;
 }
 
-export async function createTournamen(gradings: Grading[], disqualified: string[]): Promise<boolean> {
+export async function createTournament(gradings: Grading[], disqualified: string[]): Promise<boolean> {
 	try {
 		await axios.post(`${mainServiceHost}/api/v1/microservices/tournament`, {
 			gradings,
