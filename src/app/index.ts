@@ -18,8 +18,8 @@ import globalErrorHandler from './middleware/globalErrorHandler.js'
 import logger from './utils/logger.js'
 import config from './utils/setupConfig.js'
 import { runTournament } from './services/gamerunner/CodeRunnerService.js'
-import { getActiveSubmissions, createTournamen } from './services/MainService.js'
-import { tournamentGameRunnerFiles } from './utils/sourceFiles.js'
+import { getActiveSubmissions, createTournament } from './services/MainService.js'
+import { gameFiles } from './utils/sourceFiles.js'
 
 // Business routes
 import submissionRoutes from './routes/submissions.js'
@@ -75,7 +75,7 @@ if (RUNNER_MODE === 'evaluation') {
 			process.exit(0)
 		}
 
-		const results = await runTournament(tournamentGameRunnerFiles, submissions, 10)
+		const results = await runTournament(gameFiles, submissions, 10)
 		if (results.error) {
 			logger.error('Tournament error:', results.error)
 			process.exit(1)
@@ -87,7 +87,7 @@ if (RUNNER_MODE === 'evaluation') {
 		}))
 
 		const disqualified = Object.keys(results.disqualified)
-		await createTournamen(gradings, disqualified)
+		await createTournament(gradings, disqualified)
 		
 		process.exit(0)
 	} catch (error) {
