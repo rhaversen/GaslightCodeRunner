@@ -20,11 +20,11 @@ spec:
               imagePullPolicy: Always
               resources:
                 limits:
-                  cpu: "400m"
-                  memory: "300M"
+                  cpu: "500m"
+                  memory: "1024M"
                 requests:
                   cpu: "250m"
-                  memory: "200M"
+                  memory: "512M"
               envFrom:
                 - secretRef:
                     name: tournament-runner-secrets
