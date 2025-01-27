@@ -6,7 +6,7 @@
 	},
 	"microservices": {
 		"mainService": {
-			"host": "http://backend-service.gaslight-staging.svc.cluster.local",
+			"host": "http://backend-service.gaslight-staging.svc.cluster.local"
 		}
 	},
 	"codeRunner": {
