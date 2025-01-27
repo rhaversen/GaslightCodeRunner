@@ -12,7 +12,8 @@ spec:
           labels:
             app: tournament-runner-production
         spec:
-          restartPolicy: OnFailure
+          ttlSecondsAfterFinished: 3600  # Retains job for 1 hour after completion for debugging
+          restartPolicy: Never
           automountServiceAccountToken: false
           containers:
             - name: tournament-runner-production

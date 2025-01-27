@@ -34,7 +34,10 @@ export async function createTournament(gradings: Grading[], disqualified: string
 			}
 		})
 
-		logger.info('Tournament created for submissions', { gradings, disqualified })
+		logger.info('Tournament created for submissions', {
+			gradings: gradings.map(g => g.submission),
+			disqualified
+		})
 
 		return true
 	} catch (error) {

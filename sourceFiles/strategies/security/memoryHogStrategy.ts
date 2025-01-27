@@ -7,7 +7,7 @@ export default function (api: MeyerStrategyAPI) {
 		const arr = new Array(1000000000).fill(0)
 		arr.length // prevent optimization
 	} catch (_e) {
-		console.log('Memory allocation failed')
+		console.warn('Memory allocation failed')
 	}
 
 	if (api.isFirstInRound()) {

@@ -11,7 +11,7 @@
 	},
 	"codeRunner": {
 		"tournament": {
-			"numEpochs": 10000000
+			"numEpochs": 1000000
 		},
 		"evaluation": {
 			"numEpochs": 10000,
