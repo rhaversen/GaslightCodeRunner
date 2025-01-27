@@ -1,12 +1,12 @@
 {
 	"expressPort": 5000,
 	"cors": {
-		"origin": "backend-service",
+		"host": "http://backend-service.gaslight-staging.svc.cluster.local",
 		"credentials": true
 	},
 	"microservices": {
 		"mainService": {
-			"host": "backend-service"
+			"host": "http://backend-service.gaslight-staging.svc.cluster.local",
 		}
 	},
 	"codeRunner": {
