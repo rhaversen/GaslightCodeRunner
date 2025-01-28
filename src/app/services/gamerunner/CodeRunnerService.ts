@@ -79,15 +79,20 @@ export async function runTournament(
 	disqualified: Record<string, string> // submissionId -> error
 	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
 	strategyLoadingTimings: Record<string, number> // submissionId -> timings
+	tournamentExecutionTime: number // Time taken to run the tournament
 }> {
+	const executionStartTime = performance.now()
 	const results = await runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize)
+	const executionEndTime = performance.now()
+	const tournamentExecutionTime = executionEndTime - executionStartTime
 
 	const tournamentResults = {
 		error: results.error,
 		results: results.results,
 		disqualified: results.disqualified,
 		strategyExecutionTimings: results.strategyExecutionTimings,
-		strategyLoadingTimings: results.strategyLoadingTimings
+		strategyLoadingTimings: results.strategyLoadingTimings,
+		tournamentExecutionTime
 	}
 
 	return tournamentResults
