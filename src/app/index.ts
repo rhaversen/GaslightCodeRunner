@@ -88,13 +88,22 @@ if (RUNNER_MODE === 'evaluation') {
 
 		await createTournament(gradings, results.disqualified || {})
 		
+		// Wait 1 second before exiting
+		await new Promise(resolve => setTimeout(resolve, 1000))
+
 		process.exit(0)
 	} catch (error) {
 		logger.error('Tournament process failed:', error)
+
+		// Wait 1 second before exiting
+		await new Promise(resolve => setTimeout(resolve, 1000))
 		process.exit(1)
 	}
 } else {
 	logger.error('Invalid RUNNER_MODE specified')
+
+	// Wait 1 second before exiting
+	await new Promise(resolve => setTimeout(resolve, 1000))
 	process.exit(1)
 }
 
