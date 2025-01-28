@@ -37,12 +37,20 @@ interface LogMetadata {
 }
 
 // Create a reusable format configuration
+const defaultServiceName = 'gaslight-backend'
+
 const logFormat = _format.printf((info: TransformableInfo) => {
 	const logObject = info as WinstonLogObject
-	const { timestamp, level, message, ...restMetadata } = logObject
+	const { timestamp, level, message, service, ...restMetadata } = logObject
 
-	const metadataStr = Object.keys(restMetadata).length > 0
-		? `\n${JSON.stringify(restMetadata, null, 2)}`
+	// Only include metadata if there are non-default values
+	const cleanMetadata = { ...restMetadata }
+	if (service !== defaultServiceName) {
+		cleanMetadata.service = service
+	}
+
+	const metadataStr = Object.keys(cleanMetadata).length > 0
+		? `\n${JSON.stringify(cleanMetadata, null, 2)}`
 		: ''
 
 	return `${timestamp ?? new Date().toISOString()} ${level}: ${message}${metadataStr}`
@@ -63,7 +71,7 @@ const winstonLogger = createLogger({
 		_format.json(), // Use JSON format for logs
 		logFormat
 	),
-	defaultMeta: { service: 'gaslight-backend' }, // Set a default metadata field
+	defaultMeta: { service: defaultServiceName }, // Set a default metadata field
 	transports: [
 		new _transports.File({
 			filename: join(logDirectory, '../../logs/error.log'),
