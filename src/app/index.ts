@@ -86,7 +86,7 @@ if (RUNNER_MODE === 'evaluation') {
 			score
 		}))
 
-		await createTournament(gradings, results.disqualified || {})
+		await createTournament(gradings, results.disqualified || {}, results.tournamentExecutionTime)
 		
 		// Wait 1 second before exiting
 		await new Promise(resolve => setTimeout(resolve, 1000))

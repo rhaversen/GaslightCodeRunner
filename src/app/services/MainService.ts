@@ -28,7 +28,7 @@ interface DisqualifiedSubmission {
     reason: string;
 }
 
-export async function createTournament(gradings: Grading[], disqualified: Record<string, string>): Promise<boolean> {
+export async function createTournament(gradings: Grading[], disqualified: Record<string, string>, tournamentExecutionTime: number): Promise<boolean> {
 	try {
 		const disqualifiedArray: DisqualifiedSubmission[] = Object.entries(disqualified).map(([submission, reason]) => ({
 			submission,
@@ -37,7 +37,8 @@ export async function createTournament(gradings: Grading[], disqualified: Record
 
 		await axios.post(`${mainServiceHost}/api/v1/microservices/tournament`, {
 			gradings,
-			disqualified: disqualifiedArray
+			disqualified: disqualifiedArray,
+			tournamentExecutionTime
 		}, {
 			headers: {
 				Authorization: `Bearer ${MICROSERVICE_AUTHORIZATION}`
@@ -46,7 +47,8 @@ export async function createTournament(gradings: Grading[], disqualified: Record
 
 		logger.info('Tournament created for submissions', {
 			gradings: gradings.map(g => ({ submission: g.submission, score: g.score })),
-			disqualified: disqualifiedArray
+			disqualified: disqualifiedArray,
+			tournamentExecutionTime
 		})
 
 		return true
