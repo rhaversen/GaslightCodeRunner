@@ -211,8 +211,13 @@ async function runGame(
 
 				// Wrap the strategy call so we can measure each call time
 				const wrappedStrategy = function(api) {
-					// Only measure time on every 100th epoch
-					if (this.epoch % 100 === 0) {
+					// Only time the candidate and only in evaluation mode, otherwise time randomly
+					const isEvaluation = ${type === 'Evaluation'};
+					const isCandidate = ${index === 0};
+					const isRandomEpoch = this.epoch % 50 === 0;
+					const shouldTime = (isCandidate && isEvaluation) || (isRandomEpoch && !isEvaluation);
+
+					if (shouldTime) {
 						const executionStart = performance.now();
 
 						try {
