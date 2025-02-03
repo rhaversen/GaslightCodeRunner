@@ -83,7 +83,8 @@ if (RUNNER_MODE === 'evaluation') {
 
 		const gradings = Object.entries(results.results || {}).map(([submissionId, score]) => ({
 			submission: submissionId,
-			score
+			score,
+			avgExecutionTime: results.strategyExecutionTimings[submissionId].reduce((a, b) => a + b, 0) / results.strategyExecutionTimings[submissionId].length
 		}))
 
 		await createTournament(gradings, results.disqualified || {}, results.tournamentExecutionTime)
