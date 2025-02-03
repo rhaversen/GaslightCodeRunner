@@ -45,8 +45,7 @@ logger.info(`Node environment: ${NODE_ENV}`)
 
 // Middleware
 app.use(helmet()) // Security headers
-app.use(express.json({ limit: '50mb' }))
-app.use(express.urlencoded({ limit: '50mb', extended: true }))
+app.use(express.json()) // for parsing application/json
 
 // Apply cors config to all routes
 app.use(cors(corsConfig))
