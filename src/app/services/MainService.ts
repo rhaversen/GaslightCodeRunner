@@ -19,14 +19,14 @@ const {
 // Destructuring and global variables
 
 interface Grading {
-    submission: string;
-    score: number;
+	submission: string;
+	score: number;
 	avgExecutionTime: number;
 }
 
 interface DisqualifiedSubmission {
-    submission: string;
-    reason: string;
+	submission: string;
+	reason: string;
 }
 
 export async function createTournament(gradings: Grading[], disqualified: Record<string, string>, tournamentExecutionTime: number): Promise<boolean> {
@@ -64,12 +64,19 @@ export async function createTournament(gradings: Grading[], disqualified: Record
 	}
 }
 
-export async function getActiveSubmissions(): Promise<Array<submission> | undefined> {
+export async function getActiveSubmissions(excludeUser?: string): Promise<Array<submission> | undefined> {
 	try {
+		const params: Record<string, string> = {}
+
+		if (excludeUser) {
+			params.excludeUser = excludeUser // Pass user filter if provided
+		}
+
 		const response = await axios.get<submission[]>(`${mainServiceHost}/api/v1/microservices/submissions`, {
 			headers: {
 				Authorization: `Bearer ${MICROSERVICE_AUTHORIZATION}`
-			}
+			},
+			params, // Pass the dynamic query parameters
 		})
 
 		return response.data
