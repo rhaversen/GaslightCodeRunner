@@ -21,6 +21,7 @@ const {
 interface Grading {
     submission: string;
     score: number;
+	avgExecutionTime: number;
 }
 
 interface DisqualifiedSubmission {
