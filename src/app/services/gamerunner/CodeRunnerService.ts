@@ -137,11 +137,11 @@ async function runGame(
 
 	// Setup console in VM
 	await context.eval(`
-		console = {
-			error: (...args) => errorLog.apply(undefined, args),
-			warn: (...args) => warnLog.apply(undefined, args),
-			info: (...args) => infoLog.apply(undefined, args)
-		};
+console = {
+	error: (...args) => errorLog.apply(undefined, args),
+	warn: (...args) => warnLog.apply(undefined, args),
+	info: (...args) => infoLog.apply(undefined, args)
+};
 	`)
 
 	// Create a map of submissionId -> array of execution times
@@ -169,9 +169,9 @@ async function runGame(
 
 	// Inject a performance object into the VM
 	await context.eval(`
-		const performance = {
-			now: () => perfNowRef.applySync(undefined)
-		};
+const performance = {
+	now: () => perfNowRef.applySync(undefined)
+};
   `)
 
 	// Bundle game logic
@@ -193,64 +193,64 @@ async function runGame(
 	// Build the code for each strategy
 	const strategiesStr = strategyBundles
 		.map((bundle, index) => `
-			(() => {
-				// Measure load time
-				const loadStart = performance.now();
+(() => {
+	// Measure load time
+	const loadStart = performance.now();
 
-				${bundle}
-				const strategy = Strategy.default;
+	${bundle}
+	const strategy = Strategy.default;
 
-				const loadEnd = performance.now();
-				const loadDuration = loadEnd - loadStart;
+	const loadEnd = performance.now();
+	const loadDuration = loadEnd - loadStart;
 
-				// Record the time
-				strategyLoadingTimingFunction.applySync(undefined, [
-					'${strategies[index].submissionId}',
-					loadDuration
-				]);
+	// Record the time
+	strategyLoadingTimingFunction.applySync(undefined, [
+		'${strategies[index].submissionId}',
+		loadDuration
+	]);
 
-				// Wrap the strategy call so we can measure each call time
-				const wrappedStrategy = function(api) {
-					// Only time the candidate and only in evaluation mode, otherwise time randomly
-					const isEvaluation = ${type === 'Evaluation'};
-					const isCandidate = ${index === 0};
-					const isRandomEpoch = this.epoch % 50 === 0;
-					const shouldTime = (isCandidate && isEvaluation) || (isRandomEpoch && !isEvaluation);
+	// Wrap the strategy call so we can measure each call time
+	const wrappedStrategy = function(api) {
+		// Only time the candidate and only in evaluation mode, otherwise time randomly
+		const isEvaluation = ${type === 'Evaluation'};
+		const isCandidate = ${index === 0};
+		const isRandomEpoch = this.epoch % 50 === 0;
+		const shouldTime = (isCandidate && isEvaluation) || (isRandomEpoch && !isEvaluation);
 
-					if (shouldTime) {
-						const executionStart = performance.now();
+		if (shouldTime) {
+			const executionStart = performance.now();
 
-						try {
-							// Call the strategy
-							strategy(api);
-						} catch (err) {
-							// Add the submissionId to the error
-							err.submissionId = '${strategies[index].submissionId}';
-							throw err;
-						}
+			try {
+				// Call the strategy
+				strategy(api);
+			} catch (err) {
+				// Add the submissionId to the error
+				err.submissionId = '${strategies[index].submissionId}';
+				throw err;
+			}
 
-						const executionEnd = performance.now();
-						const duration = executionEnd - executionStart;
+			const executionEnd = performance.now();
+			const duration = executionEnd - executionStart;
 
-						// Record the time
-						strategyExecutionTimingFunction.apply(undefined, [
-							'${strategies[index].submissionId}',
-							duration
-						]);
-					} else {
-						// Non-measured calls
-						try {
-							strategy(api);
-						} catch (err) {
-							// Add the submissionId to the error
-							err.submissionId = '${strategies[index].submissionId}';
-							throw err;
-						}
-					}
-				};
+			// Record the time
+			strategyExecutionTimingFunction.apply(undefined, [
+				'${strategies[index].submissionId}',
+				duration
+			]);
+		} else {
+			// Non-measured calls
+			try {
+				strategy(api);
+			} catch (err) {
+				// Add the submissionId to the error
+				err.submissionId = '${strategies[index].submissionId}';
+				throw err;
+			}
+		}
+	};
 
-				return wrappedStrategy;
-			})()
+	return wrappedStrategy;
+})()
 		`).join(',')
 
 	// Construct the main test code that runs the game
