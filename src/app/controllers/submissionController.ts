@@ -7,6 +7,7 @@ import { Request, Response } from 'express'
 import { runEvaluation } from '../services/gamerunner/CodeRunnerService.js'
 import { isFileMap } from '../services/gamerunner/bundler.js'
 import { gameFiles } from '../utils/sourceFiles.js'
+import { getActiveSubmissions } from '../services/MainService.js'
 
 // Environment variables
 
@@ -15,7 +16,9 @@ import { gameFiles } from '../utils/sourceFiles.js'
 // Destructuring and global variables
 
 export async function handleSubmissionEvaluation(req: Request, res: Response) {
-	const { candidateSubmission, otherSubmissions } = req.body
+	const { candidateSubmission, excludeUser } = req.body
+
+	const otherSubmissions = await getActiveSubmissions(excludeUser ? String(excludeUser) : undefined)
 
 	const candidateHasFiles = candidateSubmission && isFileMap(candidateSubmission.files)
 	const othersHaveFiles = otherSubmissions?.length && otherSubmissions.every((strategy: { files: unknown }) => isFileMap(strategy.files))
