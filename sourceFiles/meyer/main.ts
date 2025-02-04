@@ -37,14 +37,18 @@ export class Main implements Game {
 					throw new PlayerError(error.message, this.players[playerIndex].submissionId)
 				}
 			}
+
 			const canEndTurn = !gameState.isTurnActive() || gameState.hasPlayerRolled()
 			if (!canEndTurn) {
-				throw new PlayerError('You cannot return before your turn is over', this.players[playerIndex].submissionId)
+				const lastAction = gameState.getTurnActions()[0]?.type || 'no action'
+				throw new PlayerError(`You cannot end your turn after only doing '${lastAction}'. You must complete your turn with either 'reveal', 'det eller derover', or by announcing a value through calling "lie" or returning after a roll.`, this.players[playerIndex].submissionId)
 			}
-			const value = gameState.getPreviousActions()[0].announcedValue
-			const prevValue = gameState.getPreviousActions()[1]?.announcedValue || 0
-			if (value < prevValue) {
-				throw new PlayerError(`You must announce a higher value than the previous player. You rolled ${value}, and they rolled ${prevValue}`, this.players[playerIndex].submissionId)
+			const value = gameState.getTurnActions()[0]?.announcedValue || 0
+			const prevValue = gameState.getRoundActions()[0]?.announcedValue || 0
+
+			if (value < prevValue && value !== 0) {
+				const lastAction = gameState.getTurnActions()[0]?.type
+				throw new PlayerError(`Your ${lastAction} action announced ${value}, which is lower than the previous player's ${prevValue}. You must announce a higher value by lying, calling 'det eller derover', or reveal.`, this.players[playerIndex].submissionId)
 			}
 
 			// Check if the round is over
