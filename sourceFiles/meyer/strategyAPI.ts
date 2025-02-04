@@ -36,7 +36,13 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 			}
 			return actions[0].announcedValue
 		},
-		roundUpToValidScore: (score: number) => roundUpToValidScore(score),
+		roundUpToValidScore: (score: number) => {
+			ensureTurnActive()
+			if (score > 1000) {
+				throw new PlayerError('The score you are trying to round up is higher than the maximum possible score of 1000.')
+			}
+			return roundUpToValidScore(score)
+		},
 		isFirstInRound: () => {
 			ensureTurnActive()
 			return gameState.isFirstInRound()
