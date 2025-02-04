@@ -6,12 +6,20 @@ import { calculateScore, isValidScore, rollDice, roundUpToValidScore } from './u
 export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 	const ensureTurnActive = () => {
 		if (!gameState.isTurnActive()) {
-			throw new PlayerError('You cannot perform any more actions this turn. Calling \'det eller derover\' or \'reveal\' will end your turn.')
+			throw new PlayerError('Your turn has ended. You can only perform one action to end your turn: either call "det eller derover" to match the previous strategy\'s announcement, reveal to challenge the previous player\'s announcement, or announce your own roll (by calling "lie" or returning after a roll).')
 		}
 	}
 
 	return {
-		calculateDieScore: (dice: DiePair) => calculateScore(dice),
+		calculateDieScore: (dice: DiePair) => {
+			if (!dice || !Array.isArray(dice) || dice.length !== 2) {
+				throw new PlayerError('Invalid dice pair provided. Must be an array of exactly two numbers.')
+			}
+			if (!dice.every(die => Number.isInteger(die) && die >= 1 && die <= 6)) {
+				throw new PlayerError('Invalid dice pair provided. Each die must be an integer between 1 and 6.')
+			}
+			return calculateScore(dice)
+		},
 		getPreviousActions: () => {
 			ensureTurnActive()
 			const actions = gameState.getRoundActions()
@@ -36,16 +44,21 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 		detEllerDerover: () => {
 			ensureTurnActive()
 			if (!gameState.hasPlayerRolled()) {
-				throw new PlayerError('Cannot do "det eller derover" before rolling the dice.')
+				throw new PlayerError('You must roll the dice before calling "det eller derover". Rolling first lets you see your score before deciding to match the previous strategy\'s announcement.')
 			}
 
 			if (gameState.isFirstInRound()) {
-				throw new PlayerError('Cannot do "det eller derover" as the first action in a round.')
+				throw new PlayerError('As the first player in a round, you cannot call "det eller derover" as there is no previous announcement to match. You must roll and announce a value.')
+			}
+
+			const prevAction = gameState.getRoundActions()[0]
+			if (!prevAction) {
+				throw new PlayerError('Cannot call "det eller derover" - no previous announcement exists to match against.')
 			}
 
 			const dice = rollDice()
 			const score = calculateScore(dice)
-			const previousAnnouncedValue = gameState.getRoundActions()[0].announcedValue
+			const previousAnnouncedValue = prevAction.announcedValue
 
 			gameState.addTurnAction({
 				type: 'detEllerDerover',
@@ -58,14 +71,14 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 		reveal: () => {
 			ensureTurnActive()
 			if (gameState.hasPlayerRolled()) {
-				throw new PlayerError('Cannot reveal after rolling the dice.')
+				throw new PlayerError('You can only reveal as your first action. Once you roll the dice, you must either announce a value (by calling "lie" or returning after a roll), or call "det eller derover" to match the previous strategy\'s announcement.')
 			}
 
 			const prevPlayerIndex = gameState.getPrevPlayerIndex()
 			const prevAction = gameState.getRoundActions()[0]
 
 			if (!prevAction) {
-				throw new PlayerError('No previous action to reveal.')
+				throw new PlayerError('As the first player in a round, you cannot reveal as there is no previous announcement to challenge. First players in a round must roll and announce a value.')
 			}
 
 			const prevPlayerLied = prevAction.value < prevAction.announcedValue // Doing 'det eller derover' while not scoring that or higher is considered lying
@@ -91,7 +104,7 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 		roll: () => {
 			ensureTurnActive()
 			if (gameState.hasPlayerRolled()) {
-				throw new PlayerError('You have already rolled the dice this turn.')
+				throw new PlayerError('You can only roll once per turn. After rolling, you must either announce a value (calling "lie" or returning after a roll) or call "det eller derover" to match the previous strategy\'s announcement.')
 			}
 			const dice = rollDice()
 			const score = calculateScore(dice)
@@ -108,7 +121,7 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 			ensureTurnActive()
 
 			if (!gameState.hasPlayerRolled()) {
-				throw new PlayerError('You must roll before you can lie.')
+				throw new PlayerError('You must roll the dice before announcing a value. This lets you see your actual score before deciding what value to announce (by calling "lie" or returning after a roll).')
 			}
 
 			const lieValue = score
@@ -116,11 +129,11 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 			const prevTurnValue = gameState.getRoundActions()[0]?.announcedValue || 0
 
 			if (!isValidScore(lieValue)) {
-				throw new PlayerError(`Invalid lie value. You announced ${lieValue}`)
+				throw new PlayerError(`The announced value ${lieValue} is not valid. Valid scores can be found in the documentation. Use roundUpToValidScore() or calculateDieScore() to get valid scores.`)
 			}
 
 			if (lieValue < prevTurnValue) { // Must announce a higher value than the previous player
-				throw new PlayerError(`You must announce a higher value than the previous player. You lied with ${lieValue}, and they announced ${prevValue}`)
+				throw new PlayerError(`You must announce a higher value than the previous player. They announced ${prevTurnValue}, but you tried to announce ${lieValue}. If you cannot or don't want to announce higher, consider using "det eller derover" or revealing.`)
 			}
 
 			gameState.addTurnAction({
