@@ -2,8 +2,8 @@
 # code will be run in, along with what files are needed
 # for production
 
-# Use 22.12.0 LTS version of Node.js and Debian as the base image
-FROM node:lts-bookworm
+# Use 22 LTS version of Node.js and Debian as the base image and slim for ARM64 compatibility
+FROM node:lts-bookworm-slim
 
 # Use a non-interactive frontend for debconf
 ENV DEBIAN_FRONTEND=noninteractive
@@ -32,7 +32,7 @@ RUN chown -R gaslight_code_runner_user:gaslight_code_runner_user /app
 # Switch to user for subsequent commands
 USER gaslight_code_runner_user
 
-# Clean install production dependencies
+# Install production dependencies
 RUN npm ci --omit=dev
 
 # Expose the port Express.js runs on
