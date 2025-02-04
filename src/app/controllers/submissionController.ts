@@ -15,6 +15,23 @@ import { getActiveSubmissions } from '../services/MainService.js'
 
 // Destructuring and global variables
 
+function calculatePercentile(numbers: number[], percentile: number): number {
+	const sorted = [...numbers].sort((a, b) => a - b)
+	const index = Math.ceil((percentile / 100) * sorted.length) - 1
+	return sorted[index]
+}
+
+function filterByPercentile(timings: number[], percentile: number): number[] {
+	if (!timings || timings.length === 0) return []
+	const p95 = calculatePercentile(timings, percentile)
+	return timings.filter(timing => timing <= p95)
+}
+
+function calculateAverage(numbers: number[]): number {
+	if (!numbers || numbers.length === 0) return 0
+	return numbers.reduce((sum, num) => sum + num, 0) / numbers.length
+}
+
 export async function handleSubmissionEvaluation(req: Request, res: Response) {
 	const { candidateSubmission, excludeUser } = req.body
 
@@ -43,7 +60,30 @@ export async function handleSubmissionEvaluation(req: Request, res: Response) {
 	}
 
 	try {
-		const result = await runEvaluation(gameFiles, candidateSubmission, otherSubmissions, 10) // Hardcoded batch size for now
+		const evaluationResult = await runEvaluation(gameFiles, candidateSubmission, otherSubmissions, 10) // Hardcoded batch size for now
+
+		// Filter and check execution timings
+		const executionTimings = evaluationResult.strategyExecutionTimings
+		const filteredTimings = executionTimings ? filterByPercentile(executionTimings, 95) : null
+		const averageExecutionTime = filteredTimings?.length ? calculateAverage(filteredTimings) : null
+
+		// Thin out timings for the frontend
+		const timingsToKeep = 100
+		const thinnedExecutionTimings = executionTimings
+			? executionTimings.filter((_, index) => index % Math.max(Math.floor(executionTimings.length / timingsToKeep), 1) === 0)
+			: null
+
+		const result = {
+			results: {
+				candidate: evaluationResult.results?.candidate ?? 0,
+				average: evaluationResult.results?.average ?? 0
+			},
+			disqualified: evaluationResult.disqualified,
+			strategyLoadingTimings: evaluationResult.strategyLoadingTimings,
+			strategyExecutionTimings: thinnedExecutionTimings,
+			averageExecutionTime: averageExecutionTime
+		}
+
 		res.status(200).json(result)
 	} catch (error) {
 		res.status(500).json({ error: error instanceof Error ? error.message : 'Execution failed' })
