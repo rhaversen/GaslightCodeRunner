@@ -6,7 +6,7 @@ import { calculateScore, isValidScore, rollDice, roundUpToValidScore } from './u
 export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 	const ensureTurnActive = () => {
 		if (!gameState.isTurnActive()) {
-			throw new PlayerError('You cannot perform any more actions this turn.')
+			throw new PlayerError('You cannot perform any more actions this turn. Calling \'det eller derover\' or \'reveal\' will end your turn.')
 		}
 	}
 
@@ -14,19 +14,19 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 		calculateDieScore: (dice: DiePair) => calculateScore(dice),
 		getPreviousActions: () => {
 			ensureTurnActive()
-			const actions = gameState.getPreviousActions()
+			const actions = gameState.getRoundActions()
 			if (actions.length === 0) {
 				return null
 			}
-			return gameState.getPreviousActions().map(action => action.announcedValue)
+			return actions.map(action => action.announcedValue)
 		},
 		getPreviousAction: () => {
 			ensureTurnActive()
-			const actions = gameState.getPreviousActions()
+			const actions = gameState.getRoundActions()
 			if (actions.length === 0) {
 				return null
 			}
-			return gameState.getPreviousActions()[0].announcedValue
+			return actions[0].announcedValue
 		},
 		roundUpToValidScore: (score: number) => roundUpToValidScore(score),
 		isFirstInRound: () => {
@@ -43,14 +43,11 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				throw new PlayerError('Cannot do "det eller derover" as the first action in a round.')
 			}
 
-			// TODO: Dont add the roll to the actions immediatly. Only add action when turn is ended. Currently, calling roll and then getLatestAction will return the roll action, not the previous player's action.
-			gameState.removePreviousAction()
-
 			const dice = rollDice()
 			const score = calculateScore(dice)
-			const previousAnnouncedValue = gameState.getPreviousActions()[0]?.announcedValue || 0
+			const previousAnnouncedValue = gameState.getRoundActions()[0].announcedValue
 
-			gameState.addAction({
+			gameState.addTurnAction({
 				type: 'detEllerDerover',
 				value: score,
 				playerIndex,
@@ -65,7 +62,7 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 			}
 
 			const prevPlayerIndex = gameState.getPrevPlayerIndex()
-			const prevAction = gameState.getPreviousActions()[0]
+			const prevAction = gameState.getRoundActions()[0]
 
 			if (!prevAction) {
 				throw new PlayerError('No previous action to reveal.')
@@ -98,7 +95,7 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 			}
 			const dice = rollDice()
 			const score = calculateScore(dice)
-			gameState.addAction({
+			gameState.addTurnAction({
 				type: 'roll',
 				value: score,
 				playerIndex,
@@ -114,22 +111,19 @@ export function createStrategyAPI(playerIndex: number): MeyerStrategyAPI {
 				throw new PlayerError('You must roll before you can lie.')
 			}
 
-			// TODO: Dont add the roll to the actions immediatly. Only add action when turn is ended. Currently, calling roll and then getLatestAction will return the roll action, not the previous player's action.
-			gameState.removePreviousAction()
-
 			const lieValue = score
-			const prevValue = gameState.getPreviousActions()[1]?.announcedValue || 0
-			const realValue = gameState.getPreviousActions()[0].value
+			const realValue = gameState.getTurnActions()[0].value
+			const prevTurnValue = gameState.getRoundActions()[0]?.announcedValue || 0
 
 			if (!isValidScore(lieValue)) {
 				throw new PlayerError(`Invalid lie value. You announced ${lieValue}`)
 			}
 
-			if (lieValue < prevValue) {
+			if (lieValue < prevTurnValue) { // Must announce a higher value than the previous player
 				throw new PlayerError(`You must announce a higher value than the previous player. You lied with ${lieValue}, and they announced ${prevValue}`)
 			}
 
-			gameState.addAction({
+			gameState.addTurnAction({
 				type: 'lie',
 				value: realValue,
 				playerIndex,

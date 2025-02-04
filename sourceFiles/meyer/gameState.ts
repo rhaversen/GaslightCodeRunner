@@ -4,7 +4,8 @@ import { Action } from './types.ts'
 
 class GameState {
 	private static instance: GameState
-	private previousActions: Action[] = []
+	private roundActions: Action[] = []
+	private turnActions: Action[] = []
 	private firstInRound = true
 	private currentPlayerIndex = 0
 	private amountOfPlayers = 0
@@ -22,7 +23,8 @@ class GameState {
 	}
 
 	init(ids: string[]) {
-		this.previousActions = []
+		this.roundActions = []
+		this.turnActions = []
 		this.firstInRound = true
 		this.currentPlayerIndex = 0
 		this.amountOfPlayers = ids.length
@@ -33,8 +35,8 @@ class GameState {
 		this.playerIds = [...ids]
 	}
 
-	addAction(action: Action): void {
-		this.previousActions.unshift(action)
+	addTurnAction(action: Action): void {
+		this.turnActions.unshift(action)
 	}
 
 	penalizePlayer(playerIndex: number): void {
@@ -50,12 +52,16 @@ class GameState {
 	}
 
 	// Getters and setters
-	getPreviousActions(): Action[] {
-		return [...this.previousActions]
+	getTurnActions(): Action[] {
+		return [...this.turnActions]
 	}
 
-	removePreviousAction(): void {
-		this.previousActions.shift()
+	getRoundActions(): Action[] {
+		return [...this.roundActions]
+	}
+
+	removePreviousTurnAction(): void {
+		this.turnActions.shift()
 	}
 
 	isFirstInRound(): boolean {
@@ -103,15 +109,20 @@ class GameState {
 		if (this.roundActive) {
 			// If the round is still active, we only need to prepare the next player
 			this.firstInRound = false
+			// Move the final action of the turn to the previous actions
+			const finalAction = this.turnActions[0]
+			this.roundActions.unshift(finalAction)
 		} else {
 			// If the round is over, we need to reset the round and prepare the next player
 			this.firstInRound = true
-			this.previousActions = []
+			this.roundActions = []
 			this.roundActive = true
 		}
 		// Reset turn-specific variables
 		this.hasRolled = false
 		this.turnActive = true
+		this.turnActions = []
+		
 		// Increment the current player index
 		this.incrementCurrentPlayerIndex()
 	}

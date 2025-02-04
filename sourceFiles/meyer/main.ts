@@ -37,13 +37,15 @@ export class Main implements Game {
 					throw new PlayerError(error.message, this.players[playerIndex].submissionId)
 				}
 			}
+
 			const canEndTurn = !gameState.isTurnActive() || gameState.hasPlayerRolled()
 			if (!canEndTurn) {
 				throw new PlayerError('You cannot return before your turn is over', this.players[playerIndex].submissionId)
 			}
-			const value = gameState.getPreviousActions()[0].announcedValue
-			const prevValue = gameState.getPreviousActions()[1]?.announcedValue || 0
-			if (value < prevValue) {
+			const value = gameState.getTurnActions()[0]?.announcedValue || 0
+			const prevValue = gameState.getRoundActions()[0]?.announcedValue || 0
+
+			if (value < prevValue && value !== 0) {
 				throw new PlayerError(`You must announce a higher value than the previous player. You rolled ${value}, and they rolled ${prevValue}`, this.players[playerIndex].submissionId)
 			}
 
