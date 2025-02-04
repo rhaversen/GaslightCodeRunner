@@ -33,7 +33,7 @@ RUN chown -R gaslight_code_runner_user:gaslight_code_runner_user /app
 USER gaslight_code_runner_user
 
 # Install production dependencies
-RUN npm install --production --no-optional
+RUN npm ci --omit=dev
 
 # Expose the port Express.js runs on
 EXPOSE 5000
