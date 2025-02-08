@@ -32,9 +32,9 @@ function calculateAverage(numbers: number[]): number {
 }
 
 export async function handleSubmissionEvaluation(req: Request, res: Response) {
-	const { candidateSubmission, gameFiles, gameId, batchSize } = req.body
+	const { candidateUser, candidateSubmission, gameFiles, gameId, batchSize } = req.body
 
-	const otherSubmissions = await getActiveSubmissions(gameId, candidateSubmission.submissionId)
+	const otherSubmissions = await getActiveSubmissions(gameId, candidateUser)
 
 	const candidateHasFiles = candidateSubmission && isFileMap(candidateSubmission.files)
 	const othersHaveFiles = otherSubmissions?.length && otherSubmissions.every((strategy: { files: unknown }) => isFileMap(strategy.files))
