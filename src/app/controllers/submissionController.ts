@@ -6,7 +6,6 @@ import { Request, Response } from 'express'
 // Own modules
 import { runEvaluation } from '../services/gamerunner/CodeRunnerService.js'
 import { isFileMap } from '../services/gamerunner/bundler.js'
-import { gameFiles } from '../utils/sourceFiles.js'
 import { getActiveSubmissions } from '../services/MainService.js'
 
 // Environment variables
@@ -33,9 +32,9 @@ function calculateAverage(numbers: number[]): number {
 }
 
 export async function handleSubmissionEvaluation(req: Request, res: Response) {
-	const { candidateSubmission, excludeUser } = req.body
+	const { candidateSubmission, gameFiles, gameId, batchSize } = req.body
 
-	const otherSubmissions = await getActiveSubmissions(excludeUser ? String(excludeUser) : undefined)
+	const otherSubmissions = await getActiveSubmissions(gameId, candidateSubmission.submissionId)
 
 	const candidateHasFiles = candidateSubmission && isFileMap(candidateSubmission.files)
 	const othersHaveFiles = otherSubmissions?.length && otherSubmissions.every((strategy: { files: unknown }) => isFileMap(strategy.files))
@@ -60,7 +59,7 @@ export async function handleSubmissionEvaluation(req: Request, res: Response) {
 	}
 
 	try {
-		const evaluationResult = await runEvaluation(gameFiles, candidateSubmission, otherSubmissions, 10) // Hardcoded batch size for now
+		const evaluationResult = await runEvaluation(gameFiles, candidateSubmission, otherSubmissions, batchSize)
 
 		// Filter and check execution timings
 		const executionTimings = evaluationResult.strategyExecutionTimings

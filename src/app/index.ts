@@ -18,8 +18,7 @@ import globalErrorHandler from './middleware/globalErrorHandler.js'
 import logger from './utils/logger.js'
 import config from './utils/setupConfig.js'
 import { runTournament } from './services/gamerunner/CodeRunnerService.js'
-import { getActiveSubmissions, createTournament } from './services/MainService.js'
-import { gameFiles } from './utils/sourceFiles.js'
+import { getActiveSubmissions, createTournament, getGames } from './services/MainService.js'
 
 // Business routes
 import submissionRoutes from './routes/submissions.js'
@@ -69,26 +68,36 @@ if (RUNNER_MODE === 'evaluation') {
 	// Run tournament and exit
 	logger.info('Starting tournament mode')
 	try {
-		const submissions = await getActiveSubmissions()
-		if (!submissions || submissions.length === 0) {
-			logger.info('No active submissions found')
-			process.exit(0)
-		}
+		const games = await getGames()
 
-		const results = await runTournament(gameFiles, submissions, 10)
-		if (results.error) {
-			logger.error('Tournament error:', results.error)
+		if (!games || games.length === 0) {
+			logger.error('No games found')
 			process.exit(1)
 		}
 
-		const gradings = Object.entries(results.results || {}).map(([submissionId, score]) => ({
-			submission: submissionId,
-			score,
-			avgExecutionTime: results.strategyExecutionTimings[submissionId].reduce((a, b) => a + b, 0) / results.strategyExecutionTimings[submissionId].length
-		}))
+		// Run tournament for each game
+		for (const game of games) {
+			const submissions = await getActiveSubmissions(game.id)
+			if (!submissions || submissions.length === 0) {
+				logger.info('No active submissions found')
+				continue
+			}
 
-		await createTournament(gradings, results.disqualified || {}, results.tournamentExecutionTime)
-		
+			const results = await runTournament(game.gameFiles, submissions, game.batchSize)
+			if (results.error) {
+				logger.error('Tournament error:', results.error)
+				process.exit(1)
+			}
+
+			const gradings = Object.entries(results.results || {}).map(([submissionId, score]) => ({
+				submission: submissionId,
+				score,
+				avgExecutionTime: results.strategyExecutionTimings[submissionId].reduce((a, b) => a + b, 0) / results.strategyExecutionTimings[submissionId].length
+			}))
+
+			await createTournament(gradings, results.disqualified || {}, results.tournamentExecutionTime, game.id)
+		}
+
 		// Wait 1 second before exiting
 		await new Promise(resolve => setTimeout(resolve, 1000))
 
@@ -137,7 +146,7 @@ process.on('uncaughtException', (err): void => {
 })
 
 // Shutdown function
-export async function shutDown (): Promise<void> {
+export async function shutDown(): Promise<void> {
 	logger.info('Closing server...')
 	server.close()
 	logger.info('Server closed')

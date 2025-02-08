@@ -12,6 +12,7 @@ import { bundleFiles, FileMap } from './bundler.js'
 import {
 	tournamentGameRunnerFiles,
 	evaluatingGameRunnerFiles,
+	commonGameFiles
 } from '../../utils/sourceFiles.js'
 import config from '../../utils/setupConfig.js'
 import logger from '../../utils/logger.js'
@@ -174,8 +175,14 @@ const performance = {
 };
   `)
 
+	// Add common files to the game logic files
+	const allGameLogicFiles = {
+		...gameLogicFiles,
+		...commonGameFiles
+	}
+
 	// Bundle game logic
-	const gameLogicCode = await bundleFiles(gameLogicFiles, 'Game')
+	const gameLogicCode = await bundleFiles(allGameLogicFiles, 'Game')
 
 	// Select & bundle the correct runner
 	let gameRunnerCode: string

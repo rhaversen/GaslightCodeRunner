@@ -7,6 +7,7 @@ import axios from 'axios'
 import logger from '../utils/logger.js'
 import AppConfig from '../utils/setupConfig.js'
 import { submission } from './gamerunner/CodeRunnerService.js'
+import { FileMap } from './gamerunner/bundler.js'
 
 // Environment variables
 const { MICROSERVICE_AUTHORIZATION } = process.env as Record<string, string>
@@ -29,7 +30,13 @@ interface DisqualifiedSubmission {
 	reason: string;
 }
 
-export async function createTournament(gradings: Grading[], disqualified: Record<string, string>, tournamentExecutionTime: number): Promise<boolean> {
+interface Game {
+	id: string;
+	gameFiles: FileMap;
+	batchSize: number;
+}
+
+export async function createTournament(gradings: Grading[], disqualified: Record<string, string>, tournamentExecutionTime: number, game: string): Promise<boolean> {
 	try {
 		const disqualifiedArray: DisqualifiedSubmission[] = Object.entries(disqualified).map(([submission, reason]) => ({
 			submission,
@@ -39,7 +46,8 @@ export async function createTournament(gradings: Grading[], disqualified: Record
 		await axios.post(`${mainServiceHost}/api/v1/microservices/tournament`, {
 			gradings,
 			disqualified: disqualifiedArray,
-			tournamentExecutionTime
+			tournamentExecutionTime,
+			game
 		}, {
 			headers: {
 				Authorization: `Bearer ${MICROSERVICE_AUTHORIZATION}`
@@ -50,7 +58,7 @@ export async function createTournament(gradings: Grading[], disqualified: Record
 			gradings: gradings.map(g => ({ submission: g.submission, score: g.score })),
 			disqualified: disqualifiedArray,
 			tournamentExecutionTime
-		})
+		}, 'for game', game)
 
 		return true
 	} catch (error) {
@@ -64,9 +72,11 @@ export async function createTournament(gradings: Grading[], disqualified: Record
 	}
 }
 
-export async function getActiveSubmissions(excludeUser?: string): Promise<Array<submission> | undefined> {
+export async function getActiveSubmissions(game: string, excludeUser?: string): Promise<Array<submission> | undefined> {
 	try {
 		const params: Record<string, string> = {}
+
+		params.game = game // Pass game filter
 
 		if (excludeUser) {
 			params.excludeUser = excludeUser // Pass user filter if provided
@@ -85,6 +95,26 @@ export async function getActiveSubmissions(excludeUser?: string): Promise<Array<
 			logger.error('Error getting submissions', { error: error.message })
 		} else {
 			logger.error('Error getting submissions', { error: String(error) })
+		}
+
+		return undefined
+	}
+}
+
+export async function getGames(): Promise<Game[] | undefined> {
+	try {
+		const response = await axios.get<Game[]>(`${mainServiceHost}/api/v1/microservices/games`, {
+			headers: {
+				Authorization: `Bearer ${MICROSERVICE_AUTHORIZATION}`
+			}
+		})
+
+		return response.data
+	} catch (error) {
+		if (error instanceof Error) {
+			logger.error('Error getting games', { error: error.message })
+		} else {
+			logger.error('Error getting games', { error: String(error) })
 		}
 
 		return undefined

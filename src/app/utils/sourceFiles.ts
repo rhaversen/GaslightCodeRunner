@@ -114,6 +114,11 @@ export const gameFiles = {
 	...sourceFiles.errors
 }
 
+export const commonGameFiles = {
+	...sourceFiles.commonTypes,
+	...sourceFiles.errors
+}
+
 export const dumbStrategyFiles = {
 	submissionId: 'dumb',
 	files: {
