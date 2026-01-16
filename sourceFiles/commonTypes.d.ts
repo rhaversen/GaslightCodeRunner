@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 /**
  * Represents a game.
  * @property init - Initializes the game state with the provided players.

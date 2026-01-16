@@ -4,27 +4,20 @@ import './utils/verifyEnvironmentSecrets.js'
 // Use Sentry
 import './utils/instrument.js'
 
-// Node.js built-in modules
 import { createServer } from 'node:http'
 
-// Third-party libraries
 import * as Sentry from '@sentry/node'
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
 
-// Own modules
 import globalErrorHandler from './middleware/globalErrorHandler.js'
-import logger from './utils/logger.js'
-import config from './utils/setupConfig.js'
+import submissionRoutes from './routes/submissions.js'
+import serviceRoutes from './routes/service.js'
 import { runTournament } from './services/gamerunner/CodeRunnerService.js'
 import { getActiveSubmissions, createTournament, getGames } from './services/MainService.js'
-
-// Business routes
-import submissionRoutes from './routes/submissions.js'
-
-// Service routes
-import serviceRoutes from './routes/service.js'
+import logger from './utils/logger.js'
+import config from './utils/setupConfig.js'
 
 // Environment variables
 const { NODE_ENV, RUNNER_MODE } = process.env as Record<string, string>
@@ -32,7 +25,7 @@ const { NODE_ENV, RUNNER_MODE } = process.env as Record<string, string>
 // Config variables
 const {
 	expressPort,
-	corsConfig,
+	corsConfig
 } = config
 
 // Destructuring and global variables
@@ -41,6 +34,9 @@ const server = createServer(app) // Create an HTTP server
 
 // Logging environment
 logger.info(`Node environment: ${NODE_ENV}`)
+
+// Trust proxy settings
+app.set('trust proxy', 1) // Trust the first proxy (NGINX)
 
 // Middleware
 app.use(helmet()) // Security headers
@@ -70,7 +66,7 @@ if (RUNNER_MODE === 'evaluation') {
 	try {
 		const games = await getGames()
 
-		if (!games || games.length === 0) {
+		if (games.length === 0) {
 			logger.error('No games found')
 			process.exit(1)
 		}
@@ -78,24 +74,24 @@ if (RUNNER_MODE === 'evaluation') {
 		// Run tournament for each game
 		for (const game of games) {
 			const submissions = await getActiveSubmissions(game.id)
-			if (!submissions || submissions.length === 0) {
+			if (submissions.length === 0) {
 				logger.info('No active submissions found')
 				continue
 			}
 
 			const results = await runTournament(game.gameFiles, submissions, game.batchSize)
-			if (results.error) {
+			if (results.error !== undefined) {
 				logger.error('Tournament error:', results.error)
 				process.exit(1)
 			}
 
-			const gradings = Object.entries(results.results || {}).map(([submissionId, score]) => ({
+			const gradings = Object.entries(results.results ?? {}).map(([submissionId, score]) => ({
 				submission: submissionId,
 				score,
 				avgExecutionTime: results.strategyExecutionTimings[submissionId].reduce((a, b) => a + b, 0) / results.strategyExecutionTimings[submissionId].length
 			}))
 
-			await createTournament(gradings, results.disqualified || {}, results.tournamentExecutionTime, game.id)
+			await createTournament(gradings, results.disqualified ?? {}, results.tournamentExecutionTime, game.id)
 		}
 
 		// Wait 1 second before exiting
@@ -118,35 +114,26 @@ if (RUNNER_MODE === 'evaluation') {
 }
 
 // Handle unhandled rejections outside middleware
-process.on('unhandledRejection', (reason, promise): void => {
-	// Attempt to get a string representation of the promise
-	const promiseString = JSON.stringify(promise) !== '' ? JSON.stringify(promise) : 'a promise'
-
-	// Get a detailed string representation of the reason
-	const reasonDetail = reason instanceof Error ? reason.stack ?? reason.message : JSON.stringify(reason)
-
-	// Log the detailed error message
-	logger.error(`Unhandled Rejection at: ${promiseString}, reason: ${reasonDetail}`)
-
-	shutDown().catch(error => {
-		// If 'error' is an Error object, log its stack trace; otherwise, convert to string
-		const errorDetail = error instanceof Error ? error.stack ?? error.message : String(error)
-		logger.error(`An error occurred during shutdown: ${errorDetail}`)
-		process.exit(1)
-	})
+process.on('unhandledRejection', async (reason, promise): Promise<void> => {
+	const errorMessage = reason instanceof Error ? reason.message : String(reason)
+	logger.error(`Unhandled Rejection: ${errorMessage}`, { reason, promise })
+	if (NODE_ENV !== 'test') {
+		// eslint-disable-next-line n/no-process-exit
+		process.exit(1) // Exit the process with failure code
+	}
 })
 
 // Handle uncaught exceptions outside middleware
-process.on('uncaughtException', (err): void => {
-	logger.error('Uncaught exception:', err)
-	shutDown().catch(error => {
-		logger.error('An error occurred during shutdown:', error)
-		process.exit(1)
-	})
+process.on('uncaughtException', async (err): Promise<void> => {
+	logger.error('Uncaught exception', { error: err })
+	if (NODE_ENV !== 'test') {
+		// eslint-disable-next-line n/no-process-exit
+		process.exit(1) // Exit the process with failure code
+	}
 })
 
 // Shutdown function
-export async function shutDown(): Promise<void> {
+export async function shutDown (): Promise<void> {
 	logger.info('Closing server...')
 	server.close()
 	logger.info('Server closed')

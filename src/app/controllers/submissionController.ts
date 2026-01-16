@@ -1,18 +1,8 @@
-// Node.js built-in modules
-
-// Third-party libraries
 import { Request, Response } from 'express'
 
-// Own modules
 import { runEvaluation } from '../services/gamerunner/CodeRunnerService.js'
 import { isFileMap } from '../services/gamerunner/bundler.js'
 import { getActiveSubmissions } from '../services/MainService.js'
-
-// Environment variables
-
-// Config variables
-
-// Destructuring and global variables
 
 function calculatePercentile(numbers: number[], percentile: number): number {
 	const sorted = [...numbers].sort((a, b) => a - b)

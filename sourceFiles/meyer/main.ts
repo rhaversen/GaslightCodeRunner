@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 import type { Game, Player } from '../commonTypes.d.ts'
 import { gameState } from './gameState.ts'
 import { createStrategyAPI } from './strategyAPI.ts'

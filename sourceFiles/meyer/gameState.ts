@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 import { Action } from './types.ts'
 
 class GameState {

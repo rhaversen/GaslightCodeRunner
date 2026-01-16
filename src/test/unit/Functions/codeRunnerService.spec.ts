@@ -2,13 +2,9 @@
 // file deepcode ignore NoHardcodedCredentials/test: Hardcoded credentials are only used for testing purposes
 // file deepcode ignore HardcodedNonCryptoSecret/test: Hardcoded credentials are only used for testing purposes
 
-// Node.js built-in modules
-
-// Third-party libraries
 import { expect } from 'chai'
 import { describe, it, before } from 'mocha'
 
-// Own modules
 import { runEvaluation, runTournament, submission } from '../../../app/services/gamerunner/CodeRunnerService.js'
 import {
 	gameFiles,
@@ -20,11 +16,6 @@ import {
 	revealingStrategyFiles,
 } from '../../../app/utils/sourceFiles.js'
 
-// Environment variables
-
-// Config variables
-
-// Destructuring and global variables
 const twoMinuteTimeout = 1200000
 
 // Setup test environment

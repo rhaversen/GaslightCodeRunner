@@ -1,4 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
 import type { Player } from '../commonTypes.d.ts'
 import { shuffle } from './utils.ts'
 

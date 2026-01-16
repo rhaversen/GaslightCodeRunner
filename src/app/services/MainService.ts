@@ -1,23 +1,15 @@
-// Node.js built-in modules
-
-// Third-party libraries
 import axios from 'axios'
 
-// Own modules
 import logger from '../utils/logger.js'
 import AppConfig from '../utils/setupConfig.js'
 import { submission } from './gamerunner/CodeRunnerService.js'
 import { FileMap } from './gamerunner/bundler.js'
 
-// Environment variables
 const { MICROSERVICE_AUTHORIZATION } = process.env as Record<string, string>
 
-// Config variables
 const {
 	mainServiceHost
 } = AppConfig
-
-// Destructuring and global variables
 
 interface Grading {
 	submission: string;

@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 export function rollDice(): [number, number] {
 	const randomDie = () => Math.floor(Math.random() * 6) + 1
 	return [randomDie(), randomDie()]

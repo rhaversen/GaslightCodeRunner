@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 import esbuild, { Plugin, PluginBuild } from 'esbuild'
 
 export interface FileMap {

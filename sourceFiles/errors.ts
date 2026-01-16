@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 /**
  * Error thrown when a player's strategy contains an invalid move or action.
  * @description

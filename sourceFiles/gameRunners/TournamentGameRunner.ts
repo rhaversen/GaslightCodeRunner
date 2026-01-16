@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 import PlayerSelector from './PlayerSelector.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 import type { VMResults } from './types.d.ts'

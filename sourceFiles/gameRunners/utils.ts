@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 /**
  * Shuffles an array in place using the Fisher-Yates algorithm in O(n) time.
  * @param arr - The array to shuffle.

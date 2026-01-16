@@ -1,4 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
 import { gameState } from './gameState.ts'
 import { MeyerStrategyAPI, DiePair, PlayerError } from './types.ts'
 import { calculateScore, isValidScore, rollDice, roundUpToValidScore } from './utils.ts'

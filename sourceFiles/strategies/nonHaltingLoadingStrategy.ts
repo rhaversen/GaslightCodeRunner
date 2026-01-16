@@ -1,5 +1,4 @@
 /* eslint-disable no-unreachable */
-/* eslint-disable local/enforce-comment-order */
 import { MeyerStrategyAPI } from '../meyer/types.ts'
 
 // Do nonsense work forever
