@@ -66,15 +66,16 @@ if (RUNNER_MODE === 'evaluation') {
 	try {
 		const games = await getGames()
 
-		if (games.length === 0) {
+		if (games == null || games.length === 0) {
 			logger.error('No games found')
 			process.exit(1)
+			return
 		}
 
 		// Run tournament for each game
 		for (const game of games) {
 			const submissions = await getActiveSubmissions(game.id)
-			if (submissions.length === 0) {
+			if (submissions == null || submissions.length === 0) {
 				logger.info('No active submissions found')
 				continue
 			}
@@ -83,6 +84,7 @@ if (RUNNER_MODE === 'evaluation') {
 			if (results.error !== undefined) {
 				logger.error('Tournament error:', results.error)
 				process.exit(1)
+				return
 			}
 
 			const gradings = Object.entries(results.results ?? {}).map(([submissionId, score]) => ({
