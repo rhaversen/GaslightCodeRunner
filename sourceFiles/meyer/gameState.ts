@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 import { Action } from './types.ts'
 
 class GameState {
@@ -15,14 +13,14 @@ class GameState {
 	private roundActive = true
 	private playerIds: string[] = []
 
-	static getInstance(): GameState {
+	static getInstance (): GameState {
 		if (!GameState.instance) {
 			GameState.instance = new GameState()
 		}
 		return GameState.instance
 	}
 
-	init(ids: string[]) {
+	init (ids: string[]) {
 		this.roundActions = []
 		this.turnActions = []
 		this.firstInRound = true
@@ -35,77 +33,77 @@ class GameState {
 		this.playerIds = [...ids]
 	}
 
-	addTurnAction(action: Action): void {
+	addTurnAction (action: Action): void {
 		this.turnActions.unshift(action)
 	}
 
-	penalizePlayer(playerIndex: number): void {
+	penalizePlayer (playerIndex: number): void {
 		const playerId = this.playerIds[playerIndex]
 		const currentScore = this.scoring.get(playerId)!
 		this.scoring.set(playerId, currentScore - 1)
 	}
 
-	doublePenalizePlayer(playerIndex: number): void {
+	doublePenalizePlayer (playerIndex: number): void {
 		const playerId = this.playerIds[playerIndex]
 		const currentScore = this.scoring.get(playerId)!
 		this.scoring.set(playerId, currentScore - 2)
 	}
 
 	// Getters and setters
-	getTurnActions(): Action[] {
+	getTurnActions (): Action[] {
 		return [...this.turnActions]
 	}
 
-	getRoundActions(): Action[] {
+	getRoundActions (): Action[] {
 		return [...this.roundActions]
 	}
 
-	removePreviousTurnAction(): void {
+	removePreviousTurnAction (): void {
 		this.turnActions.shift()
 	}
 
-	isFirstInRound(): boolean {
+	isFirstInRound (): boolean {
 		return this.firstInRound
 	}
 
-	getCurrentPlayerIndex(): number {
+	getCurrentPlayerIndex (): number {
 		return this.currentPlayerIndex
 	}
 
-	getPrevPlayerIndex(): number {
+	getPrevPlayerIndex (): number {
 		return (this.currentPlayerIndex - 1 + this.amountOfPlayers) % this.amountOfPlayers
 	}
 
-	hasPlayerRolled(): boolean {
+	hasPlayerRolled (): boolean {
 		return this.hasRolled
 	}
 
-	setHasRolled(value: boolean): void {
+	setHasRolled (value: boolean): void {
 		this.hasRolled = value
 	}
 
-	incrementCurrentPlayerIndex(): void {
+	incrementCurrentPlayerIndex (): void {
 		this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.amountOfPlayers
 	}
 
-	endTurn(): void {
+	endTurn (): void {
 		this.turnActive = false
 	}
 
-	endRound(): void {
+	endRound (): void {
 		this.turnActive = false
 		this.roundActive = false
 	}
 
-	isTurnActive(): boolean {
+	isTurnActive (): boolean {
 		return this.turnActive
 	}
 
-	isRoundActive(): boolean {
+	isRoundActive (): boolean {
 		return this.roundActive
 	}
 
-	prepareNextTurn(): void {
+	prepareNextTurn (): void {
 		if (this.roundActive) {
 			// If the round is still active, we only need to prepare the next player
 			this.firstInRound = false
@@ -122,12 +120,12 @@ class GameState {
 		this.hasRolled = false
 		this.turnActive = true
 		this.turnActions = []
-		
+
 		// Increment the current player index
 		this.incrementCurrentPlayerIndex()
 	}
 
-	getResults() {
+	getResults () {
 		return this.scoring
 	}
 }

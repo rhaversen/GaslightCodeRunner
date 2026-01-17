@@ -1,24 +1,23 @@
-/* eslint-disable local/enforce-comment-order */
-
 import type { Game, Player } from '../commonTypes.d.ts'
+import { PlayerError } from '../errors.ts'
+
 import { gameState } from './gameState.ts'
 import { createStrategyAPI } from './strategyAPI.ts'
 import { PlayerError as GamePlayerError } from './types.ts'
-import { PlayerError } from '../errors.ts'
 
 export class Main implements Game {
 	private players: Player[] = []
 	private isRoundActive = true
 	private turnCount = 0
 
-	init(players: Player[]) {
+	init (players: Player[]) {
 		gameState.init(players.map(player => player.submissionId))
 		this.players = players
 		this.isRoundActive = true
 		this.turnCount = 0
 	}
 
-	playRound() {
+	playRound () {
 		do {
 			this.turnCount++
 			if (this.turnCount > 100) {
@@ -53,18 +52,18 @@ export class Main implements Game {
 
 			// Check if the round is over
 			// The game can run indefinitely, but we want to stop after a single round
-			this.isRoundActive = gameState.isRoundActive() 
+			this.isRoundActive = gameState.isRoundActive()
 
 			// Reset
 			gameState.prepareNextTurn()
 		} while (this.isRoundActive)
 	}
 
-	getResults() {
+	getResults () {
 		return gameState.getResults()
 	}
 
-	getStats() {
+	getStats () {
 		return {
 			turnCount: this.turnCount
 		}

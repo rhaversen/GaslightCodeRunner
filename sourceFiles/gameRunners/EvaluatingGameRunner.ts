@@ -1,16 +1,15 @@
-/* eslint-disable local/enforce-comment-order */
+import type { Game, Player } from '../commonTypes.d.ts'
 
 import PlayerSelector from './PlayerSelector.ts'
-import type { Game, Player } from '../commonTypes.d.ts'
+import { RunningAverage } from './RunningAverage.ts'
 import type { VMResults } from './types.d.ts'
 import { insertRandomly } from './utils.ts'
-import { RunningAverage } from './RunningAverage.ts'
 
 export class Main {
-	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
+	static run (gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
 		console.info(`Running evaluation with ${players.length} players`)
 
-		if (players.length === 0) return { error: 'No players provided' }
+		if (players.length === 0) { return { error: 'No players provided' } }
 
 		// Initialize RunningAverage instances
 		const candidateAverage = new RunningAverage()
@@ -20,8 +19,8 @@ export class Main {
 
 		// Separate candidate from other players
 		const [candidate, ...otherPlayers] = players
-		if (!candidate) return { error: 'No candidate player provided' }
-		if (!otherPlayers.length) return { error: 'No other players provided' }
+		if (!candidate) { return { error: 'No candidate player provided' } }
+		if (!otherPlayers.length) { return { error: 'No other players provided' } }
 
 		// Create player selector instance for other players
 		const playerSelector = new PlayerSelector(otherPlayers)
