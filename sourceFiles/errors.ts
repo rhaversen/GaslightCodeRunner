@@ -7,7 +7,7 @@
  */
 export class PlayerError extends Error {
 	submissionId: string
-	constructor(message: string, submissionId: string) {
+	constructor (message: string, submissionId: string) {
 		super(message)
 		this.name = 'PlayerError'
 		this.submissionId = submissionId

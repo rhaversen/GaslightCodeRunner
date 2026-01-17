@@ -2,7 +2,7 @@
  * Represents a game.
  * @property init - Initializes the game state with the provided players.
  * @property playRound - Executes a single round of the game.
- * @property getResults - Returns the final results of the game. 
+ * @property getResults - Returns the final results of the game.
  * @throws PlayerError if a player's strategy contains invalid moves or actions.
  * @description
  * A game is a class that manages the game state and executes player turns.

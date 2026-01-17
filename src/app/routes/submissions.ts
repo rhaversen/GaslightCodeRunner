@@ -1,7 +1,7 @@
 import { Router } from 'express'
 
-import { authenticateMicroservice } from '../middleware/auth.js'
 import { handleSubmissionEvaluation } from '../controllers/submissionController.js'
+import { authenticateMicroservice } from '../middleware/auth.js'
 
 const router = Router()
 

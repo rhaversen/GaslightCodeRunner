@@ -1,12 +1,12 @@
 export class PlayerError extends Error {
-	constructor(message: string) {
+	constructor (message: string) {
 		super(message)
 		this.name = 'PlayerError'
 	}
 }
 
-export type DiePair = [number, number];
-export type ActionType = 'detEllerDerover' | 'roll' | 'lie';
+export type DiePair = [number, number]
+export type ActionType = 'detEllerDerover' | 'roll' | 'lie'
 
 export interface Action {
 	type: ActionType;

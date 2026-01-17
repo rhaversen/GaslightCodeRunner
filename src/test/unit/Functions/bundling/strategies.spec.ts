@@ -18,7 +18,7 @@ import {
 	chatGptStrategyFiles,
 	nonHaltingLoadingStrategyFiles,
 	nonHaltingStrategyFiles,
-	errorThrowingStrategyFiles,
+	errorThrowingStrategyFiles
 } from '../../../../app/utils/sourceFiles.js'
 
 import '../../../testSetup.js'

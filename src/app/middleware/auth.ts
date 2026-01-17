@@ -4,10 +4,10 @@ import logger from '../utils/logger.js'
 
 const { MICROSERVICE_AUTHORIZATION } = process.env
 
-export function authenticateMicroservice(req: Request, res: Response, next: NextFunction) {
+export function authenticateMicroservice (req: Request, res: Response, next: NextFunction) {
 	const authHeader = req.headers.authorization
 
-	if (!authHeader) {
+	if (authHeader === undefined || authHeader === null || authHeader === '') {
 		logger.error('Authorization header not found')
 		return res.status(401).send({ message: 'Authorization header not found' })
 	}

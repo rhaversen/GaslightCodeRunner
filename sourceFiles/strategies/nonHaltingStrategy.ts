@@ -1,4 +1,4 @@
-/* eslint-disable no-unreachable */
+
 import { MeyerStrategyAPI } from '../meyer/types.ts'
 
 const main = (api: MeyerStrategyAPI) => {

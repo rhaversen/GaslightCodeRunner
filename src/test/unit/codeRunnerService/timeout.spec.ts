@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // file deepcode ignore NoHardcodedPasswords/test: Hardcoded credentials are only used for testing purposes
 // file deepcode ignore NoHardcodedCredentials/test: Hardcoded credentials are only used for testing purposes
 // file deepcode ignore HardcodedNonCryptoSecret/test: Hardcoded credentials are only used for testing purposes
@@ -12,13 +13,13 @@ import {
 	slowLoadingStrategyFiles,
 	dumbStrategyFiles,
 	nonHaltingLoadingStrategyFiles,
-	nonHaltingStrategyFiles,
+	nonHaltingStrategyFiles
 } from '../../../app/utils/sourceFiles.js'
-
-const twoMinuteTimeout = 1200000
 
 // Setup test environment
 import '../../testSetup.js'
+
+const twoMinuteTimeout = 1200000
 
 describe('CodeRunnerService Timeouts', function () {
 	this.timeout(twoMinuteTimeout)

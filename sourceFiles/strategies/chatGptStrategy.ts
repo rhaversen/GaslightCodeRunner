@@ -36,7 +36,7 @@ const main = (api: MeyerStrategyAPI) => {
 			const validX = api.roundUpToValidScore(x)
 			let count = 0
 			for (const s of uniqueScores) {
-				if (s >= validX) count += frequency[s]
+				if (s >= validX) { count += frequency[s] }
 			}
 			return count / total
 		}
@@ -52,7 +52,7 @@ const main = (api: MeyerStrategyAPI) => {
 	const currentScore = api.roll()
 
 	// If no last score or current >= last, do nothing
-	if (lastScore === null || currentScore >= lastScore) return
+	if (lastScore === null || currentScore >= lastScore) { return }
 	// We need to beat lastScore. Try to find a suitable lie:
 	// Strategy:
 	// 1. If gap small (<50), lying exactly at lastScore might be safe.

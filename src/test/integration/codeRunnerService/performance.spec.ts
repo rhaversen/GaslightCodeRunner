@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // file deepcode ignore NoHardcodedPasswords/test: Hardcoded credentials are only used for testing purposes
 // file deepcode ignore NoHardcodedCredentials/test: Hardcoded credentials are only used for testing purposes
 // file deepcode ignore HardcodedNonCryptoSecret/test: Hardcoded credentials are only used for testing purposes
@@ -12,15 +13,14 @@ import {
 	chatGptStrategyFiles
 } from '../../../app/utils/sourceFiles.js'
 
-const twoMinuteTimeout = 1200000
-
 // Setup test environment
 import '../../testSetup.js'
+
+const twoMinuteTimeout = 1200000
 
 describe('CodeRunnerService Performance', function () {
 	this.timeout(twoMinuteTimeout)
 	describe('Tournament', function () {
-
 		it('should not have an increase in time complexity epoch over epoch', async function () {
 			const strategies = Array(100).fill(null).map((_, index) => ({
 				files: { ...chatGptStrategyFiles.files },
@@ -33,7 +33,7 @@ describe('CodeRunnerService Performance', function () {
 
 			// Now we see how timings evolve over epochs for each strategy
 			const strategyEpochs = new Map<string, number[]>()
-			if (timings) {
+			if (timings !== null && timings !== undefined) {
 				for (const [submissionId, epochTimings] of Object.entries(timings)) {
 					const epochTimes = Array.from(epochTimings.values())
 					strategyEpochs.set(submissionId, epochTimes)

@@ -26,7 +26,7 @@ export default function (api: MeyerStrategyAPI) {
 
 	const prevScore = api.getPreviousAction()
 	const currentScore = api.roll()
-    
+
 	if (prevScore === null || currentScore >= prevScore) {
 		return
 	}
