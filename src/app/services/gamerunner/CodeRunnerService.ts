@@ -1,32 +1,25 @@
-// Node.js built-in modules
 import { performance } from 'perf_hooks'
 
-// Third-party libraries
 import ivm from 'isolated-vm'
 
-// Own modules
 import type {
 	VMResults
-} from '../../../../sourceFiles/gameRunners/types.d.ts'
-import { bundleFiles, FileMap } from './bundler.js'
+} from '../../../../sourceFiles/gameRunners/types.d.js'
+import logger from '../../utils/logger.js'
+import config from '../../utils/setupConfig.js'
 import {
 	tournamentGameRunnerFiles,
 	evaluatingGameRunnerFiles,
 	commonGameFiles
 } from '../../utils/sourceFiles.js'
-import config from '../../utils/setupConfig.js'
-import logger from '../../utils/logger.js'
 
-// Environment variables
+import { bundleFiles, FileMap } from './bundler.js'
 
-// Config variables
 const {
 	tournamentEpochs,
 	evaluationEpochs,
 	evaluationTimeout
 } = config
-
-// Destructuring and global variables
 export enum ErrorCategory {
 	SCRIPT_TIMEOUT = 'Script execution timed out', // This is defined by ivm, do not change
 	ALL_PLAYERS_DISQUALIFIED = 'All strategies were disqualified'
@@ -37,21 +30,21 @@ export interface submission {
 	files: FileMap
 }
 
-export async function runEvaluation(
+export async function runEvaluation (
 	gameLogicFiles: FileMap,
 	candidate: submission,
 	others: submission[],
 	epochBatchSize: number
 ): Promise<{
-	error?: string
-	results?: {
-		candidate: number // Candidate's average
-		average: number // Total average of other players
-	},
-	disqualified: string | null // Error or null
-	strategyExecutionTimings: number[] | null // Timings
-	strategyLoadingTimings: number | null // Timings
-}> {
+		error?: string
+		results?: {
+			candidate: number // Candidate's average
+			average: number // Total average of other players
+		},
+		disqualified: string | null // Error or null
+		strategyExecutionTimings: number[] | null // Timings
+		strategyLoadingTimings: number | null // Timings
+	}> {
 	const results = await runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize)
 
 	const evaluationResults = {
@@ -59,29 +52,32 @@ export async function runEvaluation(
 		results: results.results
 			? {
 				candidate: results.results.candidate,
-				average: results.results.average,
+				average: results.results.average
 			}
 			: undefined,
+		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 		disqualified: results.disqualified[candidate.submissionId] || null,
+		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] || null,
+		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] || null
 	}
 
 	return evaluationResults
 }
 
-export async function runTournament(
+export async function runTournament (
 	gameLogicFiles: FileMap,
 	strategies: submission[],
 	epochBatchSize: number
 ): Promise<{
-	error?: string
-	results?: Record<string, number> // submissionId -> score
-	disqualified: Record<string, string> // submissionId -> error
-	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
-	strategyLoadingTimings: Record<string, number> // submissionId -> timings
-	tournamentExecutionTime: number // Time taken to run the tournament
-}> {
+		error?: string
+		results?: Record<string, number> // submissionId -> score
+		disqualified: Record<string, string> // submissionId -> error
+		strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
+		strategyLoadingTimings: Record<string, number> // submissionId -> timings
+		tournamentExecutionTime: number // Time taken to run the tournament
+	}> {
 	const executionStartTime = performance.now()
 	const results = await runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize)
 	const executionEndTime = performance.now()
@@ -99,29 +95,29 @@ export async function runTournament(
 	return tournamentResults
 }
 
-async function runGame(
+async function runGame (
 	gameLogicFiles: FileMap,
 	strategies: submission[],
 	type: 'Evaluation' | 'Tournament',
 	epochBatchSize: number
 ): Promise<{
-	error?: string
-	results?: Record<string, number> // submissionId -> score
-	disqualified: Record<string, string> // submissionId -> error
-	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
-	strategyLoadingTimings: Record<string, number> // submissionId -> timings
-}> {
+		error?: string
+		results?: Record<string, number> // submissionId -> score
+		disqualified: Record<string, string> // submissionId -> error
+		strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
+		strategyLoadingTimings: Record<string, number> // submissionId -> timings
+	}> {
 	const isolate = new ivm.Isolate({ memoryLimit: 1024 })
 	const context = await isolate.createContext()
 
 	const loggers = {
-		info: new ivm.Reference((...args: any[]) => logger.info('VM:', ...formatArgs(args))),
-		error: new ivm.Reference((...args: any[]) => logger.error('VM:', ...formatArgs(args))),
-		warn: new ivm.Reference((...args: any[]) => logger.warn('VM:', ...formatArgs(args)))
+		info: new ivm.Reference((...args: unknown[]) => logger.info('VM:', ...formatArgs(args))),
+		error: new ivm.Reference((...args: unknown[]) => logger.error('VM:', ...formatArgs(args))),
+		warn: new ivm.Reference((...args: unknown[]) => logger.warn('VM:', ...formatArgs(args)))
 	}
 
 	// Helper function to format arguments
-	const formatArgs = (args: any[]) => args.map(arg => {
+	const formatArgs = (args: unknown[]) => args.map(arg => {
 		try {
 			return typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
 		} catch {
@@ -151,7 +147,7 @@ console = {
 
 	// Called inside the VM to record each strategy’s run time
 	const strategyExecutionTimingFunction = new ivm.Reference((submissionId: string, time: number) => {
-		if (!strategyExecutionTimings[submissionId]) {
+		if (strategyExecutionTimings[submissionId] === undefined) {
 			strategyExecutionTimings[submissionId] = []
 		}
 		strategyExecutionTimings[submissionId].push(time)

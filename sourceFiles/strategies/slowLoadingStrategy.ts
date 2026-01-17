@@ -1,4 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
 import { MeyerStrategyAPI } from '../meyer/types.ts'
 
 // Do nonsense work for 20 ms

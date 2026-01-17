@@ -1,4 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
 import { MeyerStrategyAPI } from '../../meyer/types.ts'
 
 export default function (api: MeyerStrategyAPI) {
@@ -11,7 +10,7 @@ export default function (api: MeyerStrategyAPI) {
 
 	const prevScore = api.getPreviousAction()
 	const currentScore = api.roll()
-    
+
 	if (prevScore === null || currentScore >= prevScore) {
 		return
 	}

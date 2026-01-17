@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 /**
  * Error thrown when a player's strategy contains an invalid move or action.
  * @description
@@ -9,7 +7,7 @@
  */
 export class PlayerError extends Error {
 	submissionId: string
-	constructor(message: string, submissionId: string) {
+	constructor (message: string, submissionId: string) {
 		super(message)
 		this.name = 'PlayerError'
 		this.submissionId = submissionId

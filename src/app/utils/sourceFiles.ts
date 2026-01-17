@@ -1,4 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -25,14 +24,14 @@ const utilsSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/utils.ts'
 const PlayerSelectorSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/PlayerSelector.ts'), 'utf-8')
 const RunningAverageSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/RunningAverage.ts'), 'utf-8')
 
-//Meyer game
+// Meyer game
 const meyerGameStateSource = readFileSync(resolve(sourceFilesPath, 'meyer/gameState.ts'), 'utf-8')
 const meyerMainSource = readFileSync(resolve(sourceFilesPath, 'meyer/main.ts'), 'utf-8')
 const meyerStrategyAPISource = readFileSync(resolve(sourceFilesPath, 'meyer/strategyAPI.ts'), 'utf-8')
 const meyerTypesSource = readFileSync(resolve(sourceFilesPath, 'meyer/types.ts'), 'utf-8')
 const meyerUtilsSource = readFileSync(resolve(sourceFilesPath, 'meyer/utils.ts'), 'utf-8')
 
-//Strategies
+// Strategies
 const dumbStrategySource = readFileSync(resolve(sourceFilesPath, 'strategies/dumbStrategy.ts'), 'utf-8')
 const honestStrategySource = readFileSync(resolve(sourceFilesPath, 'strategies/honestStrategy.ts'), 'utf-8')
 const lyingStrategySource = readFileSync(resolve(sourceFilesPath, 'strategies/lyingStrategy.ts'), 'utf-8')
@@ -67,7 +66,7 @@ const sourceFiles = {
 		utils: { 'utils.ts': utilsSource },
 		PlayerSelector: { 'PlayerSelector.ts': PlayerSelectorSource },
 		types: { 'types.d.ts': GameRunnerTypesSource },
-		RunningAverage: { 'RunningAverage.ts': RunningAverageSource },
+		RunningAverage: { 'RunningAverage.ts': RunningAverageSource }
 	},
 	errors: { 'errors.ts': errorsSource },
 	meyer: {
@@ -75,7 +74,7 @@ const sourceFiles = {
 		main: { 'main.ts': meyerMainSource },
 		strategyAPI: { 'strategyAPI.ts': meyerStrategyAPISource },
 		types: { 'types.ts': meyerTypesSource },
-		utils: { 'utils.ts': meyerUtilsSource },
+		utils: { 'utils.ts': meyerUtilsSource }
 	},
 	strategies: {
 		dumbStrategy: { 'main.ts': dumbStrategySource },
@@ -100,7 +99,7 @@ const sourceFiles = {
 		globalModificationStrategy: { 'main.ts': globalModificationStrategySource },
 		largeStrategy: { 'main.ts': largeStrategySource },
 		memoryHogStrategy: { 'main.ts': memoryHogStrategySource },
-		emptyStrategy: { 'main.ts': emptyStrategySource },
+		emptyStrategy: { 'main.ts': emptyStrategySource }
 	}
 }
 
@@ -122,84 +121,84 @@ export const commonGameFiles = {
 export const dumbStrategyFiles = {
 	submissionId: 'dumb',
 	files: {
-		...sourceFiles.strategies.dumbStrategy,
+		...sourceFiles.strategies.dumbStrategy
 	}
 }
 
 export const honestStrategyFiles = {
 	submissionId: 'honest',
 	files: {
-		...sourceFiles.strategies.honestStrategy,
+		...sourceFiles.strategies.honestStrategy
 	}
 }
 
 export const lyingStrategyFiles = {
 	submissionId: 'lying',
 	files: {
-		...sourceFiles.strategies.lyingStrategy,
+		...sourceFiles.strategies.lyingStrategy
 	}
 }
 
 export const cheatingStrategyFiles = {
 	submissionId: 'cheating',
 	files: {
-		...sourceFiles.strategies.cheatingStrategy,
+		...sourceFiles.strategies.cheatingStrategy
 	}
 }
 
 export const slowStrategyFiles = {
 	submissionId: 'slow',
 	files: {
-		...sourceFiles.strategies.slowStrategy,
+		...sourceFiles.strategies.slowStrategy
 	}
 }
 
 export const revealingStrategyFiles = {
 	submissionId: 'revealing',
 	files: {
-		...sourceFiles.strategies.revealingStrategy,
+		...sourceFiles.strategies.revealingStrategy
 	}
 }
 
 export const detEllerDeroverStrategyFiles = {
 	submissionId: 'detEllerDerover',
 	files: {
-		...sourceFiles.strategies.detEllerDeroverStrategy,
+		...sourceFiles.strategies.detEllerDeroverStrategy
 	}
 }
 
 export const chatGptStrategyFiles = {
 	submissionId: 'chatGpt',
 	files: {
-		...sourceFiles.strategies.chatGptStrategy,
+		...sourceFiles.strategies.chatGptStrategy
 	}
 }
 
 export const errorThrowingStrategyFiles = {
 	submissionId: 'errorThrowing',
 	files: {
-		...sourceFiles.strategies.errorThrowingStrategy,
+		...sourceFiles.strategies.errorThrowingStrategy
 	}
 }
 
 export const slowLoadingStrategyFiles = {
 	submissionId: 'slowLoading',
 	files: {
-		...sourceFiles.strategies.slowLoadingStrategy,
+		...sourceFiles.strategies.slowLoadingStrategy
 	}
 }
 
 export const nonHaltingStrategyFiles = {
 	submissionId: 'nonHalting',
 	files: {
-		...sourceFiles.strategies.nonHaltingStrategy,
+		...sourceFiles.strategies.nonHaltingStrategy
 	}
 }
 
 export const nonHaltingLoadingStrategyFiles = {
 	submissionId: 'nonHaltingLoading',
 	files: {
-		...sourceFiles.strategies.nonHaltingLoadingStrategy,
+		...sourceFiles.strategies.nonHaltingLoadingStrategy
 	}
 }
 
@@ -260,7 +259,7 @@ export const tournamentGameRunnerFiles = {
 	...sourceFiles.gameRunners.types,
 	...sourceFiles.gameRunners.utils,
 	...sourceFiles.gameRunners.PlayerSelector,
-	...sourceFiles.gameRunners.RunningAverage,
+	...sourceFiles.gameRunners.RunningAverage
 }
 
 export const evaluatingGameRunnerFiles = {
@@ -269,7 +268,7 @@ export const evaluatingGameRunnerFiles = {
 	...sourceFiles.gameRunners.types,
 	...sourceFiles.gameRunners.utils,
 	...sourceFiles.gameRunners.PlayerSelector,
-	...sourceFiles.gameRunners.RunningAverage,
+	...sourceFiles.gameRunners.RunningAverage
 }
 
 export default sourceFiles

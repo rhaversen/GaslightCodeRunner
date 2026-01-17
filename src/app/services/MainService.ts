@@ -1,23 +1,16 @@
-// Node.js built-in modules
-
-// Third-party libraries
 import axios from 'axios'
 
-// Own modules
 import logger from '../utils/logger.js'
 import AppConfig from '../utils/setupConfig.js'
-import { submission } from './gamerunner/CodeRunnerService.js'
-import { FileMap } from './gamerunner/bundler.js'
 
-// Environment variables
+import { FileMap } from './gamerunner/bundler.js'
+import { submission } from './gamerunner/CodeRunnerService.js'
+
 const { MICROSERVICE_AUTHORIZATION } = process.env as Record<string, string>
 
-// Config variables
 const {
 	mainServiceHost
 } = AppConfig
-
-// Destructuring and global variables
 
 interface Grading {
 	submission: string;
@@ -36,7 +29,7 @@ interface Game {
 	batchSize: number;
 }
 
-export async function createTournament(gradings: Grading[], disqualified: Record<string, string>, tournamentExecutionTime: number, game: string): Promise<boolean> {
+export async function createTournament (gradings: Grading[], disqualified: Record<string, string>, tournamentExecutionTime: number, game: string): Promise<boolean> {
 	try {
 		const disqualifiedArray: DisqualifiedSubmission[] = Object.entries(disqualified).map(([submission, reason]) => ({
 			submission,
@@ -72,13 +65,13 @@ export async function createTournament(gradings: Grading[], disqualified: Record
 	}
 }
 
-export async function getActiveSubmissions(game: string, excludeUser?: string): Promise<Array<submission> | undefined> {
+export async function getActiveSubmissions (game: string, excludeUser?: string): Promise<Array<submission> | undefined> {
 	try {
 		const params: Record<string, string> = {}
 
 		params.game = game // Pass game filter
 
-		if (excludeUser) {
+		if (excludeUser !== undefined && excludeUser !== null && excludeUser !== '') {
 			params.excludeUser = excludeUser // Pass user filter if provided
 		}
 
@@ -86,7 +79,7 @@ export async function getActiveSubmissions(game: string, excludeUser?: string): 
 			headers: {
 				Authorization: `Bearer ${MICROSERVICE_AUTHORIZATION}`
 			},
-			params, // Pass the dynamic query parameters
+			params // Pass the dynamic query parameters
 		})
 
 		return response.data
@@ -101,7 +94,7 @@ export async function getActiveSubmissions(game: string, excludeUser?: string): 
 	}
 }
 
-export async function getGames(): Promise<Game[] | undefined> {
+export async function getGames (): Promise<Game[] | undefined> {
 	try {
 		const response = await axios.get<Game[]>(`${mainServiceHost}/api/v1/microservices/games`, {
 			headers: {

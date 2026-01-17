@@ -40,28 +40,28 @@ runs:
                 git commit -m "${{ github.sha }}"
             shell: bash
 
-        -   name: Checkout GaslightCodeRunner-DevOps
+        -   name: Checkout DevOps
             uses: actions/checkout@v4
             with:
-                repository: "rhaversen/GaslightCodeRunner-DevOps"
+                repository: "rhaversen/DevOps"
                 token: ${{ inputs.devops_repo_token }}
-                path: "GaslightCodeRunner-DevOps"
+                path: "DevOps"
 
-        -   name: Copy files to GaslightCodeRunner-DevOps
+        -   name: Copy files to DevOps
             run: |
                 # Copy evaluation files
-                mkdir -p GaslightCodeRunner-DevOps/k8s/evaluation/${{ inputs.environment }}
-                cp -r k8s/evaluation/${{ inputs.environment }}/* GaslightCodeRunner-DevOps/k8s/evaluation/${{ inputs.environment }}/
+                mkdir -p DevOps/GaslightCodeRunner/evaluation/${{ inputs.environment }}
+                cp -r k8s/evaluation/${{ inputs.environment }}/* DevOps/GaslightCodeRunner/evaluation/${{ inputs.environment }}/
                 
                 # Copy tournament files
-                mkdir -p GaslightCodeRunner-DevOps/k8s/tournament/${{ inputs.environment }}
-                cp -r k8s/tournament/${{ inputs.environment }}/* GaslightCodeRunner-DevOps/k8s/tournament/${{ inputs.environment }}/
+                mkdir -p DevOps/GaslightCodeRunner/tournament/${{ inputs.environment }}
+                cp -r k8s/tournament/${{ inputs.environment }}/* DevOps/GaslightCodeRunner/tournament/${{ inputs.environment }}/
             shell: bash
 
-        -   name: Push changes to GaslightCodeRunner-DevOps
+        -   name: Push changes to DevOps
             run: |
-                cd GaslightCodeRunner-DevOps
-                git add k8s/evaluation/${{ inputs.environment }}/* k8s/tournament/${{ inputs.environment }}/*
-                git commit -m "${{ inputs.environment }}: ${{ github.sha }}"
+                cd DevOps
+                git add GaslightCodeRunner/evaluation/${{ inputs.environment }}/* GaslightCodeRunner/tournament/${{ inputs.environment }}/*
+                git commit -m "GaslightCodeRunner/${{ inputs.environment }}: ${{ github.sha }}"
                 git push origin HEAD
             shell: bash

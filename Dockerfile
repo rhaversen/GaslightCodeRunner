@@ -14,6 +14,9 @@ RUN apt-get update && \
     apt-get install -y python3 g++ build-essential && \
     rm -rf /var/lib/apt/lists/*
 
+# Set C++20 flag for node-gyp (required for isolated-vm with Node.js 24+)
+ENV CXXFLAGS="-std=c++20"
+
 # Set working directory
 WORKDIR /app
 
