@@ -2,12 +2,13 @@
 // file deepcode ignore NoHardcodedCredentials/test: Hardcoded credentials are only used for testing purposes
 // file deepcode ignore HardcodedNonCryptoSecret/test: Hardcoded credentials are only used for testing purposes
 
-import { restore } from 'sinon'
-import chaiHttp from 'chai-http'
-import * as chai from 'chai'
 import { type Server } from 'http'
-import { before, beforeEach, afterEach, after } from 'mocha'
+
 import * as Sentry from '@sentry/node'
+import * as chai from 'chai'
+import chaiHttp from 'chai-http'
+import { after, afterEach, before, beforeEach } from 'mocha'
+import { restore } from 'sinon'
 
 process.env.NODE_ENV = 'test'
 process.env.SESSION_SECRET = 'TEST_SESSION_SECRET'
@@ -44,4 +45,6 @@ after(async function () {
 	await Sentry.close()
 })
 
-export { chaiAppServer }
+export function getChaiAppServer (): ChaiHttp.Agent {
+	return chaiAppServer
+}

@@ -55,11 +55,11 @@ export async function runEvaluation (
 				average: results.results.average
 			}
 			: undefined,
-
+		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 		disqualified: results.disqualified[candidate.submissionId] || null,
 		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] || null,
-
+		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] || null
 	}
 
