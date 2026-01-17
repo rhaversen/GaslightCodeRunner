@@ -12,8 +12,8 @@ import express from 'express'
 import helmet from 'helmet'
 
 import globalErrorHandler from './middleware/globalErrorHandler.js'
-import submissionRoutes from './routes/submissions.js'
 import serviceRoutes from './routes/service.js'
+import submissionRoutes from './routes/submissions.js'
 import { runTournament } from './services/gamerunner/CodeRunnerService.js'
 import { getActiveSubmissions, createTournament, getGames } from './services/MainService.js'
 import logger from './utils/logger.js'
@@ -68,8 +68,7 @@ if (RUNNER_MODE === 'evaluation') {
 
 		if (games == null || games.length === 0) {
 			logger.error('No games found')
-			process.exit(1)
-			return
+			throw new Error('No games found')
 		}
 
 		// Run tournament for each game
@@ -83,8 +82,7 @@ if (RUNNER_MODE === 'evaluation') {
 			const results = await runTournament(game.gameFiles, submissions, game.batchSize)
 			if (results.error !== undefined) {
 				logger.error('Tournament error:', results.error)
-				process.exit(1)
-				return
+				throw new Error(`Tournament error: ${results.error}`)
 			}
 
 			const gradings = Object.entries(results.results ?? {}).map(([submissionId, score]) => ({
@@ -99,20 +97,20 @@ if (RUNNER_MODE === 'evaluation') {
 		// Wait 1 second before exiting
 		await new Promise(resolve => setTimeout(resolve, 1000))
 
-		process.exit(0)
+		logger.info('Tournament mode completed successfully')
 	} catch (error) {
 		logger.error('Tournament process failed:', error)
 
 		// Wait 1 second before exiting
 		await new Promise(resolve => setTimeout(resolve, 1000))
-		process.exit(1)
+		throw error
 	}
 } else {
 	logger.error('Invalid RUNNER_MODE specified')
 
 	// Wait 1 second before exiting
 	await new Promise(resolve => setTimeout(resolve, 1000))
-	process.exit(1)
+	throw new Error('Invalid RUNNER_MODE specified')
 }
 
 // Handle unhandled rejections outside middleware

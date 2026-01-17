@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === 'development') {
 if (missingSecrets.length > 0) {
 	logger.error(`Missing environment secrets: ${missingSecrets.join(', ')}`)
 	logger.info('Exiting due to missing environment secrets')
-	process.exit(1)
+	throw new Error(`Missing environment secrets: ${missingSecrets.join(', ')}`)
 }
 
 logger.info('All environment secrets are set')
