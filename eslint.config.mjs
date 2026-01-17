@@ -19,6 +19,9 @@ const compat = new FlatCompat({
 })
 
 export default tseslint.config(
+	{
+		ignores: ['sourceFiles/**']
+	},
 	eslint.configs.recommended,
 	...tseslint.configs.recommended,
 	// Use FlatCompat to extend legacy-style configs
