@@ -1,14 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 // file deepcode ignore NoHardcodedPasswords/test: Hardcoded credentials are only used for testing purposes
 // file deepcode ignore NoHardcodedCredentials/test: Hardcoded credentials are only used for testing purposes
 // file deepcode ignore HardcodedNonCryptoSecret/test: Hardcoded credentials are only used for testing purposes
 
-// Node.js built-in modules
-
-// Third-party libraries
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 
-// Own modules
 import { runEvaluation, runTournament } from '../../../app/services/gamerunner/CodeRunnerService.js'
 import {
 	gameFiles,
@@ -20,15 +17,10 @@ import {
 	lyingStrategyFiles
 } from '../../../app/utils/sourceFiles.js'
 
-// Environment variables
-
-// Config variables
-
-// Destructuring and global variables
-const twoMinuteTimeout = 1200000
-
 // Setup test environment
 import '../../testSetup.js'
+
+const twoMinuteTimeout = 1200000
 
 describe('Running games with different strategies', function () {
 	it('should have a similar candidate score and average score for 10 dumb strategies during evaluation', async function () {
@@ -126,7 +118,7 @@ describe('Running games with different strategies', function () {
 
 			// Store the scores for each submission
 			for (const [submissionId, score] of Object.entries(result.results!)) {
-				if (!allScores[submissionId]) {
+				if (allScores[submissionId] === undefined) {
 					allScores[submissionId] = []
 				}
 				allScores[submissionId].push(score)

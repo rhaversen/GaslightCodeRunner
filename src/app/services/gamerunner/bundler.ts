@@ -1,5 +1,3 @@
-/* eslint-disable local/enforce-comment-order */
-
 import esbuild, { Plugin, PluginBuild } from 'esbuild'
 
 export interface FileMap {
@@ -7,7 +5,7 @@ export interface FileMap {
 	[key: string]: string;
 }
 
-export function isFileMap(obj: unknown): obj is FileMap {
+export function isFileMap (obj: unknown): obj is FileMap {
 	return obj !== null &&
 		typeof obj === 'object' &&
 		'main.ts' in obj &&
@@ -16,7 +14,7 @@ export function isFileMap(obj: unknown): obj is FileMap {
 
 const createVirtualFilesPlugin = (files: FileMap): Plugin => ({
 	name: 'virtual-files',
-	setup(build: PluginBuild) {
+	setup (build: PluginBuild) {
 		build.onResolve({ filter: /.*/ }, (args) => {
 			const path = args.path
 			// Try both with and without .ts extension
@@ -47,10 +45,10 @@ const createVirtualFilesPlugin = (files: FileMap): Plugin => ({
 			const content = files[args.path] || files[args.path.replace(/\.ts$/, '')]
 			return { contents: content, loader: 'ts' }
 		})
-	},
+	}
 })
 
-export async function bundleFiles(files: FileMap, globalName: string) {
+export async function bundleFiles (files: FileMap, globalName: string) {
 	const result = await esbuild.build({
 		entryPoints: ['main.ts'],
 		bundle: true,
@@ -58,7 +56,7 @@ export async function bundleFiles(files: FileMap, globalName: string) {
 		globalName: globalName,
 		platform: 'node',
 		write: false,
-		plugins: [createVirtualFilesPlugin(files)],
+		plugins: [createVirtualFilesPlugin(files)]
 	})
 
 	const bundledCode = result.outputFiles[0].text

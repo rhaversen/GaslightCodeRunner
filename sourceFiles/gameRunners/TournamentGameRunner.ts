@@ -1,15 +1,14 @@
-/* eslint-disable local/enforce-comment-order */
+import type { Game, Player } from '../commonTypes.d.ts'
 
 import PlayerSelector from './PlayerSelector.ts'
-import type { Game, Player } from '../commonTypes.d.ts'
-import type { VMResults } from './types.d.ts'
 import { RunningAverage } from './RunningAverage.ts'
+import type { VMResults } from './types.d.ts'
 
 export class Main {
-	static run(gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
+	static run (gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
 		console.info(`Running tournament with ${players.length} players`)
 
-		if (players.length === 0) return { error: 'No players provided' }
+		if (players.length === 0) { return { error: 'No players provided' } }
 
 		// Track disqualified players
 		const disqualified: Record<string, string> = {}
@@ -86,7 +85,7 @@ export class Main {
 
 		// Prepare the final results
 		const finalResults: VMResults = {
-			results: {},
+			results: {}
 		}
 		finalResults.results = {}
 

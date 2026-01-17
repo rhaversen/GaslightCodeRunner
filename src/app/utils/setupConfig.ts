@@ -1,17 +1,8 @@
-// Node.js built-in modules
-
-// Third-party libraries
 import config from 'config'
 import { type CorsOptions } from 'cors'
 
-// Own modules
 import logger from './logger.js'
 
-// Environment variables
-
-// Config variables
-
-// Destructuring and global variables
 const configString = JSON.stringify(config.util.toObject(config), null, 4)
 
 // Log the configs used

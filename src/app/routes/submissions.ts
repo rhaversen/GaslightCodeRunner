@@ -1,17 +1,8 @@
-// Node.js built-in modules
-
-// Third-party libraries
 import { Router } from 'express'
 
-// Own modules
-import { authenticateMicroservice } from '../middleware/auth.js'
 import { handleSubmissionEvaluation } from '../controllers/submissionController.js'
+import { authenticateMicroservice } from '../middleware/auth.js'
 
-// Environment variables
-
-// Config variables
-
-// Destructuring and global variables
 const router = Router()
 
 // Apply microservice authentication to all routes
