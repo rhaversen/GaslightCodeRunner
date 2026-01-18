@@ -34,7 +34,12 @@ beforeEach(async function () {
 
 afterEach(async function () {
 	restore()
-	chaiAppServer.close()
+	// Close the agent and wait for the callback using a Promise
+	await new Promise<void>((resolve) => {
+		chaiAppServer.close(() => {
+			resolve()
+		})
+	})
 })
 
 after(async function () {
