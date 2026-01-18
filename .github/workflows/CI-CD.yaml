@@ -5,14 +5,30 @@ on:
         branches: ["main", "staging"]
 
 jobs:
-    build-and-deploy:
+    build-and-deploy-evaluation:
         uses: rhaversen/.github/.github/workflows/ci-cd.yml@main
         with:
-            project_name: "GaslightCodeRunner"
+            project_name: "GaslightCodeRunner-Evaluation"
             dockerhub_image_name: "gaslight-code-runner"
             node_version: "22"
             push_sourcemaps: true
             sentry_project: "gaslight-code-runner"
+            k8s_path: "k8s/evaluation"
+        secrets:
+            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+            SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+            DEVOPS_REPO_TOKEN: ${{ secrets.DEVOPS_REPO_TOKEN }}
+
+    build-and-deploy-tournament:
+        uses: rhaversen/.github/.github/workflows/ci-cd.yml@main
+        with:
+            project_name: "GaslightCodeRunner-Tournament"
+            dockerhub_image_name: "gaslight-code-runner"
+            node_version: "22"
+            push_sourcemaps: false
+            sentry_project: "gaslight-code-runner"
+            k8s_path: "k8s/tournament"
         secrets:
             DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
             DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
