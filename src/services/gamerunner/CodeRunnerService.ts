@@ -4,7 +4,7 @@ import ivm from 'isolated-vm'
 
 import type {
 	VMResults
-} from '../../../../sourceFiles/gameRunners/types.d.js'
+} from '../../types/VMResults.js'
 import logger from '../../utils/logger.js'
 import config from '../../utils/setupConfig.js'
 import {
@@ -36,15 +36,15 @@ export async function runEvaluation (
 	others: submission[],
 	epochBatchSize: number
 ): Promise<{
-		error?: string
-		results?: {
-			candidate: number // Candidate's average
-			average: number // Total average of other players
-		},
-		disqualified: string | null // Error or null
-		strategyExecutionTimings: number[] | null // Timings
-		strategyLoadingTimings: number | null // Timings
-	}> {
+	error?: string
+	results?: {
+		candidate: number // Candidate's average
+		average: number // Total average of other players
+	},
+	disqualified: string | null // Error or null
+	strategyExecutionTimings: number[] | null // Timings
+	strategyLoadingTimings: number | null // Timings
+}> {
 	const results = await runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize)
 
 	const evaluationResults = {
@@ -55,11 +55,11 @@ export async function runEvaluation (
 				average: results.results.average
 			}
 			: undefined,
-		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
 		disqualified: results.disqualified[candidate.submissionId] || null,
-		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
 		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] || null,
-		// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
 		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] || null
 	}
 
@@ -71,13 +71,13 @@ export async function runTournament (
 	strategies: submission[],
 	epochBatchSize: number
 ): Promise<{
-		error?: string
-		results?: Record<string, number> // submissionId -> score
-		disqualified: Record<string, string> // submissionId -> error
-		strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
-		strategyLoadingTimings: Record<string, number> // submissionId -> timings
-		tournamentExecutionTime: number // Time taken to run the tournament
-	}> {
+	error?: string
+	results?: Record<string, number> // submissionId -> score
+	disqualified: Record<string, string> // submissionId -> error
+	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
+	strategyLoadingTimings: Record<string, number> // submissionId -> timings
+	tournamentExecutionTime: number // Time taken to run the tournament
+}> {
 	const executionStartTime = performance.now()
 	const results = await runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize)
 	const executionEndTime = performance.now()
@@ -101,12 +101,12 @@ async function runGame (
 	type: 'Evaluation' | 'Tournament',
 	epochBatchSize: number
 ): Promise<{
-		error?: string
-		results?: Record<string, number> // submissionId -> score
-		disqualified: Record<string, string> // submissionId -> error
-		strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
-		strategyLoadingTimings: Record<string, number> // submissionId -> timings
-	}> {
+	error?: string
+	results?: Record<string, number> // submissionId -> score
+	disqualified: Record<string, string> // submissionId -> error
+	strategyExecutionTimings: Record<string, number[]> // submissionId -> timings
+	strategyLoadingTimings: Record<string, number> // submissionId -> timings
+}> {
 	const isolate = new ivm.Isolate({ memoryLimit: 1024 })
 	const context = await isolate.createContext()
 
