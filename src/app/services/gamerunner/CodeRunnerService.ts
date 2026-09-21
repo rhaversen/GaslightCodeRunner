@@ -111,9 +111,9 @@ async function runGame (
 	const context = await isolate.createContext()
 
 	const loggers = {
-		info: new ivm.Reference((...args: unknown[]) => logger.info('VM:', ...formatArgs(args))),
-		error: new ivm.Reference((...args: unknown[]) => logger.error('VM:', ...formatArgs(args))),
-		warn: new ivm.Reference((...args: unknown[]) => logger.warn('VM:', ...formatArgs(args)))
+		info: new ivm.Reference((...args: unknown[]) => logger.info(`VM: ${formatArgs(args).join(' ')}`)),
+		error: new ivm.Reference((...args: unknown[]) => logger.error(`VM: ${formatArgs(args).join(' ')}`)),
+		warn: new ivm.Reference((...args: unknown[]) => logger.warn(`VM: ${formatArgs(args).join(' ')}`))
 	}
 
 	// Helper function to format arguments

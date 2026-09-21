@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
 import { Logtail } from '@logtail/node'
-import { TransformableInfo } from 'logform'
 import { createLogger, format as _format, transports as _transports } from 'winston'
+
+const { BETTERSTACK_LOG_TOKEN, BETTERSTACK_INGESTING_HOST } = process.env as Record<string, string>
 
 const _filename = fileURLToPath(import.meta.url)
 const _dirname = dirname(_filename)
@@ -14,38 +16,6 @@ const logLevel = {
 	staging: 'info',
 	test: 'debug'
 }
-
-type LogLevel = 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly'
-interface WinstonLogObject extends TransformableInfo {
-	timestamp?: string;
-	level: string;
-	message: string;
-	service?: string;
-	[key: string]: unknown;
-}
-interface LogMetadata {
-	[key: string]: unknown;
-}
-
-// Create a reusable format configuration
-const defaultServiceName = 'gaslight-backend'
-
-const logFormat = _format.printf((info: TransformableInfo) => {
-	const logObject = info as WinstonLogObject
-	const { timestamp, level, message, service, ...restMetadata } = logObject
-
-	// Only include metadata if there are non-default values
-	const cleanMetadata = { ...restMetadata }
-	if (service !== defaultServiceName) {
-		cleanMetadata.service = service
-	}
-
-	const metadataStr = Object.keys(cleanMetadata).length > 0
-		? `\n${JSON.stringify(cleanMetadata, null, 2)}`
-		: ''
-
-	return `${timestamp ?? new Date().toISOString()} ${level}: ${message}${metadataStr}`
-})
 
 const winstonLogger = createLogger({
 	levels: {
@@ -59,146 +29,120 @@ const winstonLogger = createLogger({
 	},
 	format: _format.combine(
 		_format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:SSS' }),
-		_format.json(), // Use JSON format for logs
-		logFormat
+		_format.json()
 	),
-	defaultMeta: { service: defaultServiceName }, // Set a default metadata field
+	defaultMeta: { service: 'gaslight-code-runner' },
 	transports: [
 		new _transports.File({
-			filename: join(logDirectory, '../../logs/error.log'),
+			filename: join(logDirectory, 'error.jsonl'),
 			level: 'error'
 		}),
 		new _transports.File({
-			filename: join(logDirectory, '../../logs/info.log'),
+			filename: join(logDirectory, 'info.jsonl'),
 			level: 'info'
 		}),
 		new _transports.File({
-			filename: join(logDirectory, '../../logs/combined.log'),
+			filename: join(logDirectory, 'combined.jsonl'),
 			level: 'silly'
 		}),
 		new _transports.Console({
 			format: _format.combine(
 				_format.colorize(),
 				_format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-				logFormat
+				_format.printf((logObject) => {
+					const meta = Object.keys(logObject)
+						.filter((k) => !['timestamp', 'level', 'message', 'service'].includes(k))
+						.reduce((acc, k) => { acc[k] = logObject[k]; return acc }, {} as Record<string, any>)
+					const metaStr = Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : ''
+					return `${logObject.timestamp} ${logObject.level}: ${logObject.message}${metaStr}`
+				})
 			),
-			level: logLevel[process.env.NODE_ENV as keyof typeof logLevel]
+			level: logLevel[process.env.NODE_ENV as keyof typeof logLevel] ?? 'info'
 		})
 	]
 })
 
-// Instantiate betterStackLogger only in production
 let betterStackLogger: Logtail | null = null
 
-function stringifyMessage (message: unknown): string {
-	if (typeof message === 'string') {
-		return message
+function sanitizeContext (context?: Record<string, any>): Record<string, any> | undefined {
+	if (context === undefined) { return context }
+	const sanitized = { ...context }
+	if (sanitized.error instanceof Error) {
+		const err = sanitized.error as Record<string, any>
+		const extracted: Record<string, any> = {
+			message: err.message,
+			stack: err.stack,
+			name: err.name
+		}
+		for (const key of ['code', 'cmd', 'args', 'signal', 'status', 'exitCode', 'stdout', 'stderr', 'path', 'syscall'] as const) {
+			if (err[key] !== undefined && err[key] !== '') {
+				extracted[key] = err[key]
+			}
+		}
+		sanitized.error = extracted
 	}
-	if (message instanceof Error) {
-		return message.toString()
-	}
-	try {
-		return JSON.stringify(message, null, 2)
-	} catch {
-		return String(message)
-	}
+	return sanitized
 }
 
-function logToWinston (level: LogLevel, message: string, metadata: LogMetadata = {}): void {
-	switch (level) {
-		case 'error':
-			winstonLogger.error(message, metadata)
-			break
-		case 'warn':
-			winstonLogger.warn(message, metadata)
-			break
-		case 'info':
-			winstonLogger.info(message, metadata)
-			break
-		case 'http':
-			winstonLogger.http(message, metadata)
-			break
-		case 'verbose':
-			winstonLogger.verbose(message, metadata)
-			break
-		case 'debug':
-			winstonLogger.debug(message, metadata)
-			break
-		case 'silly':
-			winstonLogger.silly(message, metadata)
-			break
-	}
-}
-
-async function logToBetterStack (level: LogLevel, message: string, metadata: LogMetadata = {}): Promise<void> {
-	if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging') {
+const logToBetterStackNonBlocking = (
+	level: 'error' | 'warn' | 'info' | 'debug',
+	message: string,
+	context?: Record<string, any>
+): void => {
+	if ((process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging') || (BETTERSTACK_LOG_TOKEN ?? '') === '') {
 		return
 	}
 
-	if (betterStackLogger === null || betterStackLogger === undefined) {
-		betterStackLogger = new Logtail(process.env.BETTERSTACK_LOG_TOKEN ?? '')
-	}
-
-	const fullMessage = Object.keys(metadata).length > 0
-		? `${message} ${JSON.stringify(metadata)}`
-		: message
-
-	switch (level) {
-		case 'error':
-			await betterStackLogger.error(fullMessage)
-			break
-		case 'warn':
-			await betterStackLogger.warn(fullMessage)
-			break
-		case 'info':
-			await betterStackLogger.info(fullMessage)
-			break
-		default:
-			await betterStackLogger.debug(fullMessage)
-	}
-}
-
-function log (level: LogLevel, ...messages: unknown[]): void {
-	// Check if last argument is metadata object
-	const lastArg = messages[messages.length - 1]
-	const hasMetadata = typeof lastArg === 'object' && lastArg !== null && !Array.isArray(lastArg)
-
-	const metadata = hasMetadata ? messages.pop() : {}
-	const message = messages.map(msg => {
-		if (typeof msg === 'string') {
-			return msg
-		}
-		return stringifyMessage(msg)
-	}).join(' ')
-
-	logToWinston(level, message, metadata as LogMetadata)
-	logToBetterStack(level, message, metadata as LogMetadata)
-		.catch((error) => {
-			logToWinston('error', `Error logging to BetterStack: ${error instanceof Error ? error.toString() : String(error)}`)
+	if (betterStackLogger === null) {
+		betterStackLogger = new Logtail(BETTERSTACK_LOG_TOKEN, {
+			endpoint: BETTERSTACK_INGESTING_HOST !== undefined && BETTERSTACK_INGESTING_HOST !== ''
+				? `https://${BETTERSTACK_INGESTING_HOST}`
+				: undefined
 		})
+	}
+
+	const sanitizedContext = sanitizeContext(context)
+
+	betterStackLogger[level](message, sanitizedContext).catch((error) => {
+		winstonLogger.error(`Error logging to BetterStack: ${error instanceof Error ? error.toString() : String(error)}`, { error })
+	})
 }
 
 const logger = {
-	error: (...messages: unknown[]) => {
-		log('error', ...messages)
+	error: (message: string, context?: Record<string, any>) => {
+		const sanitized = sanitizeContext(context)
+		winstonLogger.error(message, sanitized)
+		logToBetterStackNonBlocking('error', message, sanitized)
 	},
-	warn: (...messages: unknown[]) => {
-		log('warn', ...messages)
+	warn: (message: string, context?: Record<string, any>) => {
+		const sanitized = sanitizeContext(context)
+		winstonLogger.warn(message, sanitized)
+		logToBetterStackNonBlocking('warn', message, sanitized)
 	},
-	info: (...messages: unknown[]) => {
-		log('info', ...messages)
+	info: (message: string, context?: Record<string, any>) => {
+		const sanitized = sanitizeContext(context)
+		winstonLogger.info(message, sanitized)
+		logToBetterStackNonBlocking('info', message, sanitized)
 	},
-	http: (...messages: unknown[]) => {
-		log('http', ...messages)
+	http: (message: string, context?: Record<string, any>) => {
+		const sanitized = sanitizeContext(context)
+		winstonLogger.http(message, sanitized)
+		logToBetterStackNonBlocking('debug', message, sanitized)
 	},
-	verbose: (...messages: unknown[]) => {
-		log('verbose', ...messages)
+	verbose: (message: string, context?: Record<string, any>) => {
+		const sanitized = sanitizeContext(context)
+		winstonLogger.verbose(message, sanitized)
+		logToBetterStackNonBlocking('debug', message, sanitized)
 	},
-	debug: (...messages: unknown[]) => {
-		log('debug', ...messages)
+	debug: (message: string, context?: Record<string, any>) => {
+		const sanitized = sanitizeContext(context)
+		winstonLogger.debug(message, sanitized)
+		logToBetterStackNonBlocking('debug', message, sanitized)
 	},
-	silly: (...messages: unknown[]) => {
-		log('silly', ...messages)
+	silly: (message: string, context?: Record<string, any>) => {
+		const sanitized = sanitizeContext(context)
+		winstonLogger.silly(message, sanitized)
+		logToBetterStackNonBlocking('debug', message, sanitized)
 	}
 }
 

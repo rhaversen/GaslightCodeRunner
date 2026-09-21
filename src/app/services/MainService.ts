@@ -50,8 +50,9 @@ export async function createTournament (gradings: Grading[], disqualified: Recor
 		logger.info('Tournament created for submissions', {
 			gradings: gradings.map(g => ({ submission: g.submission, score: g.score })),
 			disqualified: disqualifiedArray,
-			tournamentExecutionTime
-		}, 'for game', game)
+			tournamentExecutionTime,
+			game
+		})
 
 		return true
 	} catch (error) {

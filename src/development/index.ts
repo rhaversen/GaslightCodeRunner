@@ -15,7 +15,7 @@ async function startServer (): Promise<void> {
 		// Start the application server
 		await import('../app/index.js')
 	} catch (error) {
-		logger.error('Failed to start the server:', error)
+		logger.error('Failed to start the server', { error })
 	}
 }
 

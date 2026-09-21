@@ -6,7 +6,7 @@ import { type Server } from 'http'
 
 import * as Sentry from '@sentry/node'
 import * as chai from 'chai'
-import chaiHttp from 'chai-http'
+import chaiHttp, { request as chaiRequest } from 'chai-http'
 import { after, afterEach, before, beforeEach } from 'mocha'
 import { restore } from 'sinon'
 
@@ -17,7 +17,7 @@ process.env.RUNNER_MODE = 'evaluation'
 
 const chaiHttpObject = chai.use(chaiHttp)
 let app: { server: Server }
-let chaiAppServer: ChaiHttp.Agent
+let chaiAppServer: ReturnType<typeof chaiRequest.execute>
 
 before(async function () {
 	this.timeout(20000)
@@ -29,7 +29,7 @@ before(async function () {
 })
 
 beforeEach(async function () {
-	chaiAppServer = chaiHttpObject.request(app.server).keepOpen()
+	chaiAppServer = chaiRequest.execute(app.server).keepOpen()
 })
 
 afterEach(async function () {
@@ -50,6 +50,6 @@ after(async function () {
 	await Sentry.close()
 })
 
-export function getChaiAppServer (): ChaiHttp.Agent {
+export function getChaiAppServer (): ReturnType<typeof chaiRequest.execute> {
 	return chaiAppServer
 }

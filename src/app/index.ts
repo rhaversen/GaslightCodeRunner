@@ -81,7 +81,7 @@ if (RUNNER_MODE === 'evaluation') {
 
 			const results = await runTournament(game.gameFiles, submissions, game.batchSize)
 			if (results.error !== undefined) {
-				logger.error('Tournament error:', results.error)
+				logger.error('Tournament error', { error: results.error })
 				throw new Error(`Tournament error: ${results.error}`)
 			}
 
@@ -99,7 +99,7 @@ if (RUNNER_MODE === 'evaluation') {
 
 		logger.info('Tournament mode completed successfully')
 	} catch (error) {
-		logger.error('Tournament process failed:', error)
+		logger.error('Tournament process failed', { error })
 
 		// Wait 1 second before exiting
 		await new Promise(resolve => setTimeout(resolve, 1000))
