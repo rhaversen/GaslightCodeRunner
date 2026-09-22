@@ -28,7 +28,7 @@ const meyerStrategyAPISource = read(gamesRoot, 'meyer/strategyAPI.ts')
 const meyerTypesSource = read(gamesRoot, 'meyer/types.ts')
 const meyerUtilsSource = read(gamesRoot, 'meyer/utils.ts')
 
-const strategyStealingGameSource = read(gamesRoot, 'security/strategyStealingGame.ts')
+const strategyStealingGameSource = read(gamesRoot, 'strategies/security/strategyStealingGame.ts')
 
 function strategyFiles (name: string): { 'main.ts': string } {
 	return { 'main.ts': read(gamesRoot, `strategies/${name}.ts`) }
