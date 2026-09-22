@@ -15,7 +15,7 @@ import {
 	nonHaltingLoadingStrategyFiles,
 	nonHaltingStrategyFiles,
 	errorThrowingStrategyFiles
-} from '../../../../utils/sourceFiles.js'
+} from '../../../fixtures/gameFixtures.js'
 
 import '../../../envSetup.js'
 

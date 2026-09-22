@@ -13,7 +13,7 @@ import {
 	dumbStrategyFiles,
 	nonHaltingLoadingStrategyFiles,
 	nonHaltingStrategyFiles
-} from '../../../utils/sourceFiles.js'
+} from '../../fixtures/gameFixtures.js'
 
 // Setup test environment
 import '../../envSetup.js'
@@ -29,7 +29,7 @@ describe('CodeRunnerService Timeouts', { timeout: twoMinuteTimeout }, () => {
 		})
 
 		it('should return an error', () => {
-			assert.ok(result.error?.includes(ErrorCategory.SCRIPT_TIMEOUT))
+			assert.ok(result.error?.includes(ErrorCategory.SCRIPT_TIMEOUT) === true)
 		})
 
 		it('should not return results', () => {
@@ -57,7 +57,7 @@ describe('CodeRunnerService Timeouts', { timeout: twoMinuteTimeout }, () => {
 		})
 
 		it('should return an error', () => {
-			assert.ok(result.error?.includes(ErrorCategory.SCRIPT_TIMEOUT))
+			assert.ok(result.error?.includes(ErrorCategory.SCRIPT_TIMEOUT) === true)
 		})
 
 		it('should not return results', () => {
@@ -149,7 +149,7 @@ describe('CodeRunnerService Timeouts', { timeout: twoMinuteTimeout }, () => {
 		})
 
 		it('should return an error', () => {
-			assert.ok(result.error?.includes(ErrorCategory.SCRIPT_TIMEOUT))
+			assert.ok(result.error?.includes(ErrorCategory.SCRIPT_TIMEOUT) === true)
 		})
 
 		it('should not return results', () => {

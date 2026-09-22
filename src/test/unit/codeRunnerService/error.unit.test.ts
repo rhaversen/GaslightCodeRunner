@@ -11,7 +11,7 @@ import {
 	cheatingStrategyFiles,
 	dumbStrategyFiles,
 	errorThrowingStrategyFiles
-} from '../../../utils/sourceFiles.js'
+} from '../../fixtures/gameFixtures.js'
 
 // Setup test environment
 import '../../envSetup.js'

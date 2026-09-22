@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import { runTournament } from '../../../services/gamerunner/CodeRunnerService.js'
-import { gameFiles, chatGptStrategyFiles } from '../../../utils/sourceFiles.js'
+import { gameFiles, chatGptStrategyFiles } from '../../fixtures/gameFixtures.js'
 
 import '../../envSetup.js'
 

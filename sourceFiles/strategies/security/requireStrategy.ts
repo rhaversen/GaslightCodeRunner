@@ -1,4 +1,3 @@
-/* eslint-disable typescript/no-unused-vars */
 import { MeyerStrategyAPI } from '../../meyer/types.ts'
 
 export default function (api: MeyerStrategyAPI) {

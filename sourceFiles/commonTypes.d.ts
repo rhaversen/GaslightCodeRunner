@@ -24,7 +24,7 @@ export interface Game {
  * The API object contains methods that allow the player to interact with the game state and other players.
  * The strategy function should throw a PlayerError if the player's actions are invalid and should not modify the game state directly.
  */
-type Strategy<T = any> = (api: T) => void
+type Strategy<T = unknown> = (api: T) => void
 
 /**
  * Represents a player in a game.

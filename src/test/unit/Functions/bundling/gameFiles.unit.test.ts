@@ -2,11 +2,8 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import { bundleFiles } from '../../../../services/gamerunner/bundler.js'
-import {
-	gameFiles,
-	tournamentGameRunnerFiles,
-	evaluatingGameRunnerFiles
-} from '../../../../utils/sourceFiles.js'
+import { evaluatingGameRunnerFiles, tournamentGameRunnerFiles } from '../../../../utils/sourceFiles.js'
+import { gameFiles } from '../../../fixtures/gameFixtures.js'
 
 import '../../../envSetup.js'
 

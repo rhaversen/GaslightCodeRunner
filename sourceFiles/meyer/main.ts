@@ -1,5 +1,6 @@
 import type { Game, Player } from '../commonTypes.d.ts'
 import { PlayerError } from '../errors.ts'
+import { callGuarded } from '../gameGuard.ts'
 
 import { gameState } from './gameState.ts'
 import { createStrategyAPI } from './strategyAPI.ts'
@@ -28,13 +29,19 @@ export class Main implements Game {
 			}
 
 			const playerIndex = gameState.getCurrentPlayerIndex()
-			const api = createStrategyAPI(playerIndex)
+			const currentPlayer = this.players[playerIndex]
+			if (currentPlayer === undefined) {
+				throw new PlayerError('No strategy registered for the current player index.', 'unknown')
+			}
+			const api = createStrategyAPI(playerIndex, currentPlayer.submissionId)
+
 			try {
-				this.players[playerIndex].strategy(api)
+				callGuarded(currentPlayer, api, currentPlayer.submissionId)
 			} catch (error) {
 				if (error instanceof GamePlayerError) {
-					throw new PlayerError(error.message, this.players[playerIndex].submissionId)
+					throw new PlayerError(error.message, currentPlayer.submissionId)
 				}
+				throw error
 			}
 
 			const canEndTurn = !gameState.isTurnActive() || gameState.hasPlayerRolled()

@@ -1,3 +1,4 @@
+import './securityBootstrap.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 
 import PlayerSelector from './PlayerSelector.ts'

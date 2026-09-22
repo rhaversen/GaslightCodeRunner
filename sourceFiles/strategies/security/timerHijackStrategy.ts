@@ -2,7 +2,6 @@ import { MeyerStrategyAPI } from '../../meyer/types.ts'
 
 export default function (api: MeyerStrategyAPI) {
 	// Try to create an infinite loop of timeouts
-	// eslint-disable-next-line typescript/no-unused-vars
 	let i = 0
 	const createTimeout = () => {
 		setTimeout(() => {

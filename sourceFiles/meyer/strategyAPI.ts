@@ -1,15 +1,17 @@
+import { tagApi } from '../gameGuard.ts'
+
 import { gameState } from './gameState.ts'
 import { MeyerStrategyAPI, DiePair, PlayerError } from './types.ts'
 import { calculateScore, isValidScore, rollDice, roundUpToValidScore } from './utils.ts'
 
-export function createStrategyAPI (playerIndex: number): MeyerStrategyAPI {
+export function createStrategyAPI (playerIndex: number, ownerSubmissionId: string): MeyerStrategyAPI {
 	const ensureTurnActive = () => {
 		if (!gameState.isTurnActive()) {
 			throw new PlayerError('Your turn has ended. You can only perform one action to end your turn: either call "det eller derover" to match the previous strategy\'s announcement, reveal to challenge the previous player\'s announcement, or announce your own roll (by calling "lie" or returning after a roll).')
 		}
 	}
 
-	return {
+	const api = {
 		calculateDieScore: (dice: DiePair) => {
 			if (!dice || !Array.isArray(dice) || dice.length !== 2) {
 				throw new PlayerError('Invalid dice pair provided. Must be an array of exactly two numbers.')
@@ -150,4 +152,6 @@ export function createStrategyAPI (playerIndex: number): MeyerStrategyAPI {
 			gameState.endTurn()
 		}
 	}
+	return tagApi(api, ownerSubmissionId)
 }
+

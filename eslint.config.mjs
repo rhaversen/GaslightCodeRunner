@@ -52,6 +52,7 @@ export default tseslint.config(
 			},
 		},
 		rules: {
+			"@typescript-eslint/strict-boolean-expressions": "error",
 			"@typescript-eslint/no-unused-vars": [
 				"warn",
 				{ argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
@@ -96,6 +97,7 @@ export default tseslint.config(
 			"@stylistic/indent": ["error", "tab", { SwitchCase: 1 }],
 			"@stylistic/object-curly-spacing": ["error", "always"],
 			"@stylistic/array-bracket-spacing": ["error", "never"],
+			"@stylistic/generator-star-spacing": ["error", { before: true, after: false }],
 			"@stylistic/key-spacing": [
 				"error",
 				{ beforeColon: false, afterColon: true },
@@ -110,6 +112,11 @@ export default tseslint.config(
 			"@stylistic/block-spacing": ["error", "always"],
 			"@stylistic/space-in-parens": ["error", "never"],
 			"@stylistic/comma-dangle": ["error", "never"],
+			"@stylistic/lines-between-class-members": [
+				"error",
+				"always",
+				{ exceptAfterSingleLine: true }
+			],
 			"@stylistic/padded-blocks": ["error", "never"],
 			"@stylistic/no-trailing-spaces": "error",
 			"@stylistic/spaced-comment": ["error", "always"],
@@ -117,9 +124,49 @@ export default tseslint.config(
 				"error",
 				{ max: 1, maxEOF: 1 },
 			],
+			curly: ["error", "all"],
 		},
 	},
+	{		files: ["src/test/**/*.ts"],
+		rules: {
+			"n/no-unpublished-import": "off",
+			"n/no-extraneous-import": "off"
+		}
+	},
 	{
-		ignores: ["dist/**", "node_modules/**", "scripts/**", "sourceFiles/**"],
+		// Sandbox game/strategy files are bundled by esbuild, not compiled by tsc,
+		// so they are linted without type-aware rules. Security strategies
+		// intentionally violate sandbox rules (process.exit, require, console,
+		// @ts-expect-error) as attack simulations, so those rules are off here.
+		files: ["sourceFiles/**/*.ts", "**/*.d.ts"],
+		...tseslint.configs.disableTypeChecked,
+		languageOptions: {
+			parser: tseslint.parser,
+			parserOptions: {
+				project: false,
+				projectService: false,
+				program: null
+			}
+		},
+		rules: {
+			"@typescript-eslint/strict-boolean-expressions": "off",
+			"no-console": "off",
+			"n/no-process-exit": "off",
+			"@typescript-eslint/no-require-imports": "off",
+			"@typescript-eslint/ban-ts-comment": "off",
+			"@typescript-eslint/no-unused-expressions": "off",
+			"@typescript-eslint/no-unused-vars": "off",
+			"import/extensions": "off"
+		}
+	},
+	{
+		files: ["eslint.config.mjs"],
+		rules: {
+			"n/no-extraneous-import": "off",
+			"n/no-unpublished-import": "off",
+			"import/no-unresolved": "off"
+		}
+	},
+	{		ignores: ["dist/**", "node_modules/**", "scripts/**"],
 	}
 );

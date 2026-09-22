@@ -14,7 +14,7 @@ import {
 	honestStrategyFiles,
 	lyingStrategyFiles,
 	revealingStrategyFiles
-} from '../../../utils/sourceFiles.js'
+} from '../../fixtures/gameFixtures.js'
 
 // Setup test environment
 import '../../envSetup.js'

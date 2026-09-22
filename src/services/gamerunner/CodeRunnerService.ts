@@ -17,6 +17,7 @@ import { bundleFiles, FileMap } from './bundler.js'
 
 const {
 	tournamentEpochs,
+	tournamentTimeout,
 	evaluationEpochs,
 	evaluationTimeout
 } = config
@@ -56,11 +57,11 @@ export async function runEvaluation (
 			}
 			: undefined,
 
-		disqualified: results.disqualified[candidate.submissionId] || null,
+		disqualified: results.disqualified[candidate.submissionId] ?? null,
 
-		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] || null,
+		strategyExecutionTimings: results.strategyExecutionTimings?.[candidate.submissionId] ?? null,
 
-		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] || null
+		strategyLoadingTimings: results.strategyLoadingTimings?.[candidate.submissionId] ?? null
 	}
 
 	return evaluationResults
@@ -110,10 +111,14 @@ async function runGame (
 	const isolate = new ivm.Isolate({ memoryLimit: 1024 })
 	const context = await isolate.createContext()
 
+	// VM logs are capped: a strategy flooding console output is the easiest
+	// bulk exfiltration channel into persistent host logs.
+	const MAX_VM_LOG_LENGTH = 2000
+
 	const loggers = {
-		info: new ivm.Reference((...args: unknown[]) => logger.info(`VM: ${formatArgs(args).join(' ')}`)),
-		error: new ivm.Reference((...args: unknown[]) => logger.error(`VM: ${formatArgs(args).join(' ')}`)),
-		warn: new ivm.Reference((...args: unknown[]) => logger.warn(`VM: ${formatArgs(args).join(' ')}`))
+		info: new ivm.Reference((...args: unknown[]) => logger.info(`VM: ${formatArgs(args).join(' ').slice(0, MAX_VM_LOG_LENGTH)}`)),
+		error: new ivm.Reference((...args: unknown[]) => logger.error(`VM: ${formatArgs(args).join(' ').slice(0, MAX_VM_LOG_LENGTH)}`)),
+		warn: new ivm.Reference((...args: unknown[]) => logger.warn(`VM: ${formatArgs(args).join(' ').slice(0, MAX_VM_LOG_LENGTH)}`))
 	}
 
 	// Helper function to format arguments
@@ -193,7 +198,12 @@ const performance = {
 		strategies.map((s) => bundleFiles(s.files, 'Strategy'))
 	)
 
-	// Build the code for each strategy
+	// Build the code for each strategy. Every error escaping a strategy is
+	// replaced by a fixed generic message BEFORE it reaches the game runner:
+	// error messages are the only structured channel from one strategy's scope
+	// to the disqualification records of another, so letting the original
+	// message through would let a strategy read other strategies' state (or
+	// bait them into throwing with embedded source) and exfiltrate it.
 	const strategiesStr = strategyBundles
 		.map((bundle, index) => `
 (() => {
@@ -212,6 +222,21 @@ const performance = {
 		loadDuration
 	]);
 
+	const sanitizedError = (err) => {
+		// PlayerError is thrown by the game itself (validation messages), not
+		// by strategy code — keep its message so users get actionable feedback.
+		const isPlayerError = err instanceof Error && err.name === 'PlayerError';
+		const message = isPlayerError
+			? String(err.message)
+			: 'Strategy threw an exception';
+		const safe = new Error(message);
+		// Error.prototype is frozen by the security bootstrap, so name must be
+		// defined as an own property (it normally lives on the prototype).
+		Object.defineProperty(safe, 'name', { value: isPlayerError ? 'PlayerError' : 'StrategyError' });
+		safe.submissionId = '${strategies[index].submissionId}';
+		return safe;
+	};
+
 	// Wrap the strategy call so we can measure each call time
 	const wrappedStrategy = function(api) {
 		// Only time the candidate and only in evaluation mode, otherwise time randomly
@@ -227,9 +252,7 @@ const performance = {
 				// Call the strategy
 				strategy(api);
 			} catch (err) {
-				// Add the submissionId to the error
-				err.submissionId = '${strategies[index].submissionId}';
-				throw err;
+				throw sanitizedError(err);
 			}
 
 			const executionEnd = performance.now();
@@ -245,9 +268,7 @@ const performance = {
 			try {
 				strategy(api);
 			} catch (err) {
-				// Add the submissionId to the error
-				err.submissionId = '${strategies[index].submissionId}';
-				throw err;
+				throw sanitizedError(err);
 			}
 		}
 	};
@@ -256,22 +277,34 @@ const performance = {
 })()
 		`).join(',')
 
-	// Construct the main test code that runs the game
+	// Construct the main test code that runs the game. Ordering matters:
+	// the game RUNNER bundle (which contains securityBootstrap.ts and runs its
+	// phase-1 hardening at load) is evaluated FIRST — a malicious game's
+	// top-level code must never execute before the hardening is in place, or
+	// it could patch the very builtins the hardening freezes. Only after the
+	// runner exists does the game bundle load, then __hardenGlobals() seals
+	// globalThis, and only then are strategy bundles compiled.
 	const submissionIds = strategies.map((s) => s.submissionId)
 	const numEpochs = type === 'Evaluation' ? evaluationEpochs : tournamentEpochs
 	const testCode = `
 (() => {
+	// Evaluate game runner first: its bundle contains the security bootstrap,
+	// whose load-time side effects seal stack inspection and builtins before
+	// any game or strategy code runs.
+	const GameRunnerModule = (() => {
+		${gameRunnerCode}
+		return GameRunner;
+	})();
+
 	// Evaluate game logic in its own scope
 	const GameModule = (() => {
 		${gameLogicCode}
 		return Game;
 	})();
 
-	// Evaluate game runner in its own scope
-	const GameRunnerModule = (() => {
-		${gameRunnerCode}
-		return GameRunner;
-	})();
+	// Phase 2 hardening: seal console/performance and freeze globalThis now
+	// that all trusted code is defined, before any strategy bundle compiles.
+	__hardenGlobals();
 
 	// Build array of wrapped strategies
 	const strategies = [${strategiesStr}];
@@ -292,11 +325,12 @@ const performance = {
 })();
 `
 
-	// Execute the code in the VM
+	// Execute the code in the VM. A script-level timeout is imposed for BOTH
+	// run types: without it a strategy that makes the game itself hang (rather
+	// than its own turn) would wedge the runner indefinitely.
 	const result = await context
 		.eval(testCode, {
-			// For "Evaluation" runs, we impose a script-level timeout
-			timeout: type === 'Evaluation' ? evaluationTimeout : undefined
+			timeout: type === 'Evaluation' ? evaluationTimeout : tournamentTimeout
 		})
 		.then((resultString) => {
 			const parsed = JSON.parse(resultString as string) as VMResults

@@ -10,7 +10,7 @@ import {
 	detEllerDeroverStrategyFiles,
 	chatGptStrategyFiles,
 	lyingStrategyFiles
-} from '../../../utils/sourceFiles.js'
+} from '../../fixtures/gameFixtures.js'
 
 import '../../envSetup.js'
 

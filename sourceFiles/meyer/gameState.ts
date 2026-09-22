@@ -66,6 +66,10 @@ class GameState {
 		return this.firstInRound
 	}
 
+	getPlayerId (playerIndex: number): string | undefined {
+		return this.playerIds[playerIndex]
+	}
+
 	getCurrentPlayerIndex (): number {
 		return this.currentPlayerIndex
 	}
