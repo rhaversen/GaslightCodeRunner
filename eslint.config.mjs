@@ -156,7 +156,11 @@ export default tseslint.config(
 			"@typescript-eslint/ban-ts-comment": "off",
 			"@typescript-eslint/no-unused-expressions": "off",
 			"@typescript-eslint/no-unused-vars": "off",
-			"import/extensions": "off"
+			"import/extensions": "off",
+			// Game files import runner-internal infrastructure (errors, gameGuard,
+			// commonTypes) via esbuild-bundled virtual paths; the linter cannot
+			// resolve them from the games submodule location.
+			"import/no-unresolved": "off"
 		}
 	},
 	{

@@ -1,33 +1,37 @@
-// Test fixtures built from the canonical game source. This module exists so
-// that production code never reads game content from disk: CodeRunnerService
-// imports only commonGameFiles and the game-runner bundles, while everything
-// under sourceFiles/meyer and sourceFiles/strategies is loaded exclusively
-// here. Actual game content always arrives from the database.
+// Test fixtures built from the gaslight-games submodule (mounted at
+// sourceFiles/games/). This module exists so that production code never reads
+// game content from disk: CodeRunnerService imports only commonGameFiles and
+// the game-runner bundles, while game/strategy content under
+// sourceFiles/games is loaded exclusively here. Actual game content always
+// arrives from the database.
 
 import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const sourceFilesPath = resolve(dirname(fileURLToPath(import.meta.url)), '../../../sourceFiles')
+// sourceFiles/games is the gaslight-games submodule.
+const gamesRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../../sourceFiles/games')
+// Runner-internal infrastructure stays in sourceFiles/ proper.
+const runnerSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../../sourceFiles')
 
-function read (relativePath: string): string {
-	return readFileSync(resolve(sourceFilesPath, relativePath), 'utf-8')
+function read (root: string, relativePath: string): string {
+	return readFileSync(join(root, relativePath), 'utf-8')
 }
 
-const commonTypesSource = read('commonTypes.d.ts')
-const errorsSource = read('errors.ts')
-const gameGuardSource = read('gameGuard.ts')
+const commonTypesSource = read(runnerSourceRoot, 'commonTypes.d.ts')
+const errorsSource = read(runnerSourceRoot, 'errors.ts')
+const gameGuardSource = read(runnerSourceRoot, 'gameGuard.ts')
 
-const meyerGameStateSource = read('meyer/gameState.ts')
-const meyerMainSource = read('meyer/main.ts')
-const meyerStrategyAPISource = read('meyer/strategyAPI.ts')
-const meyerTypesSource = read('meyer/types.ts')
-const meyerUtilsSource = read('meyer/utils.ts')
+const meyerGameStateSource = read(gamesRoot, 'meyer/gameState.ts')
+const meyerMainSource = read(gamesRoot, 'meyer/main.ts')
+const meyerStrategyAPISource = read(gamesRoot, 'meyer/strategyAPI.ts')
+const meyerTypesSource = read(gamesRoot, 'meyer/types.ts')
+const meyerUtilsSource = read(gamesRoot, 'meyer/utils.ts')
 
-const strategyStealingGameSource = read('games/security/strategyStealingGame.ts')
+const strategyStealingGameSource = read(gamesRoot, 'security/strategyStealingGame.ts')
 
 function strategyFiles (name: string): { 'main.ts': string } {
-	return { 'main.ts': read(`strategies/${name}.ts`) }
+	return { 'main.ts': read(gamesRoot, `strategies/${name}.ts`) }
 }
 
 export const gameFiles = {

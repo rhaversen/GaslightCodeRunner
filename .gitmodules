@@ -1,0 +1,3 @@
+[submodule "sourceFiles/games"]
+	path = sourceFiles/games
+	url = https://github.com/rhaversen/gaslight-games
