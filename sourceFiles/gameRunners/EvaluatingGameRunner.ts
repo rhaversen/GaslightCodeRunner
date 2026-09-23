@@ -4,7 +4,6 @@ import type { Game, Player } from '../commonTypes.d.ts'
 import PlayerSelector from './PlayerSelector.ts'
 import { RunningAverage } from './RunningAverage.ts'
 import type { VMResults } from './types.d.ts'
-import { insertRandomly } from './utils.ts'
 
 export class Main {
 	static run (gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
@@ -36,8 +35,14 @@ export class Main {
 				epoch
 			}))
 
-			// Mix candidate in randomly with selected players
-			const activePlayers = insertRandomly(selectedPlayers, { ...candidate, epoch })
+			// Rotate the candidate's seat deterministically: one seat per epoch.
+			// Random placement made the candidate's average depend on seat luck
+			// with a bias floor that never shrinks; rotation gives every seat
+			// exactly equal coverage, so candidate and opponents average over
+			// identical seat distributions.
+			const candidateSeat = epoch % (selectedPlayers.length + 1)
+			const activePlayers = [...selectedPlayers]
+			activePlayers.splice(candidateSeat, 0, { ...candidate, epoch })
 
 			try {
 				gameInstance.init(activePlayers)
