@@ -7,20 +7,25 @@ const __dirname = dirname(__filename)
 
 const { NODE_ENV } = process.env as Record<string, string>
 
-// Base path for source files
+// Base path for source files. Production reads only the runner harness from
+// here; the game-authoring contract (commonTypes, errors, gameGuard) and all
+// game content come from the gaslight-games submodule mounted at games/.
 const sourceFilesPath = (NODE_ENV === 'production' || NODE_ENV === 'staging')
 	? resolve('/app/sourceFiles')
 	: resolve(__dirname, '../../sourceFiles')
+const gamesSourcePath = (NODE_ENV === 'production' || NODE_ENV === 'staging')
+	? resolve('/app/sourceFiles/games')
+	: resolve(__dirname, '../../sourceFiles/games')
 
 // Game runners
 const EvaluatingGameRunnerSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/EvaluatingGameRunner.ts'), 'utf-8')
 const TournamentGameRunnerSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/TournamentGameRunner.ts'), 'utf-8')
 const GameRunnerTypesSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/types.d.ts'), 'utf-8')
 
-// Misc
-const commonTypesSource = readFileSync(resolve(sourceFilesPath, 'commonTypes.d.ts'), 'utf-8')
-const errorsSource = readFileSync(resolve(sourceFilesPath, 'errors.ts'), 'utf-8')
-const gameGuardSource = readFileSync(resolve(sourceFilesPath, 'gameGuard.ts'), 'utf-8')
+// Game-authoring contract, from the gaslight-games submodule
+const commonTypesSource = readFileSync(resolve(gamesSourcePath, 'commonTypes.d.ts'), 'utf-8')
+const errorsSource = readFileSync(resolve(gamesSourcePath, 'errors.ts'), 'utf-8')
+const gameGuardSource = readFileSync(resolve(gamesSourcePath, 'gameGuard.ts'), 'utf-8')
 const utilsSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/utils.ts'), 'utf-8')
 const PlayerSelectorSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/PlayerSelector.ts'), 'utf-8')
 const RunningAverageSource = readFileSync(resolve(sourceFilesPath, 'gameRunners/RunningAverage.ts'), 'utf-8')
@@ -41,9 +46,8 @@ const sourceFiles = {
 	gameGuard: { 'gameGuard.ts': gameGuardSource }
 }
 
-// Shared game infrastructure merged into every game bundle. The only game
-// content production reads from disk — actual game files always come from the
-// database.
+// Game-authoring contract merged into every game bundle. Read from the
+// gaslight-games submodule; actual game files always come from the database.
 export const commonGameFiles = {
 	...sourceFiles.commonTypes,
 	...sourceFiles.errors,
@@ -53,6 +57,7 @@ export const commonGameFiles = {
 export const tournamentGameRunnerFiles = {
 	...sourceFiles.gameRunners.securityBootstrap,
 	...sourceFiles.gameRunners.tournamentGameRunner,
+	...sourceFiles.commonTypes,
 	...sourceFiles.errors,
 	...sourceFiles.gameRunners.types,
 	...sourceFiles.gameRunners.utils,
@@ -63,6 +68,7 @@ export const tournamentGameRunnerFiles = {
 export const evaluatingGameRunnerFiles = {
 	...sourceFiles.gameRunners.securityBootstrap,
 	...sourceFiles.gameRunners.evaluatingGameRunner,
+	...sourceFiles.commonTypes,
 	...sourceFiles.errors,
 	...sourceFiles.gameRunners.types,
 	...sourceFiles.gameRunners.utils,

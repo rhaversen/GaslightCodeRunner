@@ -9,29 +9,29 @@ import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// sourceFiles/games is the gaslight-games submodule.
+// sourceFiles/games is the gaslight-games submodule. It now carries the whole
+// game-authoring contract (commonTypes, errors, gameGuard) plus all game and
+// strategy content — everything in this file is read from there.
 const gamesRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../../sourceFiles/games')
-// Runner-internal infrastructure stays in sourceFiles/ proper.
-const runnerSourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../../sourceFiles')
 
-function read (root: string, relativePath: string): string {
-	return readFileSync(join(root, relativePath), 'utf-8')
+function read (relativePath: string): string {
+	return readFileSync(join(gamesRoot, relativePath), 'utf-8')
 }
 
-const commonTypesSource = read(runnerSourceRoot, 'commonTypes.d.ts')
-const errorsSource = read(runnerSourceRoot, 'errors.ts')
-const gameGuardSource = read(runnerSourceRoot, 'gameGuard.ts')
+const commonTypesSource = read('commonTypes.d.ts')
+const errorsSource = read('errors.ts')
+const gameGuardSource = read('gameGuard.ts')
 
-const meyerGameStateSource = read(gamesRoot, 'meyer/gameState.ts')
-const meyerMainSource = read(gamesRoot, 'meyer/main.ts')
-const meyerStrategyAPISource = read(gamesRoot, 'meyer/strategyAPI.ts')
-const meyerTypesSource = read(gamesRoot, 'meyer/types.ts')
-const meyerUtilsSource = read(gamesRoot, 'meyer/utils.ts')
+const meyerGameStateSource = read('meyer/gameState.ts')
+const meyerMainSource = read('meyer/main.ts')
+const meyerStrategyAPISource = read('meyer/strategyAPI.ts')
+const meyerTypesSource = read('meyer/types.ts')
+const meyerUtilsSource = read('meyer/utils.ts')
 
-const strategyStealingGameSource = read(gamesRoot, 'strategies/security/strategyStealingGame.ts')
+const strategyStealingGameSource = read('strategies/security/strategyStealingGame.ts')
 
 function strategyFiles (name: string): { 'main.ts': string } {
-	return { 'main.ts': read(gamesRoot, `strategies/${name}.ts`) }
+	return { 'main.ts': read(`strategies/${name}.ts`) }
 }
 
 export const gameFiles = {
