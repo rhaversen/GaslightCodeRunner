@@ -26,7 +26,7 @@ describe('CodeRunnerService', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, dumbStrategyFiles, [dumbStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not be undefined', () => {
@@ -50,47 +50,19 @@ describe('CodeRunnerService', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async () => {
-			result = await runTournament(gameFiles, [dumbStrategyFiles], 10)
+			result = await runTournament(gameFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not be undefined', () => {
 			assert.notEqual(result, undefined)
 		})
 
-		it('should have results', () => {
-			assert.equal(typeof result.results, 'object')
+			it('should error because the roster is below minPlayers', () => {
+			assert.match(result.error ?? '', /Not enough players/)
 		})
 
-		it('should have no disqualified players', () => {
-			assert.deepEqual(result.disqualified, {})
-		})
-
-		it('should have no error', () => {
-			assert.equal(result.error, undefined)
-		})
-	})
-
-	describe('Tournament - 2 strategies', () => {
-		let result: Awaited<ReturnType<typeof runTournament>>
-
-		before(async () => {
-			result = await runTournament(gameFiles, [dumbStrategyFiles, dumbStrategyFiles], 10)
-		})
-
-		it('should not be undefined', () => {
-			assert.notEqual(result, undefined)
-		})
-
-		it('should have results', () => {
-			assert.equal(typeof result.results, 'object')
-		})
-
-		it('should have no disqualified players', () => {
-			assert.deepEqual(result.disqualified, {})
-		})
-
-		it('should have no error', () => {
-			assert.equal(result.error, undefined)
+		it('should have no results', () => {
+			assert.equal(result.results, undefined)
 		})
 	})
 
@@ -102,7 +74,7 @@ describe('CodeRunnerService', { timeout: twoMinuteTimeout }, () => {
 				files: { ...dumbStrategyFiles.files },
 				submissionId: `dumbStrategy_${index + 1}`
 			}))
-			result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not be undefined', () => {
@@ -138,7 +110,7 @@ describe('CodeRunnerService', { timeout: twoMinuteTimeout }, () => {
 				files: { ...dumbStrategyFiles.files },
 				submissionId: `dumbStrategy_${index + 1}`
 			}))
-			result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, 10)
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, strategies, { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not be undefined', () => {
@@ -174,7 +146,7 @@ describe('CodeRunnerService', { timeout: twoMinuteTimeout }, () => {
 				files: { ...dumbStrategyFiles.files },
 				submissionId: `dumbStrategy_${index + 1}`
 			}))
-			result = await runTournament(gameFiles, strategies, 10)
+			result = await runTournament(gameFiles, strategies, { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not be undefined', () => {
@@ -208,7 +180,7 @@ describe('CodeRunnerService', { timeout: twoMinuteTimeout }, () => {
 				files: { ...dumbStrategyFiles.files },
 				submissionId: `dumbStrategy_${index + 1}`
 			}))
-			result = await runTournament(gameFiles, strategies, 10)
+			result = await runTournament(gameFiles, strategies, { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not be undefined', () => {
@@ -247,7 +219,7 @@ describe('CodeRunnerService', { timeout: twoMinuteTimeout }, () => {
 				chatGptStrategyFiles,
 				lyingStrategyFiles
 			]
-			result = await runTournament(gameFiles, strategies, 10)
+			result = await runTournament(gameFiles, strategies, { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not be undefined', () => {

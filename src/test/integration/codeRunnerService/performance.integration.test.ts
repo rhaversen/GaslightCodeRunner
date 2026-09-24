@@ -13,7 +13,7 @@ describe('CodeRunnerService Performance', { timeout: 1200000 }, () => {
 				files: { ...chatGptStrategyFiles.files },
 				submissionId: `dumbStrategy_${index + 1}`
 			}))
-			const result = await runTournament(gameFiles, strategies, 10)
+			const result = await runTournament(gameFiles, strategies, { minPlayers: 2, maxPlayers: 10 })
 
 			// Map<submissionId, Map<epoch, time>>
 			const timings = result.strategyExecutionTimings

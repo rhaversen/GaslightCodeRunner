@@ -6,7 +6,7 @@ import { RunningAverage } from './RunningAverage.ts'
 import type { VMResults } from './types.d.ts'
 
 export class Main {
-	static run (gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
+	static run (gameFactory: () => Game, players: Player[], numEpochs: number, tableSize: { minPlayers: number, maxPlayers: number }): VMResults {
 		console.info(`Running evaluation with ${players.length} players`)
 
 		if (players.length === 0) { return { error: 'No players provided' } }
@@ -22,6 +22,12 @@ export class Main {
 		if (!candidate) { return { error: 'No candidate player provided' } }
 		if (!otherPlayers.length) { return { error: 'No other players provided' } }
 
+		// Evaluation is per-candidate, so unlike a tournament it may backfill the
+		// table with duplicates of other submissions when the roster is smaller
+		// than the game's minimum: duplicate seats run the same strategy code but
+		// under distinct seat IDs, each in a fresh VM per epoch.
+		const seatTarget = Math.min(tableSize.maxPlayers, Math.max(tableSize.minPlayers, otherPlayers.length + 1))
+
 		// Create player selector instance for other players
 		const playerSelector = new PlayerSelector(otherPlayers)
 
@@ -30,10 +36,23 @@ export class Main {
 			const gameInstance = gameFactory()
 
 			// Select players for the current epoch
-			const selectedPlayers = playerSelector.select(epochBatchSize - 1).map(player => ({
+			const selectedPlayers = playerSelector.select(Math.min(seatTarget - 1, otherPlayers.length)).map(player => ({
 				...player,
 				epoch
 			}))
+
+			// Backfill remaining seats with duplicates of the selected opponents,
+			// cycled round-robin so no single strategy's code is over-weighted by
+			// the fill order. Each copy gets a unique seat ID so getResults()
+			// returns one entry per seat.
+			for (let seat = selectedPlayers.length; selectedPlayers.length + 1 < seatTarget; seat++) {
+				const source = selectedPlayers[seat % Math.max(selectedPlayers.length, 1)]
+				if (source === undefined) { break }
+				selectedPlayers.push({
+					...source,
+					submissionId: `${source.submissionId}#${seat}`
+				})
+			}
 
 			// Rotate the candidate's seat deterministically: one seat per epoch.
 			// Random placement made the candidate's average depend on seat luck
@@ -70,9 +89,12 @@ export class Main {
 					}
 				}
 
-				// Calculate average score of other players
-				const totalOtherScores = otherScores.reduce((a, b) => a + b, 0)
-				const averageOtherScore = totalOtherScores / otherScores.length
+				// Calculate average score of other players. Empty is possible when an
+				// opponent shares the candidate's submissionId (its score is excluded);
+				// count that seat for nobody rather than propagating NaN.
+				const averageOtherScore = otherScores.length > 0
+					? otherScores.reduce((a, b) => a + b, 0) / otherScores.length
+					: 0
 
 				// Update max turn count
 				maxTurnCount = Math.max(maxTurnCount, turnCount)

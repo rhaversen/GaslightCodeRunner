@@ -26,7 +26,8 @@ interface DisqualifiedSubmission {
 interface Game {
 	id: string;
 	gameFiles: FileMap;
-	batchSize: number;
+	minPlayers: number;
+	maxPlayers: number;
 }
 
 export async function createTournament (gradings: Grading[], disqualified: Record<string, string>, tournamentExecutionTime: number, game: string): Promise<boolean> {

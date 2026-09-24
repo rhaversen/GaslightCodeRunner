@@ -25,7 +25,7 @@ describe('CodeRunnerService Timeouts', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, slowStrategyFiles, [dumbStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, slowStrategyFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should return an error', () => {
@@ -53,7 +53,7 @@ describe('CodeRunnerService Timeouts', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, nonHaltingStrategyFiles, [dumbStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, nonHaltingStrategyFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should return an error', () => {
@@ -81,7 +81,7 @@ describe('CodeRunnerService Timeouts', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, slowLoadingStrategyFiles, [dumbStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, slowLoadingStrategyFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not return an error', () => {
@@ -111,7 +111,7 @@ describe('CodeRunnerService Timeouts', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async () => {
-			result = await runTournament(gameFiles, [slowLoadingStrategyFiles, dumbStrategyFiles], 10)
+			result = await runTournament(gameFiles, [slowLoadingStrategyFiles, dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not return an error', () => {
@@ -145,7 +145,7 @@ describe('CodeRunnerService Timeouts', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, nonHaltingLoadingStrategyFiles, [dumbStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, nonHaltingLoadingStrategyFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should return an error', () => {

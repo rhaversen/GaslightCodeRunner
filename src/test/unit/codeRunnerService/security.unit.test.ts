@@ -63,7 +63,7 @@ describe('CodeRunnerService Security — cross-strategy exfiltration', { timeout
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, errorExfilStrategyFiles, [honestStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, errorExfilStrategyFiles, [honestStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('disqualifies the attacker', () => {
@@ -90,7 +90,7 @@ describe('CodeRunnerService Security — cross-strategy exfiltration', { timeout
 		before(async () => {
 			// Attacker runs alongside honest strategies — its disqualification
 			// record must not carry anything it learned from the shared context.
-			result = await runTournament(gameFiles, [errorExfilStrategyFiles, honestStrategyFiles, dumbStrategyFiles], 10)
+			result = await runTournament(gameFiles, [errorExfilStrategyFiles, honestStrategyFiles, dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('produces a clean result object', () => {
@@ -110,7 +110,7 @@ describe('CodeRunnerService Security — cross-strategy exfiltration', { timeout
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, globalScanStrategyFiles, [honestStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, globalScanStrategyFiles, [honestStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('produces a clean result object', () => {
@@ -127,7 +127,7 @@ describe('CodeRunnerService Security — cross-strategy exfiltration', { timeout
 		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async () => {
-			result = await runTournament(gameFiles, [prototypePolluteStrategyFiles, honestStrategyFiles, dumbStrategyFiles], 10)
+			result = await runTournament(gameFiles, [prototypePolluteStrategyFiles, honestStrategyFiles, dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('produces a clean result object', () => {
@@ -145,7 +145,7 @@ describe('CodeRunnerService Security — cross-strategy exfiltration', { timeout
 		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async () => {
-			result = await runTournament(gameFiles, [envTamperStrategyFiles, honestStrategyFiles, dumbStrategyFiles], 10)
+			result = await runTournament(gameFiles, [envTamperStrategyFiles, honestStrategyFiles, dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('produces a clean result object', () => {
@@ -166,7 +166,7 @@ describe('CodeRunnerService Security — cross-strategy exfiltration', { timeout
 		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async () => {
-			result = await runTournament(gameFiles, [staleApiStrategyFiles, honestStrategyFiles, dumbStrategyFiles], 10)
+			result = await runTournament(gameFiles, [staleApiStrategyFiles, honestStrategyFiles, dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('produces a clean result object', () => {
@@ -180,7 +180,7 @@ describe('CodeRunnerService Security — cross-strategy exfiltration', { timeout
 			// sanitize it. But game-thrown PlayerErrors (invalid moves) keep
 			// their message — verified here via the existing error strategy
 			// producing a disqualification, with the generic marker replaced.
-			const result = await runEvaluation(gameFiles, errorExfilStrategyFiles, [dumbStrategyFiles], 10)
+			const result = await runEvaluation(gameFiles, errorExfilStrategyFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 			const reason = result.disqualified
 			if (typeof reason === 'string') {
 				assert.ok(!reason.startsWith('LEAK:'), 'raw attack payload must be sanitized')

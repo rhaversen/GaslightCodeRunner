@@ -79,7 +79,7 @@ if (RUNNER_MODE === 'evaluation') {
 				continue
 			}
 
-			const results = await runTournament(game.gameFiles, submissions, game.batchSize)
+			const results = await runTournament(game.gameFiles, submissions, { minPlayers: game.minPlayers, maxPlayers: game.maxPlayers })
 			if (results.error !== undefined) {
 				logger.error('Tournament error', { error: results.error })
 				throw new Error(`Tournament error: ${results.error}`)

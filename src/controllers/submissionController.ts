@@ -22,7 +22,7 @@ function calculateAverage (numbers: number[]): number {
 }
 
 export async function handleSubmissionEvaluation (req: Request, res: Response) {
-	const { candidateUser, candidateSubmission, gameFiles, gameId, batchSize } = req.body
+	const { candidateUser, candidateSubmission, gameFiles, gameId, minPlayers, maxPlayers } = req.body
 
 	const otherSubmissions = await getActiveSubmissions(gameId, candidateUser)
 
@@ -49,7 +49,7 @@ export async function handleSubmissionEvaluation (req: Request, res: Response) {
 	}
 
 	try {
-		const evaluationResult = await runEvaluation(gameFiles, candidateSubmission, otherSubmissions, batchSize)
+		const evaluationResult = await runEvaluation(gameFiles, candidateSubmission, otherSubmissions, { minPlayers, maxPlayers })
 
 		// Filter and check execution timings
 		const executionTimings = evaluationResult.strategyExecutionTimings

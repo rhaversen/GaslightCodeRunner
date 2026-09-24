@@ -33,7 +33,7 @@ describe('CodeRunnerService Security — malicious game vs strategies', { timeou
 			result = await runTournament(
 				strategyStealingGameFiles,
 				[honestStrategyFiles, secretiveStrategyFiles],
-				10
+				{ minPlayers: 2, maxPlayers: 10 }
 			)
 		})
 
@@ -69,7 +69,7 @@ describe('CodeRunnerService Security — malicious game vs strategies', { timeou
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(strategyStealingGameFiles, honestStrategyFiles, [secretiveStrategyFiles], 10)
+			result = await runEvaluation(strategyStealingGameFiles, honestStrategyFiles, [secretiveStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('evaluation feedback must never contain the victim source', () => {

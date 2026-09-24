@@ -35,7 +35,7 @@ export async function runEvaluation (
 	gameLogicFiles: FileMap,
 	candidate: submission,
 	others: submission[],
-	epochBatchSize: number
+	tableSize: { minPlayers: number, maxPlayers: number }
 ): Promise<{
 	error?: string
 	results?: {
@@ -46,7 +46,7 @@ export async function runEvaluation (
 	strategyExecutionTimings: number[] | null // Timings
 	strategyLoadingTimings: number | null // Timings
 }> {
-	const results = await runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', epochBatchSize)
+	const results = await runGame(gameLogicFiles, [candidate, ...others], 'Evaluation', tableSize)
 
 	const evaluationResults = {
 		error: results.error,
@@ -70,7 +70,7 @@ export async function runEvaluation (
 export async function runTournament (
 	gameLogicFiles: FileMap,
 	strategies: submission[],
-	epochBatchSize: number
+	tableSize: { minPlayers: number, maxPlayers: number }
 ): Promise<{
 	error?: string
 	results?: Record<string, number> // submissionId -> score
@@ -80,7 +80,7 @@ export async function runTournament (
 	tournamentExecutionTime: number // Time taken to run the tournament
 }> {
 	const executionStartTime = performance.now()
-	const results = await runGame(gameLogicFiles, strategies, 'Tournament', epochBatchSize)
+	const results = await runGame(gameLogicFiles, strategies, 'Tournament', tableSize)
 	const executionEndTime = performance.now()
 	const tournamentExecutionTime = executionEndTime - executionStartTime
 
@@ -100,7 +100,7 @@ async function runGame (
 	gameLogicFiles: FileMap,
 	strategies: submission[],
 	type: 'Evaluation' | 'Tournament',
-	epochBatchSize: number
+	tableSize: { minPlayers: number, maxPlayers: number }
 ): Promise<{
 	error?: string
 	results?: Record<string, number> // submissionId -> score
@@ -320,7 +320,7 @@ const performance = {
 	const gameFactory = () => new GameModule.default();
 
 	// Run the game
-	const result = GameRunnerModule.default.run(gameFactory, players, ${numEpochs}, ${epochBatchSize});
+	const result = GameRunnerModule.default.run(gameFactory, players, ${numEpochs}, ${JSON.stringify(tableSize)});
 	return JSON.stringify(result);
 })();
 `

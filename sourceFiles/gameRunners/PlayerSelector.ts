@@ -39,7 +39,7 @@ export class PlayerSelector {
 		}
 
 		// Advance by ONE per epoch (not by amount) so consecutive epochs slide
-		// the window by a single seat — that is what makes seat and pairing
+		// the window by a single seat - that is what makes seat and pairing
 		// coverage uniform across epochs.
 		this.nextIndex = (this.nextIndex + 1) % this.roster.length
 

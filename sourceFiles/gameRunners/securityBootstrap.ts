@@ -8,7 +8,7 @@
  * - Pins Error.prepareStackTrace to a fixed formatter. V8 reads it at .stack
  *   access time; an attacker who can replace it with (err, cs) => cs receives
  *   raw CallSite objects, and CallSite.getFunction() returns the LIVE function
- *   of every frame on the stack — the caller's closure — even when
+ *   of every frame on the stack - the caller's closure - even when
  *   Function.prototype.caller/arguments are trapped. Both properties are
  *   therefore made non-writable and non-configurable, which makes the
  *   CallSite objects unreachable from untrusted code.
@@ -39,7 +39,7 @@
 		Object.defineProperty(Function.prototype, 'caller', { get: trapped, set: trapped })
 		Object.defineProperty(Function.prototype, 'arguments', { get: trapped, set: trapped })
 	} catch {
-		// Non-configurable on this engine — nothing to do.
+		// Non-configurable on this engine - nothing to do.
 	}
 
 	const freezeOwnFunctions = (obj: object): void => {

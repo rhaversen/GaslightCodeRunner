@@ -23,7 +23,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, cheatingStrategyFiles, [dumbStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, cheatingStrategyFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify the strategy', () => {
@@ -51,7 +51,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, errorThrowingStrategyFiles, [dumbStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, errorThrowingStrategyFiles, [dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify the strategy', () => {
@@ -79,7 +79,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, dumbStrategyFiles, [errorThrowingStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, [errorThrowingStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not have an error', () => {
@@ -89,7 +89,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		it('should return results', () => {
 			assert.equal(typeof result.results, 'object')
 			assert.equal(typeof result.results!.candidate, 'number')
-			assert.equal(result.results!.average, null)
+			assert.equal(result.results!.average, 0)
 		})
 
 		it('should not disqualify the candidate', () => {
@@ -109,7 +109,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runEvaluation>>
 
 		before(async () => {
-			result = await runEvaluation(gameFiles, dumbStrategyFiles, [cheatingStrategyFiles], 10)
+			result = await runEvaluation(gameFiles, dumbStrategyFiles, [cheatingStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not have an error', () => {
@@ -119,7 +119,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		it('should return results', () => {
 			assert.equal(typeof result.results, 'object')
 			assert.equal(typeof result.results!.candidate, 'number')
-			assert.equal(result.results!.average, null)
+			assert.equal(result.results!.average, 0)
 		})
 
 		it('should not disqualify the candidate', () => {
@@ -146,7 +146,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 					{ files: dumbStrategyFiles.files, submissionId: 'dumb2' },
 					{ files: dumbStrategyFiles.files, submissionId: 'dumb3' }
 				],
-				10)
+				{ minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not have an error', () => {
@@ -183,7 +183,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 					{ files: dumbStrategyFiles.files, submissionId: 'dumb2' },
 					{ files: dumbStrategyFiles.files, submissionId: 'dumb3' }
 				],
-				10)
+				{ minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should not have an error', () => {
@@ -213,7 +213,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async () => {
-			result = await runTournament(gameFiles, [], 10)
+			result = await runTournament(gameFiles, [], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should have an error', () => {
@@ -241,7 +241,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async () => {
-			result = await runTournament(gameFiles, [cheatingStrategyFiles, dumbStrategyFiles], 10)
+			result = await runTournament(gameFiles, [cheatingStrategyFiles, dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify the strategy', () => {
@@ -280,7 +280,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 				{ files: cheatingStrategyFiles.files, submissionId: 'cheating1' },
 				{ files: cheatingStrategyFiles.files, submissionId: 'cheating2' },
 				{ files: dumbStrategyFiles.files, submissionId: 'dumb' }
-			], 10)
+			], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify all cheating strategies', () => {
@@ -313,7 +313,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 		let result: Awaited<ReturnType<typeof runTournament>>
 
 		before(async () => {
-			result = await runTournament(gameFiles, [errorThrowingStrategyFiles, dumbStrategyFiles], 10)
+			result = await runTournament(gameFiles, [errorThrowingStrategyFiles, dumbStrategyFiles], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify the strategy', () => {
@@ -348,7 +348,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'errorThrowing1' },
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'errorThrowing2' },
 				{ files: dumbStrategyFiles.files, submissionId: 'dumb' }
-			], 10)
+			], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify all error-throwing strategies', () => {
@@ -386,7 +386,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 				{ files: cheatingStrategyFiles.files, submissionId: 'cheating1' },
 				{ files: cheatingStrategyFiles.files, submissionId: 'cheating2' },
 				{ files: cheatingStrategyFiles.files, submissionId: 'cheating3' }
-			], 10)
+			], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify all cheating strategies', () => {
@@ -423,7 +423,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'error1' },
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'error2' },
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'error3' }
-			], 10)
+			], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify all strategies', () => {
@@ -460,7 +460,7 @@ describe('CodeRunnerService Errors', { timeout: twoMinuteTimeout }, () => {
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'error1' },
 				{ files: errorThrowingStrategyFiles.files, submissionId: 'error2' },
 				{ files: cheatingStrategyFiles.files, submissionId: 'cheating1' }
-			], 10)
+			], { minPlayers: 2, maxPlayers: 10 })
 		})
 
 		it('should disqualify all strategies', () => {

@@ -38,7 +38,7 @@ describe('Seeded demo strategies play cleanly', { timeout: twoMinuteTimeout }, (
 			lyingStrategyFiles,
 			revealingStrategyFiles,
 			detEllerDeroverStrategyFiles
-		], 10)
+		], { minPlayers: 2, maxPlayers: 10 })
 
 		assert.equal(result.error, undefined, `tournament errored: ${result.error}`)
 
@@ -58,7 +58,7 @@ describe('Seeded demo strategies play cleanly', { timeout: twoMinuteTimeout }, (
 			dumbStrategyFiles,
 			dumbStrategyFiles,
 			dumbStrategyFiles
-		], 10)
+		], { minPlayers: 2, maxPlayers: 10 })
 
 		assert.equal(result.error, undefined)
 		const scores = result.results ?? {}
@@ -84,7 +84,7 @@ describe('Seeded demo strategies play cleanly', { timeout: twoMinuteTimeout }, (
 			exampleStrategyFiles,
 			dumbStrategyFiles,
 			honestStrategyFiles
-		], 10)
+		], { minPlayers: 2, maxPlayers: 10 })
 
 		assert.equal(result.error, undefined, `tournament errored: ${result.error}`)
 
@@ -107,7 +107,7 @@ describe('Seeded demo strategies play cleanly', { timeout: twoMinuteTimeout }, (
 			lyingStrategyFiles,
 			revealingStrategyFiles,
 			detEllerDeroverStrategyFiles
-		], 10)
+		], { minPlayers: 2, maxPlayers: 10 })
 
 		assert.equal(result.error, undefined)
 
