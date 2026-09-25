@@ -11,7 +11,7 @@ jobs:
             project_name: "GaslightCodeRunner-Evaluation"
             dockerhub_image_name: "gaslight-code-runner"
             node_version: "22"
-            submodules: "recursive"
+            submodules: true
             push_sourcemaps: true
             sentry_project: "gaslight-code-runner"
             k8s_path: "k8s/evaluation"
@@ -27,7 +27,7 @@ jobs:
             project_name: "GaslightCodeRunner-Tournament"
             dockerhub_image_name: "gaslight-code-runner"
             node_version: "22"
-            submodules: "recursive"
+            submodules: true
             push_sourcemaps: false
             sentry_project: "gaslight-code-runner"
             k8s_path: "k8s/tournament"
