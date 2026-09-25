@@ -1,17 +1,4 @@
 /**
- * Shuffles an array in place using the Fisher-Yates algorithm in O(n) time.
- * @param arr - The array to shuffle.
- * @returns The shuffled array.
- */
-export function shuffle<T> (arr: T[]): T[] {
-	for (let i = arr.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[arr[i], arr[j]] = [arr[j], arr[i]]
-	}
-	return arr
-}
-
-/**
  * Inserts an item into an array at a random index in O(1) time.
  * @param arr - The array to insert into.
  * @param item - The item to insert.

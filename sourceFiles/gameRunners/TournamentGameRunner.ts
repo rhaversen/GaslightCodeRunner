@@ -1,3 +1,4 @@
+import './securityBootstrap.ts'
 import type { Game, Player } from '../commonTypes.d.ts'
 
 import PlayerSelector from './PlayerSelector.ts'
@@ -5,10 +6,16 @@ import { RunningAverage } from './RunningAverage.ts'
 import type { VMResults } from './types.d.ts'
 
 export class Main {
-	static run (gameFactory: () => Game, players: Player[], numEpochs: number, epochBatchSize: number): VMResults {
+	static run (gameFactory: () => Game, players: Player[], numEpochs: number, tableSize: { minPlayers: number, maxPlayers: number }): VMResults {
 		console.info(`Running tournament with ${players.length} players`)
 
 		if (players.length === 0) { return { error: 'No players provided' } }
+
+		// Tournaments rank real submissions, so a table is never filled with
+		// duplicates: if the roster cannot seat a legal game, fail fast.
+		if (players.length < tableSize.minPlayers) {
+			return { error: `Not enough players: need at least ${tableSize.minPlayers}, have ${players.length}` }
+		}
 
 		// Track disqualified players
 		const disqualified: Record<string, string> = {}
@@ -28,8 +35,12 @@ export class Main {
 				break
 			}
 
-			// Select players for the current epoch and inject epoch number
-			const selectedPlayers = playerSelector.select(epochBatchSize).map(player => ({
+			// Seat up to the game's max; the roster may be smaller than maxPlayers.
+			// Disqualifications shrink the roster mid-run, so the table size is
+			// recomputed each epoch and can drop below minPlayers - the game then
+			// decides whether it can still run.
+			const seatCount = Math.min(tableSize.maxPlayers, players.length)
+			const selectedPlayers = playerSelector.select(seatCount).map(player => ({
 				...player,
 				epoch: epoch
 			}))
