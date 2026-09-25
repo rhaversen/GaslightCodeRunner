@@ -18,13 +18,6 @@ spec:
             - name: tournament-runner-production
               image: "rhaversen/gaslight-code-runner:${GITHUB_SHA}"
               imagePullPolicy: Always
-              resources:
-                limits:
-                  cpu: "500m"
-                  memory: "1024M"
-                requests:
-                  cpu: "250m"
-                  memory: "512M"
               envFrom:
                 - secretRef:
                     name: tournament-runner-secrets
