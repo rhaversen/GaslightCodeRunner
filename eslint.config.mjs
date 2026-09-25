@@ -19,9 +19,9 @@ const compat = new FlatCompat({
 export default tseslint.config(
 	eslint.configs.recommended,
 	...tseslint.configs.recommended,
-	nPlugin.configs["flat/recommended-module"],
 	...compat.extends(
 		"plugin:promise/recommended",
+		"plugin:n/recommended-module",
 	),
 	eslintConfigPrettier,
 	{

@@ -57,7 +57,7 @@ describe('CodeRunnerService', { timeout: twoMinuteTimeout }, () => {
 			assert.notEqual(result, undefined)
 		})
 
-			it('should error because the roster is below minPlayers', () => {
+		it('should error because the roster is below minPlayers', () => {
 			assert.match(result.error ?? '', /Not enough players/)
 		})
 
