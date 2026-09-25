@@ -3,7 +3,7 @@
 // file deepcode ignore HardcodedNonCryptoSecret/test: Hardcoded credentials are only used for testing purposes
 
 // Process environment variables
-import logger from '../app/utils/logger.js'
+import logger from '../utils/logger.js'
 
 process.env.NODE_ENV = 'development'
 process.env.SESSION_SECRET = 'TEST_SESSION_SECRET'
@@ -13,9 +13,9 @@ process.env.RUNNER_MODE = 'evaluation'
 async function startServer (): Promise<void> {
 	try {
 		// Start the application server
-		await import('../app/index.js')
+		await import('../index.js')
 	} catch (error) {
-		logger.error('Failed to start the server:', error)
+		logger.error('Failed to start the server', { error })
 	}
 }
 

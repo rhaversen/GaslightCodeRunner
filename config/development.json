@@ -11,7 +11,8 @@
 	},
 	"codeRunner": {
 		"tournament": {
-			"numEpochs": 100000
+			"numEpochs": 100000,
+			"timeout": 120000
 		},
 		"evaluation": {
 			"numEpochs": 10000,
